@@ -1,13 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
-import { AnsweredQuestion, WORLD_NAMES } from '@/lib/gameUtils';
-import { Star, Trophy, Target, RefreshCw } from 'lucide-react';
+import { AnsweredQuestion, WORLD_NAMES, MASTERY_CONFIG, checkTableMastery } from '@/lib/gameUtils';
+import { Star, Trophy, Target, RefreshCw, Clock, Zap } from 'lucide-react';
 
 interface SummaryScreenProps {
   answeredQuestions: AnsweredQuestion[];
   score: number;
   stars: number;
   selectedTables: number[];
+  conqueredTables: number[];
   onPlayAgain: () => void;
   onChangeSettings: () => void;
 }
@@ -17,36 +18,35 @@ export function SummaryScreen({
   score,
   stars,
   selectedTables,
+  conqueredTables,
   onPlayAgain,
   onChangeSettings,
 }: SummaryScreenProps) {
   const totalQuestions = answeredQuestions.length;
   const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;
   const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+  const avgResponseTime = answeredQuestions.length > 0 
+    ? Math.round(answeredQuestions.reduce((sum, q) => sum + q.responseTimeMs, 0) / answeredQuestions.length)
+    : 0;
+  const fastAnswers = answeredQuestions.filter(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs).length;
 
   // Analyze which tables need more practice
-  const tableStats: Record<number, { correct: number; total: number }> = {};
-  answeredQuestions.forEach(q => {
-    if (!tableStats[q.multiplier]) {
-      tableStats[q.multiplier] = { correct: 0, total: 0 };
-    }
-    tableStats[q.multiplier].total++;
-    if (q.isCorrect) {
-      tableStats[q.multiplier].correct++;
-    }
+  const tableStats = selectedTables.map(table => {
+    const mastery = checkTableMastery(answeredQuestions, table);
+    return {
+      table,
+      ...mastery,
+    };
   });
 
-  const conqueredTables = Object.entries(tableStats)
-    .filter(([_, stats]) => stats.correct === stats.total)
-    .map(([table]) => parseInt(table));
-
-  const needsPractice = Object.entries(tableStats)
-    .filter(([_, stats]) => stats.correct < stats.total)
-    .map(([table]) => parseInt(table));
+  const masteredTables = tableStats.filter(t => t.isMastered).map(t => t.table);
+  const needsPractice = tableStats.filter(t => !t.isMastered);
 
   const getMessage = () => {
-    if (percentage === 100) {
-      return 'וואו! מושלם! אתה אלוף אמיתי! 🏆👑';
+    if (percentage === 100 && fastAnswers >= answeredQuestions.length * 0.7) {
+      return 'וואו! מושלם ומהיר! אתה אלוף אמיתי! 🏆👑⚡';
+    } else if (percentage === 100) {
+      return 'מושלם! עכשיו בוא ננסה להיות גם מהירים יותר! 🌟';
     } else if (percentage >= 80) {
       return 'מעולה! עבודה נהדרת! 🌟';
     } else if (percentage >= 60) {
@@ -54,6 +54,12 @@ export function SummaryScreen({
     } else {
       return 'המשך להתאמן, אתה משתפר! 🌈';
     }
+  };
+
+  const formatTime = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const tenths = Math.floor((ms % 1000) / 100);
+    return `${seconds}.${tenths}`;
   };
 
   return (
@@ -66,34 +72,43 @@ export function SummaryScreen({
         <FoxMascot message={getMessage()} />
 
         {/* Stats cards */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-card rounded-3xl p-6 shadow-card text-center">
-            <Star className="w-10 h-10 text-accent fill-accent mx-auto mb-2" />
-            <div className="text-3xl font-extrabold">{stars}</div>
-            <div className="text-sm text-muted-foreground">כוכבים</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <Star className="w-8 h-8 text-accent fill-accent mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{stars}</div>
+            <div className="text-xs text-muted-foreground">כוכבים</div>
           </div>
           
-          <div className="bg-card rounded-3xl p-6 shadow-card text-center">
-            <Trophy className="w-10 h-10 text-primary mx-auto mb-2" />
-            <div className="text-3xl font-extrabold">{percentage}%</div>
-            <div className="text-sm text-muted-foreground">הצלחה</div>
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{percentage}%</div>
+            <div className="text-xs text-muted-foreground">הצלחה</div>
           </div>
           
-          <div className="bg-card rounded-3xl p-6 shadow-card text-center">
-            <Target className="w-10 h-10 text-success mx-auto mb-2" />
-            <div className="text-3xl font-extrabold">{correctAnswers}/{totalQuestions}</div>
-            <div className="text-sm text-muted-foreground">תשובות נכונות</div>
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <Clock className="w-8 h-8 text-secondary mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{formatTime(avgResponseTime)}</div>
+            <div className="text-xs text-muted-foreground">זמן ממוצע</div>
+          </div>
+          
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <Zap className="w-8 h-8 text-success mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{fastAnswers}</div>
+            <div className="text-xs text-muted-foreground">תשובות מהירות</div>
           </div>
         </div>
 
-        {/* Conquered tables */}
-        {conqueredTables.length > 0 && (
+        {/* Mastered tables */}
+        {masteredTables.length > 0 && (
           <div className="bg-success/10 border-2 border-success rounded-3xl p-6">
             <h3 className="text-xl font-bold text-success mb-3 flex items-center gap-2">
-              <span>✅</span> עולמות שנכבשו!
+              <span>🏆</span> עולמות שנכבשו!
             </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              ענית נכון לפחות {MASTERY_CONFIG.minCorrectPerExercise} פעמים ו-{MASTERY_CONFIG.requiredFastAnswers} תשובות מהירות!
+            </p>
             <div className="flex flex-wrap gap-2">
-              {conqueredTables.map(table => (
+              {masteredTables.map(table => (
                 <span key={table} className="bg-success text-white px-4 py-2 rounded-xl font-bold">
                   {WORLD_NAMES[table]} ({table})
                 </span>
@@ -108,15 +123,25 @@ export function SummaryScreen({
             <h3 className="text-xl font-bold text-secondary mb-3 flex items-center gap-2">
               <span>💪</span> עולמות לתרגול נוסף
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {needsPractice.map(table => (
-                <span key={table} className="bg-secondary text-white px-4 py-2 rounded-xl font-bold">
-                  {WORLD_NAMES[table]} ({table})
-                </span>
+            <div className="space-y-3">
+              {needsPractice.map(({ table, correctCount, fastCount }) => (
+                <div key={table} className="bg-card rounded-xl p-3 flex items-center justify-between">
+                  <span className="font-bold">{WORLD_NAMES[table]} ({table})</span>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="text-primary">{correctCount}/{MASTERY_CONFIG.minCorrectPerExercise}</span> נכונות | 
+                    <span className="text-success mr-1">{fastCount}/{MASTERY_CONFIG.requiredFastAnswers}</span> מהירות
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Mastery requirements explanation */}
+        <div className="bg-muted/50 rounded-2xl p-4 text-center text-sm text-muted-foreground">
+          <p>🎯 כדי לכבוש עולם צריך:</p>
+          <p>לפחות {MASTERY_CONFIG.minCorrectPerExercise} תשובות נכונות + {MASTERY_CONFIG.requiredFastAnswers} תשובות מהירות (פחות מ-{MASTERY_CONFIG.fastResponseTimeMs / 1000} שניות)</p>
+        </div>
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { VisualExplanation } from './VisualExplanation';
 import { 
   generateAnswerOptions, 
-  getVisualExplanation, 
   getEncouragingMessage,
-  WORLD_COLORS
+  WORLD_COLORS,
+  MASTERY_CONFIG
 } from '@/lib/gameUtils';
-import { Star } from 'lucide-react';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { Star, Clock } from 'lucide-react';
 
 interface GameScreenProps {
   multiplier: number;
@@ -17,10 +19,11 @@ interface GameScreenProps {
   totalQuestions: number;
   score: number;
   stars: number;
-  onAnswer: (answer: number, isCorrect: boolean) => void;
+  onAnswer: (answer: number, isCorrect: boolean, responseTimeMs: number) => void;
   onContinue: () => void;
   showFeedback: boolean;
   isCorrect: boolean | null;
+  questionStartTime: number;
 }
 
 export function GameScreen({
@@ -35,26 +38,80 @@ export function GameScreen({
   onContinue,
   showFeedback,
   isCorrect,
+  questionStartTime,
 }: GameScreenProps) {
   const [options, setOptions] = useState<number[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [responseTimeMs, setResponseTimeMs] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { playCorrect, playCorrectFast, playIncorrect, playClick } = useSoundEffects();
 
   useEffect(() => {
     setOptions(generateAnswerOptions(correctAnswer));
     setSelectedAnswer(null);
-  }, [correctAnswer, multiplier, multiplicand]);
+    setElapsedTime(0);
+    
+    // Start timer
+    timerRef.current = setInterval(() => {
+      setElapsedTime(Date.now() - questionStartTime);
+    }, 100);
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [correctAnswer, multiplier, multiplicand, questionStartTime]);
 
   const handleAnswer = (answer: number) => {
     if (showFeedback) return;
+    
+    playClick();
+    
+    const timeTaken = Date.now() - questionStartTime;
+    setResponseTimeMs(timeTaken);
     setSelectedAnswer(answer);
-    onAnswer(answer, answer === correctAnswer);
+    
+    if (timerRef.current) clearInterval(timerRef.current);
+    
+    const isAnswerCorrect = answer === correctAnswer;
+    const isFast = timeTaken <= MASTERY_CONFIG.fastResponseTimeMs;
+    
+    // Play appropriate sound
+    setTimeout(() => {
+      if (isAnswerCorrect) {
+        if (isFast) {
+          playCorrectFast();
+        } else {
+          playCorrect();
+        }
+      } else {
+        playIncorrect();
+      }
+    }, 100);
+    
+    onAnswer(answer, isAnswerCorrect, timeTaken);
   };
 
+  const isFastAnswer = responseTimeMs > 0 && responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs;
+  
   const getMessage = () => {
     if (!showFeedback) {
       return `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - אתה יכול! 💪`;
     }
-    return getEncouragingMessage(isCorrect!);
+    return getEncouragingMessage(isCorrect!, isFastAnswer);
+  };
+
+  const formatTime = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const tenths = Math.floor((ms % 1000) / 100);
+    return `${seconds}.${tenths}`;
+  };
+
+  const getTimeColor = () => {
+    if (elapsedTime <= MASTERY_CONFIG.fastResponseTimeMs) return 'text-success';
+    if (elapsedTime <= MASTERY_CONFIG.maxResponseTimeMs) return 'text-accent';
+    return 'text-destructive';
   };
 
   return (
@@ -75,8 +132,18 @@ export function GameScreen({
           </div>
         </div>
         
-        <div className="bg-card rounded-2xl px-4 py-2 shadow-soft">
-          <span className="text-lg font-bold">{currentQuestion + 1}/{totalQuestions}</span>
+        <div className="flex items-center gap-4">
+          {/* Timer */}
+          {!showFeedback && (
+            <div className={`flex items-center gap-1 bg-card rounded-2xl px-3 py-2 shadow-soft ${getTimeColor()}`}>
+              <Clock className="w-5 h-5" />
+              <span className="text-lg font-bold font-mono">{formatTime(elapsedTime)}</span>
+            </div>
+          )}
+          
+          <div className="bg-card rounded-2xl px-4 py-2 shadow-soft">
+            <span className="text-lg font-bold">{currentQuestion + 1}/{totalQuestions}</span>
+          </div>
         </div>
       </div>
 
@@ -108,21 +175,27 @@ export function GameScreen({
         ) : (
           <div className="space-y-6 text-center max-w-lg">
             {isCorrect ? (
-              <div className="text-6xl animate-celebrate">🎉</div>
-            ) : (
-              <div className="bg-card rounded-3xl p-6 shadow-card space-y-4">
-                <p className="text-xl font-medium">
-                  התשובה הנכונה היא: <span className="text-2xl font-bold text-primary">{correctAnswer}</span>
-                </p>
-                <p className="text-lg text-muted-foreground">
-                  {multiplier} קבוצות, בכל אחת {multiplicand} פריטים:
-                </p>
-                <div className="text-3xl leading-loose break-all">
-                  {getVisualExplanation(multiplier, multiplicand)}
+              <div className="space-y-4">
+                <div className="text-6xl animate-celebrate">🎉</div>
+                {/* Show response time feedback */}
+                <div className={`text-xl font-bold ${isFastAnswer ? 'text-success' : 'text-primary'}`}>
+                  {isFastAnswer ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span>⚡</span>
+                      <span>{formatTime(responseTimeMs)} שניות!</span>
+                    </span>
+                  ) : (
+                    <span>{formatTime(responseTimeMs)} שניות</span>
+                  )}
                 </div>
-                <p className="text-lg font-medium">
-                  = {correctAnswer}
-                </p>
+              </div>
+            ) : (
+              <div className="bg-card rounded-3xl p-6 shadow-card">
+                <VisualExplanation 
+                  multiplier={multiplier} 
+                  multiplicand={multiplicand} 
+                  correctAnswer={correctAnswer} 
+                />
               </div>
             )}
 

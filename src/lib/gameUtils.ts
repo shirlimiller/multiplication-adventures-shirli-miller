@@ -13,6 +13,7 @@ export interface GameState {
   isCorrect: boolean | null;
   answeredQuestions: AnsweredQuestion[];
   conqueredTables: number[];
+  questionStartTime: number;
 }
 
 export interface AnsweredQuestion {
@@ -21,7 +22,16 @@ export interface AnsweredQuestion {
   correctAnswer: number;
   userAnswer: number;
   isCorrect: boolean;
+  responseTimeMs: number;
 }
+
+// Mastery requirements
+export const MASTERY_CONFIG = {
+  minCorrectPerExercise: 5, // Minimum 5 correct answers per multiplication fact
+  maxResponseTimeMs: 5000, // 5 seconds for first attempt
+  fastResponseTimeMs: 3000, // 3 seconds is considered "fast" (knows by heart)
+  requiredFastAnswers: 3, // Need 3 fast answers to prove mastery
+};
 
 export const INITIAL_STATE: GameState = {
   currentScreen: 'welcome',
@@ -38,6 +48,7 @@ export const INITIAL_STATE: GameState = {
   isCorrect: null,
   answeredQuestions: [],
   conqueredTables: [],
+  questionStartTime: 0,
 };
 
 export const WORLD_COLORS: Record<number, string> = {
@@ -103,7 +114,7 @@ export function getVisualExplanation(multiplier: number, multiplicand: number): 
   return groups.join(' | ');
 }
 
-export function getEncouragingMessage(isCorrect: boolean): string {
+export function getEncouragingMessage(isCorrect: boolean, isFast?: boolean): string {
   const correctMessages = [
     'מעולה! 🌟',
     'כל הכבוד! 🎉',
@@ -112,12 +123,43 @@ export function getEncouragingMessage(isCorrect: boolean): string {
     'יופי! המשך כך! 💪',
   ];
   
+  const fastMessages = [
+    'וואו! סופר מהיר! נראה שאתה כבר זוכר בעל פה! ⚡',
+    'מהיר כמו ברק! אתה אלוף! 🏆',
+    'בום! תשובה מיידית! 💥',
+    'את/ה כבר יודע/ת את זה בעל פה! 🧠✨',
+  ];
+  
   const incorrectMessages = [
     'אל דאגה, בוא ננסה שוב! 💪',
     'זה בסדר לטעות! בוא נלמד יחד 🤗',
     'קרוב! בוא נראה את זה אחרת 🌈',
   ];
   
+  if (isCorrect && isFast) {
+    return fastMessages[Math.floor(Math.random() * fastMessages.length)];
+  }
+  
   const messages = isCorrect ? correctMessages : incorrectMessages;
   return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// Check if a table is mastered based on answered questions
+export function checkTableMastery(
+  answeredQuestions: AnsweredQuestion[],
+  table: number
+): { isMastered: boolean; correctCount: number; fastCount: number; totalCount: number } {
+  const tableQuestions = answeredQuestions.filter(q => q.multiplier === table && q.isCorrect);
+  const fastAnswers = tableQuestions.filter(q => q.responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs);
+  
+  const isMastered = 
+    tableQuestions.length >= MASTERY_CONFIG.minCorrectPerExercise &&
+    fastAnswers.length >= MASTERY_CONFIG.requiredFastAnswers;
+  
+  return {
+    isMastered,
+    correctCount: tableQuestions.length,
+    fastCount: fastAnswers.length,
+    totalCount: answeredQuestions.filter(q => q.multiplier === table).length,
+  };
 }
