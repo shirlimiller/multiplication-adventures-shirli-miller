@@ -27,10 +27,7 @@ export interface AnsweredQuestion {
 
 // Mastery requirements
 export const MASTERY_CONFIG = {
-  minCorrectPerExercise: 5, // Minimum 5 correct answers per multiplication fact
-  maxResponseTimeMs: 5000, // 5 seconds for first attempt
-  fastResponseTimeMs: 3000, // 3 seconds is considered "fast" (knows by heart)
-  requiredFastAnswers: 3, // Need 3 fast answers to prove mastery
+  maxResponseTimeMs: 5000, // 5 seconds - all answers must be under this to conquer
 };
 
 export const INITIAL_STATE: GameState = {
@@ -145,21 +142,25 @@ export function getEncouragingMessage(isCorrect: boolean, isFast?: boolean): str
 }
 
 // Check if a table is mastered based on answered questions
+// To conquer: ALL answers for the table must be correct AND under 5 seconds
 export function checkTableMastery(
   answeredQuestions: AnsweredQuestion[],
   table: number
-): { isMastered: boolean; correctCount: number; fastCount: number; totalCount: number } {
-  const tableQuestions = answeredQuestions.filter(q => q.multiplier === table && q.isCorrect);
-  const fastAnswers = tableQuestions.filter(q => q.responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs);
+): { isMastered: boolean; correctCount: number; fastCount: number; totalCount: number; allFast: boolean } {
+  const tableQuestions = answeredQuestions.filter(q => q.multiplier === table);
+  const correctAnswers = tableQuestions.filter(q => q.isCorrect);
+  const fastAnswers = correctAnswers.filter(q => q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs);
   
-  const isMastered = 
-    tableQuestions.length >= MASTERY_CONFIG.minCorrectPerExercise &&
-    fastAnswers.length >= MASTERY_CONFIG.requiredFastAnswers;
+  // All answers must be correct AND all must be under 5 seconds
+  const allCorrect = correctAnswers.length === tableQuestions.length && tableQuestions.length > 0;
+  const allFast = fastAnswers.length === correctAnswers.length && correctAnswers.length > 0;
+  const isMastered = allCorrect && allFast;
   
   return {
     isMastered,
-    correctCount: tableQuestions.length,
+    correctCount: correctAnswers.length,
     fastCount: fastAnswers.length,
-    totalCount: answeredQuestions.filter(q => q.multiplier === table).length,
+    totalCount: tableQuestions.length,
+    allFast,
   };
 }

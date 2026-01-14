@@ -26,9 +26,9 @@ export function SummaryScreen({
   const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;
   const percentage = Math.round((correctAnswers / totalQuestions) * 100);
   const avgResponseTime = answeredQuestions.length > 0 
-    ? Math.round(answeredQuestions.reduce((sum, q) => sum + q.responseTimeMs, 0) / answeredQuestions.length)
+    ? Math.round(answeredQuestions.filter(q => q.isCorrect).reduce((sum, q) => sum + q.responseTimeMs, 0) / Math.max(1, answeredQuestions.filter(q => q.isCorrect).length))
     : 0;
-  const fastAnswers = answeredQuestions.filter(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs).length;
+  const fastAnswers = answeredQuestions.filter(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs).length;
 
   // Analyze which tables need more practice
   const tableStats = selectedTables.map(table => {
@@ -105,7 +105,7 @@ export function SummaryScreen({
               <span>🏆</span> עולמות שנכבשו!
             </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              ענית נכון לפחות {MASTERY_CONFIG.minCorrectPerExercise} פעמים ו-{MASTERY_CONFIG.requiredFastAnswers} תשובות מהירות!
+              כל התשובות נכונות ומהירות!
             </p>
             <div className="flex flex-wrap gap-2">
               {masteredTables.map(table => (
@@ -124,12 +124,15 @@ export function SummaryScreen({
               <span>💪</span> עולמות לתרגול נוסף
             </h3>
             <div className="space-y-3">
-              {needsPractice.map(({ table, correctCount, fastCount }) => (
+              {needsPractice.map(({ table, correctCount, fastCount, totalCount, allFast }) => (
                 <div key={table} className="bg-card rounded-xl p-3 flex items-center justify-between">
                   <span className="font-bold">{WORLD_NAMES[table]} ({table})</span>
                   <div className="text-sm text-muted-foreground">
-                    <span className="text-primary">{correctCount}/{MASTERY_CONFIG.minCorrectPerExercise}</span> נכונות | 
-                    <span className="text-success mr-1">{fastCount}/{MASTERY_CONFIG.requiredFastAnswers}</span> מהירות
+                    {!allFast && fastCount < totalCount ? (
+                      <span className="text-destructive">{totalCount - fastCount} איטיות מדי</span>
+                    ) : correctCount < totalCount ? (
+                      <span className="text-destructive">{totalCount - correctCount} טעויות</span>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -139,8 +142,8 @@ export function SummaryScreen({
 
         {/* Mastery requirements explanation */}
         <div className="bg-muted/50 rounded-2xl p-4 text-center text-sm text-muted-foreground">
-          <p>🎯 כדי לכבוש עולם צריך:</p>
-          <p>לפחות {MASTERY_CONFIG.minCorrectPerExercise} תשובות נכונות + {MASTERY_CONFIG.requiredFastAnswers} תשובות מהירות (פחות מ-{MASTERY_CONFIG.fastResponseTimeMs / 1000} שניות)</p>
+          <p>🎯 כדי לכבוש עולם:</p>
+          <p>כל התשובות צריכות להיות נכונות ומהירות (פחות מ-{MASTERY_CONFIG.maxResponseTimeMs / 1000} שניות)</p>
         </div>
 
         {/* Action buttons */}

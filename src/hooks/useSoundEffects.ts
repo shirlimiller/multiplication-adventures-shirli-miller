@@ -1,14 +1,5 @@
 import { useCallback, useRef } from 'react';
 
-// Sound frequencies for different effects
-const SOUNDS = {
-  correct: { frequency: 523.25, duration: 0.15, type: 'sine' as OscillatorType }, // C5
-  correctFast: { frequency: 659.25, duration: 0.2, type: 'sine' as OscillatorType }, // E5
-  incorrect: { frequency: 220, duration: 0.3, type: 'sawtooth' as OscillatorType }, // A3
-  click: { frequency: 440, duration: 0.05, type: 'sine' as OscillatorType }, // A4
-  celebrate: { frequencies: [523.25, 659.25, 783.99], duration: 0.15, type: 'sine' as OscillatorType }, // C5, E5, G5
-};
-
 export function useSoundEffects() {
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -41,28 +32,106 @@ export function useSoundEffects() {
     }
   }, [getAudioContext]);
 
+  // Magical star/chime sound - short ascending sparkle
   const playCorrect = useCallback(() => {
-    const { frequency, duration, type } = SOUNDS.correct;
-    playTone(frequency, duration, type);
-    setTimeout(() => playTone(frequency * 1.25, duration, type), 100);
-  }, [playTone]);
-
-  const playCorrectFast = useCallback(() => {
-    // Play a celebratory arpeggio for fast answers
-    SOUNDS.celebrate.frequencies.forEach((freq, i) => {
-      setTimeout(() => playTone(freq, 0.15, 'sine', 0.4), i * 80);
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Create a short magical chime/star sound
+    const frequencies = [1047, 1319, 1568]; // C6, E6, G6 - high sparkle
+    
+    frequencies.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.04);
+      
+      gain.gain.setValueAtTime(0, now + i * 0.04);
+      gain.gain.linearRampToValueAtTime(0.25, now + i * 0.04 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.04 + 0.12);
+      
+      osc.start(now + i * 0.04);
+      osc.stop(now + i * 0.04 + 0.15);
     });
-  }, [playTone]);
+  }, [getAudioContext]);
+
+  // Victory fanfare - short triumphant sound
+  const playCorrectFast = useCallback(() => {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Quick fanfare: C-E-G-C ascending
+    const notes = [
+      { freq: 523, time: 0, dur: 0.08 },     // C5
+      { freq: 659, time: 0.06, dur: 0.08 },  // E5
+      { freq: 784, time: 0.12, dur: 0.08 },  // G5
+      { freq: 1047, time: 0.18, dur: 0.2 },  // C6 (longer, triumphant)
+    ];
+    
+    notes.forEach(({ freq, time, dur }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'triangle'; // Softer, more musical
+      osc.frequency.setValueAtTime(freq, now + time);
+      
+      gain.gain.setValueAtTime(0, now + time);
+      gain.gain.linearRampToValueAtTime(0.3, now + time + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + time + dur);
+      
+      osc.start(now + time);
+      osc.stop(now + time + dur + 0.05);
+    });
+  }, [getAudioContext]);
 
   const playIncorrect = useCallback(() => {
-    const { frequency, duration, type } = SOUNDS.incorrect;
-    playTone(frequency, duration, type, 0.2);
-  }, [playTone]);
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Soft "wrong" sound - descending
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(330, now);
+    osc.frequency.linearRampToValueAtTime(220, now + 0.2);
+    
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+    
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }, [getAudioContext]);
 
   const playClick = useCallback(() => {
-    const { frequency, duration, type } = SOUNDS.click;
-    playTone(frequency, duration, type, 0.15);
-  }, [playTone]);
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+    
+    osc.start(now);
+    osc.stop(now + 0.05);
+  }, [getAudioContext]);
 
   return {
     playCorrect,

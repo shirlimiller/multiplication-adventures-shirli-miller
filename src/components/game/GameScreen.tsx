@@ -75,7 +75,7 @@ export function GameScreen({
     if (timerRef.current) clearInterval(timerRef.current);
     
     const isAnswerCorrect = answer === correctAnswer;
-    const isFast = timeTaken <= MASTERY_CONFIG.fastResponseTimeMs;
+    const isFast = timeTaken <= MASTERY_CONFIG.maxResponseTimeMs;
     
     // Play appropriate sound
     setTimeout(() => {
@@ -93,7 +93,7 @@ export function GameScreen({
     onAnswer(answer, isAnswerCorrect, timeTaken);
   };
 
-  const isFastAnswer = responseTimeMs > 0 && responseTimeMs <= MASTERY_CONFIG.fastResponseTimeMs;
+  const isFastAnswer = responseTimeMs > 0 && responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
   
   const getMessage = () => {
     if (!showFeedback) {
@@ -109,7 +109,7 @@ export function GameScreen({
   };
 
   const getTimeColor = () => {
-    if (elapsedTime <= MASTERY_CONFIG.fastResponseTimeMs) return 'text-success';
+    if (elapsedTime <= 3000) return 'text-success';
     if (elapsedTime <= MASTERY_CONFIG.maxResponseTimeMs) return 'text-accent';
     return 'text-destructive';
   };
