@@ -63,7 +63,7 @@ export function SummaryScreen({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-muted">
+    <div className="flex-1 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-2xl space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-gradient mb-4">סיכום ההרפתקה!</h1>
