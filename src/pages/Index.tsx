@@ -3,7 +3,7 @@ import { WelcomeScreen } from '@/components/game/WelcomeScreen';
 import { SetupScreen } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
-import { GameState, INITIAL_STATE, generateQuestion, AnsweredQuestion } from '@/lib/gameUtils';
+import { GameState, INITIAL_STATE, generateQuestion, AnsweredQuestion, checkTableMastery } from '@/lib/gameUtils';
 
 const Index = () => {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
@@ -30,16 +30,18 @@ const Index = () => {
       showFeedback: false,
       isCorrect: null,
       answeredQuestions: [],
+      questionStartTime: Date.now(),
     }));
   }, []);
 
-  const handleAnswer = useCallback((answer: number, isCorrect: boolean) => {
+  const handleAnswer = useCallback((answer: number, isCorrect: boolean, responseTimeMs: number) => {
     const newQuestion: AnsweredQuestion = {
       multiplier: gameState.currentMultiplier,
       multiplicand: gameState.currentMultiplicand,
       correctAnswer: gameState.correctAnswer,
       userAnswer: answer,
       isCorrect,
+      responseTimeMs,
     };
 
     setGameState(prev => ({
@@ -57,10 +59,16 @@ const Index = () => {
     const nextQuestion = gameState.currentQuestion + 1;
     
     if (nextQuestion >= gameState.questionCount) {
-      // Game over, show summary
+      // Calculate conquered tables
+      const newConqueredTables = gameState.selectedTables.filter(table => {
+        const mastery = checkTableMastery(gameState.answeredQuestions, table);
+        return mastery.isMastered;
+      });
+      
       setGameState(prev => ({
         ...prev,
         currentScreen: 'summary',
+        conqueredTables: [...new Set([...prev.conqueredTables, ...newConqueredTables])],
       }));
     } else {
       // Next question
@@ -75,9 +83,10 @@ const Index = () => {
         userAnswer: null,
         showFeedback: false,
         isCorrect: null,
+        questionStartTime: Date.now(),
       }));
     }
-  }, [gameState.currentQuestion, gameState.questionCount, gameState.selectedTables]);
+  }, [gameState.currentQuestion, gameState.questionCount, gameState.selectedTables, gameState.answeredQuestions]);
 
   const handlePlayAgain = useCallback(() => {
     handleStartGame(gameState.selectedTables, gameState.questionCount);
@@ -113,6 +122,7 @@ const Index = () => {
           onContinue={handleContinue}
           showFeedback={gameState.showFeedback}
           isCorrect={gameState.isCorrect}
+          questionStartTime={gameState.questionStartTime}
         />
       )}
       
@@ -122,6 +132,7 @@ const Index = () => {
           score={gameState.score}
           stars={gameState.stars}
           selectedTables={gameState.selectedTables}
+          conqueredTables={gameState.conqueredTables}
           onPlayAgain={handlePlayAgain}
           onChangeSettings={handleChangeSettings}
         />
