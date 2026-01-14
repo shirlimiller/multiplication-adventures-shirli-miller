@@ -9,8 +9,13 @@ interface VisualExplanationProps {
 export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: VisualExplanationProps) {
   const emoji = EMOJIS[multiplier % EMOJIS.length];
   
-  // Create groups (bags/circles) containing items
-  const groups = Array.from({ length: multiplier }, (_, i) => i);
+  // For 3×2: show 3 bags with 2 items each (multiplicand bags, multiplier items inside)
+  // The first number (multiplicand) is how many groups
+  // The second number (multiplier) is how many items per group
+  const numberOfBags = multiplicand;
+  const itemsPerBag = multiplier;
+  
+  const groups = Array.from({ length: numberOfBags }, (_, i) => i);
   
   return (
     <div className="space-y-4">
@@ -19,7 +24,7 @@ export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: V
       </p>
       
       <p className="text-lg text-muted-foreground text-center">
-        {multiplier} שקיות, בכל אחת {multiplicand} פריטים:
+        {numberOfBags} שקיות, בכל אחת {itemsPerBag} פריטים:
       </p>
       
       <div className="flex flex-wrap justify-center gap-3">
@@ -36,11 +41,11 @@ export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: V
             
             {/* Items inside the bag */}
             <div className="flex flex-wrap justify-center gap-1 pt-1">
-              {Array.from({ length: multiplicand }, (_, itemIndex) => (
+              {Array.from({ length: itemsPerBag }, (_, itemIndex) => (
                 <span 
                   key={itemIndex} 
                   className="text-2xl"
-                  style={{ animationDelay: `${(groupIndex * multiplicand + itemIndex) * 50}ms` }}
+                  style={{ animationDelay: `${(groupIndex * itemsPerBag + itemIndex) * 50}ms` }}
                 >
                   {emoji}
                 </span>
@@ -52,7 +57,7 @@ export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: V
       
       <div className="text-center space-y-2 mt-4">
         <p className="text-lg text-muted-foreground">
-          {multiplier} × {multiplicand} = <span className="text-2xl font-bold text-primary">{correctAnswer}</span>
+          {multiplicand} × {multiplier} = <span className="text-2xl font-bold text-primary">{correctAnswer}</span>
         </p>
       </div>
     </div>
