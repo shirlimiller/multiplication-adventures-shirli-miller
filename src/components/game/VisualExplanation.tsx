@@ -16,11 +16,12 @@ export function VisualExplanation({
   // Rotate through visual items based on mistake index
   const item = VISUAL_ITEMS[mistakeIndex % VISUAL_ITEMS.length];
   
-  // For 3×2: show 3 bags with 2 items each (multiplicand bags, multiplier items inside)
-  // The first number (multiplicand) is how many groups
-  // The second number (multiplier) is how many items per group
-  const numberOfBags = multiplicand;
-  const itemsPerBag = multiplier;
+  // For 8×3: show 8 bags with 3 items each
+  // multiplier = the selected world number (e.g., 8)
+  // multiplicand = what we multiply by (e.g., 3)
+  // So 8×3 means 8 groups of 3 items
+  const numberOfBags = multiplier;
+  const itemsPerBag = multiplicand;
   
   const groups = Array.from({ length: numberOfBags }, (_, i) => i);
   
