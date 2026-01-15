@@ -19,6 +19,7 @@ interface GameScreenProps {
   totalQuestions: number;
   score: number;
   stars: number;
+  mistakeCount: number;
   onAnswer: (answer: number, isCorrect: boolean, responseTimeMs: number) => void;
   onContinue: () => void;
   showFeedback: boolean;
@@ -34,6 +35,7 @@ export function GameScreen({
   totalQuestions,
   score,
   stars,
+  mistakeCount,
   onAnswer,
   onContinue,
   showFeedback,
@@ -194,7 +196,8 @@ export function GameScreen({
                 <VisualExplanation 
                   multiplier={multiplier} 
                   multiplicand={multiplicand} 
-                  correctAnswer={correctAnswer} 
+                  correctAnswer={correctAnswer}
+                  mistakeIndex={mistakeCount}
                 />
               </div>
             )}

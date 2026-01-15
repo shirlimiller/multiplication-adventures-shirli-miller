@@ -5,7 +5,7 @@ import { SetupScreen } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { PlayerHeader } from '@/components/game/PlayerHeader';
-import { GameState, INITIAL_STATE, generateQuestion, AnsweredQuestion } from '@/lib/gameUtils';
+import { GameState, INITIAL_STATE, generateAdaptiveQuestion, AnsweredQuestion } from '@/lib/gameUtils';
 import { Player } from '@/lib/playerTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 
@@ -48,9 +48,12 @@ const Index = () => {
     setCurrentScreen('dashboard');
   }, []);
 
-  // Start the game
+  // Start the game with adaptive question generation
   const handleStartGame = useCallback((tables: number[], questionCount: number) => {
-    const { multiplier, multiplicand, answer } = generateQuestion(tables);
+    if (!selectedPlayer) return;
+    
+    const playerStats = getPlayerStats(selectedPlayer.id);
+    const { multiplier, multiplicand, answer } = generateAdaptiveQuestion(tables, playerStats, []);
     
     setGameState({
       ...INITIAL_STATE,
@@ -61,9 +64,10 @@ const Index = () => {
       currentMultiplicand: multiplicand,
       correctAnswer: answer,
       questionStartTime: Date.now(),
+      mistakeCount: 0,
     });
     setCurrentScreen('game');
-  }, []);
+  }, [selectedPlayer, getPlayerStats]);
 
   // Handle answer
   const handleAnswer = useCallback((answer: number, isCorrect: boolean, responseTimeMs: number) => {
@@ -84,10 +88,11 @@ const Index = () => {
       score: isCorrect ? prev.score + 10 : prev.score,
       stars: isCorrect ? prev.stars + 1 : prev.stars,
       answeredQuestions: [...prev.answeredQuestions, newQuestion],
+      mistakeCount: isCorrect ? prev.mistakeCount : prev.mistakeCount + 1,
     }));
   }, [gameState.currentMultiplier, gameState.currentMultiplicand, gameState.correctAnswer]);
 
-  // Continue to next question
+  // Continue to next question with adaptive selection
   const handleContinue = useCallback(() => {
     const nextQuestion = gameState.currentQuestion + 1;
     
@@ -103,8 +108,11 @@ const Index = () => {
       }
       setCurrentScreen('summary');
     } else {
-      // Next question
-      const { multiplier, multiplicand, answer } = generateQuestion(gameState.selectedTables);
+      // Generate next question adaptively based on player stats
+      const playerStats = selectedPlayer ? getPlayerStats(selectedPlayer.id) : null;
+      const { multiplier, multiplicand, answer } = playerStats
+        ? generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions)
+        : { multiplier: gameState.selectedTables[0], multiplicand: 1, answer: gameState.selectedTables[0] };
       
       setGameState(prev => ({
         ...prev,
@@ -118,7 +126,7 @@ const Index = () => {
         questionStartTime: Date.now(),
       }));
     }
-  }, [gameState, selectedPlayer, updatePlayerStats]);
+  }, [gameState, selectedPlayer, updatePlayerStats, getPlayerStats]);
 
   // Play again with same settings
   const handlePlayAgain = useCallback(() => {
@@ -203,6 +211,7 @@ const Index = () => {
             totalQuestions={gameState.questionCount}
             score={gameState.score}
             stars={gameState.stars}
+            mistakeCount={gameState.mistakeCount}
             onAnswer={handleAnswer}
             onContinue={handleContinue}
             showFeedback={gameState.showFeedback}
@@ -227,7 +236,7 @@ const Index = () => {
             score={gameState.score}
             stars={gameState.stars}
             selectedTables={gameState.selectedTables}
-            conqueredTables={getPlayerStats(selectedPlayer.id).conqueredTables}
+            playerStats={getPlayerStats(selectedPlayer.id)}
             onPlayAgain={handlePlayAgain}
             onChangeSettings={handleChangeSettings}
           />

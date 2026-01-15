@@ -1,3 +1,5 @@
+import { MultiplicationStat, PlayerStats, getMultiplicationKey } from './playerTypes';
+
 export interface GameState {
   currentScreen: 'welcome' | 'setup' | 'game' | 'summary';
   selectedTables: number[];
@@ -14,6 +16,7 @@ export interface GameState {
   answeredQuestions: AnsweredQuestion[];
   conqueredTables: number[];
   questionStartTime: number;
+  mistakeCount: number; // Track mistakes for rotating visual items
 }
 
 export interface AnsweredQuestion {
@@ -25,9 +28,11 @@ export interface AnsweredQuestion {
   responseTimeMs: number;
 }
 
-// Mastery requirements
+// Mastery requirements - based on per-multiplication tracking
 export const MASTERY_CONFIG = {
-  maxResponseTimeMs: 5000, // 5 seconds - all answers must be under this to conquer
+  maxResponseTimeMs: 5000, // 5 seconds - fast answer threshold
+  requiredCorrect: 5, // Must answer correctly at least 5 times per multiplication
+  requiredFast: 3, // At least 3 of those must be under 5 seconds
 };
 
 export const INITIAL_STATE: GameState = {
@@ -46,6 +51,7 @@ export const INITIAL_STATE: GameState = {
   answeredQuestions: [],
   conqueredTables: [],
   questionStartTime: 0,
+  mistakeCount: 0,
 };
 
 export const WORLD_COLORS: Record<number, string> = {
@@ -76,6 +82,7 @@ export const WORLD_NAMES: Record<number, string> = {
 
 export const EMOJIS = ['🍎', '🌟', '🎈', '🍕', '🌸', '🐱', '🦋', '🍬', '🎁', '🌈'];
 
+// Simple random question generation (fallback)
 export function generateQuestion(tables: number[]): { multiplier: number; multiplicand: number; answer: number } {
   const multiplier = tables[Math.floor(Math.random() * tables.length)];
   const multiplicand = Math.floor(Math.random() * 10) + 1;
@@ -84,6 +91,83 @@ export function generateQuestion(tables: number[]): { multiplier: number; multip
     multiplicand,
     answer: multiplier * multiplicand,
   };
+}
+
+// Adaptive question generation based on player stats
+export function generateAdaptiveQuestion(
+  tables: number[],
+  playerStats: PlayerStats,
+  recentQuestions: AnsweredQuestion[] = []
+): { multiplier: number; multiplicand: number; answer: number } {
+  // Build weighted pool of all possible questions
+  const questionPool: { table: number; multiplicand: number; weight: number }[] = [];
+  
+  tables.forEach(table => {
+    for (let mult = 1; mult <= 10; mult++) {
+      const key = getMultiplicationKey(table, mult);
+      const stat = playerStats.multiplicationStats[key];
+      
+      // Calculate weight based on weakness
+      let weight = 10; // Base weight
+      
+      if (stat) {
+        const { correctAnswers, fastAnswers, totalAttempts } = stat;
+        const avgTimeMs = totalAttempts > 0 ? stat.totalTimeMs / totalAttempts : MASTERY_CONFIG.maxResponseTimeMs;
+        
+        // Higher weight for struggling multiplications
+        if (correctAnswers < MASTERY_CONFIG.requiredCorrect) {
+          // Needs more correct answers
+          weight += (MASTERY_CONFIG.requiredCorrect - correctAnswers) * 3;
+        }
+        
+        if (fastAnswers < MASTERY_CONFIG.requiredFast) {
+          // Needs more fast answers
+          weight += (MASTERY_CONFIG.requiredFast - fastAnswers) * 2;
+        }
+        
+        // Add weight for slow average response
+        if (avgTimeMs > MASTERY_CONFIG.maxResponseTimeMs) {
+          weight += 5;
+        }
+        
+        // Reduce weight for mastered multiplications (but don't exclude them completely)
+        if (correctAnswers >= MASTERY_CONFIG.requiredCorrect && fastAnswers >= MASTERY_CONFIG.requiredFast) {
+          weight = Math.max(1, weight - 8); // Minimum weight of 1
+        }
+      } else {
+        // Never attempted - higher priority
+        weight += 5;
+      }
+      
+      // Reduce weight if recently asked (avoid repetition)
+      const recentlyAsked = recentQuestions.slice(-5).some(
+        q => q.multiplier === table && q.multiplicand === mult
+      );
+      if (recentlyAsked) {
+        weight = Math.max(1, weight - 10);
+      }
+      
+      questionPool.push({ table, multiplicand: mult, weight });
+    }
+  });
+  
+  // Weighted random selection
+  const totalWeight = questionPool.reduce((sum, q) => sum + q.weight, 0);
+  let random = Math.random() * totalWeight;
+  
+  for (const question of questionPool) {
+    random -= question.weight;
+    if (random <= 0) {
+      return {
+        multiplier: question.table,
+        multiplicand: question.multiplicand,
+        answer: question.table * question.multiplicand,
+      };
+    }
+  }
+  
+  // Fallback
+  return generateQuestion(tables);
 }
 
 export function generateAnswerOptions(correctAnswer: number): number[] {
@@ -141,26 +225,80 @@ export function getEncouragingMessage(isCorrect: boolean, isFast?: boolean): str
   return messages[Math.floor(Math.random() * messages.length)];
 }
 
-// Check if a table is mastered based on answered questions
-// To conquer: ALL answers for the table must be correct AND under 5 seconds
+// Check if a specific multiplication is mastered
+export function checkMultiplicationMastery(stat: MultiplicationStat | undefined): boolean {
+  if (!stat) return false;
+  return stat.correctAnswers >= MASTERY_CONFIG.requiredCorrect && 
+         stat.fastAnswers >= MASTERY_CONFIG.requiredFast;
+}
+
+// Check if a table (world) is fully mastered
+// All 10 multiplications (1-10) must meet mastery requirements
 export function checkTableMastery(
-  answeredQuestions: AnsweredQuestion[],
+  playerStats: PlayerStats,
   table: number
-): { isMastered: boolean; correctCount: number; fastCount: number; totalCount: number; allFast: boolean } {
-  const tableQuestions = answeredQuestions.filter(q => q.multiplier === table);
-  const correctAnswers = tableQuestions.filter(q => q.isCorrect);
-  const fastAnswers = correctAnswers.filter(q => q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs);
+): { 
+  isMastered: boolean; 
+  masteredCount: number; 
+  totalCount: number;
+  multiplicationDetails: Array<{
+    multiplicand: number;
+    correctAnswers: number;
+    fastAnswers: number;
+    isMastered: boolean;
+    needsCorrect: number;
+    needsFast: number;
+  }>;
+} {
+  const multiplicationDetails: Array<{
+    multiplicand: number;
+    correctAnswers: number;
+    fastAnswers: number;
+    isMastered: boolean;
+    needsCorrect: number;
+    needsFast: number;
+  }> = [];
   
-  // All answers must be correct AND all must be under 5 seconds
-  const allCorrect = correctAnswers.length === tableQuestions.length && tableQuestions.length > 0;
-  const allFast = fastAnswers.length === correctAnswers.length && correctAnswers.length > 0;
-  const isMastered = allCorrect && allFast;
+  let masteredCount = 0;
+  
+  for (let mult = 1; mult <= 10; mult++) {
+    const key = getMultiplicationKey(table, mult);
+    const stat = playerStats.multiplicationStats[key];
+    const isMastered = checkMultiplicationMastery(stat);
+    
+    const correctAnswers = stat?.correctAnswers || 0;
+    const fastAnswers = stat?.fastAnswers || 0;
+    
+    if (isMastered) masteredCount++;
+    
+    multiplicationDetails.push({
+      multiplicand: mult,
+      correctAnswers,
+      fastAnswers,
+      isMastered,
+      needsCorrect: Math.max(0, MASTERY_CONFIG.requiredCorrect - correctAnswers),
+      needsFast: Math.max(0, MASTERY_CONFIG.requiredFast - fastAnswers),
+    });
+  }
   
   return {
-    isMastered,
-    correctCount: correctAnswers.length,
-    fastCount: fastAnswers.length,
-    totalCount: tableQuestions.length,
-    allFast,
+    isMastered: masteredCount === 10,
+    masteredCount,
+    totalCount: 10,
+    multiplicationDetails,
   };
+}
+
+// Get all tables that are mastered
+export function getConqueredTables(playerStats: PlayerStats): number[] {
+  const conquered: number[] = [];
+  
+  for (let table = 1; table <= 10; table++) {
+    const { isMastered } = checkTableMastery(playerStats, table);
+    if (isMastered) {
+      conquered.push(table);
+    }
+  }
+  
+  return conquered;
 }
