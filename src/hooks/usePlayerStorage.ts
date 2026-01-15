@@ -1,38 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Player, PlayerStats, createPlayerStats, GameHistoryEntry, TableStat } from '@/lib/playerTypes';
-import { AnsweredQuestion, MASTERY_CONFIG } from '@/lib/gameUtils';
+import { useState, useCallback } from 'react';
+import { Player, PlayerStats, createPlayerStats, GameHistoryEntry, getMultiplicationKey, createMultiplicationStat } from '@/lib/playerTypes';
+import { AnsweredQuestion, MASTERY_CONFIG, getConqueredTables } from '@/lib/gameUtils';
 
 const PLAYERS_KEY = 'multiplication_game_players';
 const STATS_KEY = 'multiplication_game_stats';
 
 export function usePlayerStorage() {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [allStats, setAllStats] = useState<Record<string, PlayerStats>>({});
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedPlayers = localStorage.getItem(PLAYERS_KEY);
-    const savedStats = localStorage.getItem(STATS_KEY);
-    
-    if (savedPlayers) {
-      try {
-        setPlayers(JSON.parse(savedPlayers));
-      } catch (e) {
-        console.error('Failed to load players', e);
-      }
-    }
-    
-    if (savedStats) {
-      try {
-        setAllStats(JSON.parse(savedStats));
-      } catch (e) {
-        console.error('Failed to load stats', e);
-      }
-    }
-    
-    setIsLoaded(true);
-  }, []);
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = localStorage.getItem(PLAYERS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [allStats, setAllStats] = useState<Record<string, PlayerStats>>(() => {
+    const saved = localStorage.getItem(STATS_KEY);
+    return saved ? JSON.parse(saved) : {};
+  });
+  
+  const [isLoaded] = useState(true);
 
   // Save players to localStorage
   const savePlayers = useCallback((newPlayers: Player[]) => {
@@ -77,10 +61,18 @@ export function usePlayerStorage() {
 
   // Get stats for a specific player
   const getPlayerStats = useCallback((playerId: string): PlayerStats => {
-    return allStats[playerId] || createPlayerStats(playerId);
+    const stats = allStats[playerId];
+    if (stats) {
+      // Ensure multiplicationStats exists (for backward compatibility)
+      if (!stats.multiplicationStats) {
+        stats.multiplicationStats = {};
+      }
+      return stats;
+    }
+    return createPlayerStats(playerId);
   }, [allStats]);
 
-  // Update player stats after a game
+  // Update player stats after a game - with per-multiplication tracking
   const updatePlayerStats = useCallback((
     playerId: string,
     answeredQuestions: AnsweredQuestion[],
@@ -93,7 +85,25 @@ export function usePlayerStorage() {
     const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;
     const totalQuestions = answeredQuestions.length;
     
-    // Update table-specific stats
+    // Update per-multiplication stats
+    const newMultiplicationStats = { ...currentStats.multiplicationStats };
+    
+    answeredQuestions.forEach(q => {
+      const key = getMultiplicationKey(q.multiplier, q.multiplicand);
+      const existing = newMultiplicationStats[key] || createMultiplicationStat();
+      
+      const isFast = q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
+      
+      newMultiplicationStats[key] = {
+        totalAttempts: existing.totalAttempts + 1,
+        correctAnswers: existing.correctAnswers + (q.isCorrect ? 1 : 0),
+        fastAnswers: existing.fastAnswers + (q.isCorrect && isFast ? 1 : 0),
+        totalTimeMs: existing.totalTimeMs + q.responseTimeMs,
+        lastAttempted: Date.now(),
+      };
+    });
+    
+    // Update legacy table-specific stats (for dashboard compatibility)
     const newTableStats = { ...currentStats.tableStats };
     
     selectedTables.forEach(table => {
@@ -127,19 +137,12 @@ export function usePlayerStorage() {
       };
     });
 
-    // Check for newly conquered tables
-    const newConqueredTables = [...currentStats.conqueredTables];
-    selectedTables.forEach(table => {
-      if (!newConqueredTables.includes(table)) {
-        const tableQuestions = answeredQuestions.filter(q => q.multiplier === table);
-        const allCorrect = tableQuestions.every(q => q.isCorrect);
-        const allFast = tableQuestions.every(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs);
-        
-        if (allCorrect && allFast && tableQuestions.length > 0) {
-          newConqueredTables.push(table);
-        }
-      }
-    });
+    // Calculate conquered tables based on per-multiplication mastery
+    const updatedStatsForCheck: PlayerStats = {
+      ...currentStats,
+      multiplicationStats: newMultiplicationStats,
+    };
+    const newConqueredTables = getConqueredTables(updatedStatsForCheck);
 
     // Create game history entry
     const gameEntry: GameHistoryEntry = {
@@ -160,6 +163,7 @@ export function usePlayerStorage() {
       totalQuestions: currentStats.totalQuestions + totalQuestions,
       totalStars: currentStats.totalStars + stars,
       conqueredTables: newConqueredTables,
+      multiplicationStats: newMultiplicationStats,
       tableStats: newTableStats,
       gameHistory: [...currentStats.gameHistory, gameEntry],
     };

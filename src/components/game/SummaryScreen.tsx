@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { AnsweredQuestion, WORLD_NAMES, MASTERY_CONFIG, checkTableMastery } from '@/lib/gameUtils';
+import { PlayerStats } from '@/lib/playerTypes';
 import { Star, Trophy, Target, RefreshCw, Clock, Zap } from 'lucide-react';
 
 interface SummaryScreenProps {
@@ -8,7 +9,7 @@ interface SummaryScreenProps {
   score: number;
   stars: number;
   selectedTables: number[];
-  conqueredTables: number[];
+  playerStats: PlayerStats;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
 }
@@ -18,7 +19,7 @@ export function SummaryScreen({
   score,
   stars,
   selectedTables,
-  conqueredTables,
+  playerStats,
   onPlayAgain,
   onChangeSettings,
 }: SummaryScreenProps) {
@@ -30,9 +31,9 @@ export function SummaryScreen({
     : 0;
   const fastAnswers = answeredQuestions.filter(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs).length;
 
-  // Analyze which tables need more practice
+  // Analyze which tables need more practice using per-multiplication stats
   const tableStats = selectedTables.map(table => {
-    const mastery = checkTableMastery(answeredQuestions, table);
+    const mastery = checkTableMastery(playerStats, table);
     return {
       table,
       ...mastery,
@@ -105,7 +106,7 @@ export function SummaryScreen({
               <span>🏆</span> עולמות שנכבשו!
             </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              כל התשובות נכונות ומהירות!
+              כל הכפולות נענו נכון ומהיר!
             </p>
             <div className="flex flex-wrap gap-2">
               {masteredTables.map(table => (
@@ -117,25 +118,44 @@ export function SummaryScreen({
           </div>
         )}
 
-        {/* Tables that need practice */}
+        {/* Tables that need practice - with detailed per-multiplication breakdown */}
         {needsPractice.length > 0 && (
           <div className="bg-secondary/30 border-2 border-secondary rounded-3xl p-6">
             <h3 className="text-xl font-bold text-secondary mb-3 flex items-center gap-2">
               <span>💪</span> עולמות לתרגול נוסף
             </h3>
-            <div className="space-y-3">
-              {needsPractice.map(({ table, correctCount, fastCount, totalCount, allFast }) => (
-                <div key={table} className="bg-card rounded-xl p-3 flex items-center justify-between">
-                  <span className="font-bold">{WORLD_NAMES[table]} ({table})</span>
-                  <div className="text-sm text-muted-foreground">
-                    {!allFast && fastCount < totalCount ? (
-                      <span className="text-destructive">{totalCount - fastCount} איטיות מדי</span>
-                    ) : correctCount < totalCount ? (
-                      <span className="text-destructive">{totalCount - correctCount} טעויות</span>
-                    ) : null}
+            <div className="space-y-4">
+              {needsPractice.map(({ table, masteredCount, totalCount, multiplicationDetails }) => {
+                // Find the weakest multiplications
+                const weakMultiplications = multiplicationDetails
+                  .filter(m => !m.isMastered)
+                  .slice(0, 3); // Show top 3 weakest
+                
+                return (
+                  <div key={table} className="bg-card rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold">{WORLD_NAMES[table]} ({table})</span>
+                      <span className="text-sm text-muted-foreground">
+                        {masteredCount}/{totalCount} כפולות מושלטות
+                      </span>
+                    </div>
+                    
+                    {/* Show weak multiplications */}
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      {weakMultiplications.map(m => (
+                        <div key={m.multiplicand} className="flex justify-between">
+                          <span>{table} × {m.multiplicand}</span>
+                          <span className="text-destructive">
+                            {m.needsCorrect > 0 && `צריך עוד ${m.needsCorrect} נכונות`}
+                            {m.needsCorrect > 0 && m.needsFast > 0 && ', '}
+                            {m.needsFast > 0 && `${m.needsFast} מהירות`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -143,7 +163,7 @@ export function SummaryScreen({
         {/* Mastery requirements explanation */}
         <div className="bg-muted/50 rounded-2xl p-4 text-center text-sm text-muted-foreground">
           <p>🎯 כדי לכבוש עולם:</p>
-          <p>כל התשובות צריכות להיות נכונות ומהירות (פחות מ-{MASTERY_CONFIG.maxResponseTimeMs / 1000} שניות)</p>
+          <p>כל כפולה (1-10) צריכה {MASTERY_CONFIG.requiredCorrect} תשובות נכונות, לפחות {MASTERY_CONFIG.requiredFast} מהן מהירות (פחות מ-{MASTERY_CONFIG.maxResponseTimeMs / 1000} שניות)</p>
         </div>
 
         {/* Action buttons */}

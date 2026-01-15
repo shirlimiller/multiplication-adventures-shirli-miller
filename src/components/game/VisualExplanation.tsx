@@ -1,13 +1,20 @@
-import { EMOJIS } from '@/lib/gameUtils';
+import { VISUAL_ITEMS } from '@/lib/playerTypes';
 
 interface VisualExplanationProps {
   multiplier: number;
   multiplicand: number;
   correctAnswer: number;
+  mistakeIndex?: number; // Which mistake this is (to rotate items)
 }
 
-export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: VisualExplanationProps) {
-  const emoji = EMOJIS[multiplier % EMOJIS.length];
+export function VisualExplanation({ 
+  multiplier, 
+  multiplicand, 
+  correctAnswer,
+  mistakeIndex = 0 
+}: VisualExplanationProps) {
+  // Rotate through visual items based on mistake index
+  const item = VISUAL_ITEMS[mistakeIndex % VISUAL_ITEMS.length];
   
   // For 3×2: show 3 bags with 2 items each (multiplicand bags, multiplier items inside)
   // The first number (multiplicand) is how many groups
@@ -24,7 +31,7 @@ export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: V
       </p>
       
       <p className="text-lg text-muted-foreground text-center">
-        {numberOfBags} שקיות, בכל אחת {itemsPerBag} פריטים:
+        {numberOfBags} שקיות, בכל אחת {itemsPerBag} {item.name}:
       </p>
       
       <div className="flex flex-wrap justify-center gap-3">
@@ -47,7 +54,7 @@ export function VisualExplanation({ multiplier, multiplicand, correctAnswer }: V
                   className="text-2xl"
                   style={{ animationDelay: `${(groupIndex * itemsPerBag + itemIndex) * 50}ms` }}
                 >
-                  {emoji}
+                  {item.emoji}
                 </span>
               ))}
             </div>
