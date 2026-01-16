@@ -63,7 +63,7 @@ export function VisualExplanation({
         ))}
       </div>
       
-      <div className="text-center space-y-2 mt-4">
+      <div className="text-center space-y-2 mt-4" dir="ltr">
         <p className="text-lg text-muted-foreground">
           {multiplicand} × {multiplier} = <span className="text-2xl font-bold text-primary">{correctAnswer}</span>
         </p>

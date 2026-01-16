@@ -30,9 +30,9 @@ export interface AnsweredQuestion {
 
 // Mastery requirements - based on per-multiplication tracking
 export const MASTERY_CONFIG = {
-  maxResponseTimeMs: 5000, // 5 seconds - fast answer threshold
-  requiredCorrect: 5, // Must answer correctly at least 5 times per multiplication
-  requiredFast: 3, // At least 3 of those must be under 5 seconds
+  maxResponseTimeMs: 4000, // 4 seconds - fast answer threshold
+  requiredCorrect: 15, // Must answer correctly at least 15 times per multiplication
+  requiredFast: 3, // At least 3 of those must be under 4 seconds
 };
 
 export const INITIAL_STATE: GameState = {
@@ -199,9 +199,14 @@ export function getEncouragingMessage(isCorrect: boolean, isFast?: boolean): str
   const correctMessages = [
     'מעולה! 🌟',
     'כל הכבוד! 🎉',
-    'נפלא! אתה כוכב! ⭐',
-    'וואו! מדהים! 🚀',
-    'יופי! המשך כך! 💪',
+    'נפלא! ⭐',
+    'וואו! 🚀',
+    'יופי! 💪',
+    'הידד! 🎊',
+    'נכון! 👏',
+    'מושלם! ✨',
+    'אלוף! 🏅',
+    'בול! 🎯',
   ];
   
   const fastMessages = [
