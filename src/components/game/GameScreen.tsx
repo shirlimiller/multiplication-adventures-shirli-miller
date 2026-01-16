@@ -152,10 +152,10 @@ export function GameScreen({
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <FoxMascot message={getMessage()} animate={!showFeedback} />
 
-        {/* Question */}
-        <div className={`${WORLD_COLORS[multiplier]} text-white rounded-3xl p-8 shadow-card text-center ${showFeedback && !isCorrect ? 'animate-shake' : ''}`}>
+        {/* Question - displayed left to right */}
+        <div className={`${WORLD_COLORS[multiplier]} text-white rounded-3xl p-8 shadow-card text-center ${showFeedback && !isCorrect ? 'animate-shake' : ''}`} dir="ltr">
           <div className="text-5xl md:text-6xl font-extrabold">
-            {multiplier} × {multiplicand} = ?
+            {multiplicand} × {multiplier} = ?
           </div>
         </div>
 
