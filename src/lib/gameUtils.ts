@@ -1,12 +1,13 @@
 import { MultiplicationStat, PlayerStats, getMultiplicationKey } from './playerTypes';
 
 export interface GameState {
-  currentScreen: 'welcome' | 'setup' | 'game' | 'summary';
+  currentScreen: 'welcome' | 'setup' | 'game' | 'summary' | 'boss';
   selectedTables: number[];
   questionCount: number;
   currentQuestion: number;
   score: number;
   stars: number;
+  streak: number; // Consecutive correct answers
   currentMultiplier: number;
   currentMultiplicand: number;
   correctAnswer: number;
@@ -17,6 +18,7 @@ export interface GameState {
   conqueredTables: number[];
   questionStartTime: number;
   mistakeCount: number; // Track mistakes for rotating visual items
+  bossTable: number | null; // Which table's boss challenge is active
 }
 
 export interface AnsweredQuestion {
@@ -26,6 +28,7 @@ export interface AnsweredQuestion {
   userAnswer: number;
   isCorrect: boolean;
   responseTimeMs: number;
+  starsEarned: number; // Stars earned for this specific answer
 }
 
 // Mastery requirements - based on per-multiplication tracking
@@ -42,6 +45,7 @@ export const INITIAL_STATE: GameState = {
   currentQuestion: 0,
   score: 0,
   stars: 0,
+  streak: 0,
   currentMultiplier: 0,
   currentMultiplicand: 0,
   correctAnswer: 0,
@@ -52,6 +56,7 @@ export const INITIAL_STATE: GameState = {
   conqueredTables: [],
   questionStartTime: 0,
   mistakeCount: 0,
+  bossTable: null,
 };
 
 export const WORLD_COLORS: Record<number, string> = {
