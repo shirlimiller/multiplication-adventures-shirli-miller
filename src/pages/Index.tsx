@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { WelcomeScreen } from '@/components/game/WelcomeScreen';
 import { ProfileSelectionScreen } from '@/components/game/ProfileSelectionScreen';
-import { PlayerDashboard } from '@/components/game/PlayerDashboard';
+import { PetCareHome } from '@/components/game/PetCareHome';
 import { SetupScreen } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { BossChallenge } from '@/components/game/BossChallenge';
+import { BackButton } from '@/components/game/BackButton';
 import { 
   GameState, 
   INITIAL_STATE, 
@@ -13,9 +14,11 @@ import {
   generateAdaptiveQuestion,
 } from '@/lib/gameUtils';
 import { Player, PlayerStats } from '@/lib/playerTypes';
+import { ShopItem } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
+import { usePetState } from '@/hooks/usePetState';
 
-type Screen = 'welcome' | 'profiles' | 'dashboard' | 'setup' | 'game' | 'summary' | 'boss';
+type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
@@ -31,24 +34,29 @@ const Index = () => {
     deletePlayer, 
     resetPlayerHistory,
     getPlayerStats,
-    updatePlayerStats 
+    updatePlayerStats,
+    spendStars,
   } = usePlayerStorage();
 
-  // Update current stats when player changes
+  const {
+    currentHunger,
+    isDoubleStarsActive,
+    feedPet,
+    interactWithPet,
+  } = usePetState(selectedPlayer?.id || null);
+
   useEffect(() => {
     if (selectedPlayer) {
       setCurrentStats(getPlayerStats(selectedPlayer.id));
     }
   }, [selectedPlayer, getPlayerStats]);
 
-  const handleStart = () => {
-    setCurrentScreen('profiles');
-  };
+  const handleStart = () => setCurrentScreen('profiles');
 
   const handleSelectPlayer = (player: Player) => {
     setSelectedPlayer(player);
     setCurrentStats(getPlayerStats(player.id));
-    setCurrentScreen('dashboard');
+    setCurrentScreen('home');
   };
 
   const handleBackToProfiles = () => {
@@ -57,11 +65,8 @@ const Index = () => {
     setCurrentScreen('profiles');
   };
 
-  const handleStartSetup = () => {
-    setCurrentScreen('setup');
-  };
+  const handleStartSetup = () => setCurrentScreen('setup');
 
-  // Start game with adaptive question generation
   const handleStartGame = useCallback((tables: number[], questionCount: number) => {
     if (!selectedPlayer) return;
     
@@ -77,14 +82,14 @@ const Index = () => {
       currentMultiplicand: multiplicand,
       correctAnswer: answer,
       questionStartTime: Date.now(),
-      mistakeCount: 0,
-      streak: 0,
     });
     setCurrentScreen('game');
   }, [selectedPlayer, getPlayerStats]);
 
-  // Handle answer with star calculation
   const handleAnswer = useCallback((answer: number, isCorrect: boolean, responseTimeMs: number, starsEarned: number) => {
+    // Apply double stars if active
+    const finalStars = isDoubleStarsActive ? starsEarned * 2 : starsEarned;
+    
     const newQuestion: AnsweredQuestion = {
       multiplier: gameState.currentMultiplier,
       multiplicand: gameState.currentMultiplicand,
@@ -92,7 +97,7 @@ const Index = () => {
       userAnswer: answer,
       isCorrect,
       responseTimeMs,
-      starsEarned,
+      starsEarned: finalStars,
     };
 
     setGameState(prev => ({
@@ -101,33 +106,24 @@ const Index = () => {
       showFeedback: true,
       isCorrect,
       score: isCorrect ? prev.score + 10 : prev.score,
-      stars: prev.stars + starsEarned,
-      streak: isCorrect ? prev.streak + 1 : 0, // Reset streak on wrong answer
+      stars: prev.stars + finalStars,
+      streak: isCorrect ? prev.streak + 1 : 0,
       answeredQuestions: [...prev.answeredQuestions, newQuestion],
       mistakeCount: isCorrect ? prev.mistakeCount : prev.mistakeCount + 1,
     }));
-  }, [gameState.currentMultiplier, gameState.currentMultiplicand, gameState.correctAnswer]);
+  }, [gameState, isDoubleStarsActive]);
 
-  // Continue to next question with adaptive selection
   const handleContinue = useCallback(() => {
     const nextQuestion = gameState.currentQuestion + 1;
     
     if (nextQuestion >= gameState.questionCount) {
-      // Game over - save stats
       if (selectedPlayer) {
         const totalStars = gameState.answeredQuestions.reduce((sum, q) => sum + q.starsEarned, 0);
-        updatePlayerStats(
-          selectedPlayer.id,
-          gameState.answeredQuestions,
-          gameState.selectedTables,
-          totalStars
-        );
-        // Refresh stats
+        updatePlayerStats(selectedPlayer.id, gameState.answeredQuestions, gameState.selectedTables, totalStars);
         setCurrentStats(getPlayerStats(selectedPlayer.id));
       }
       setCurrentScreen('summary');
     } else {
-      // Generate next question adaptively based on player stats
       const playerStats = selectedPlayer ? getPlayerStats(selectedPlayer.id) : null;
       const { multiplier, multiplicand, answer } = playerStats
         ? generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions)
@@ -147,7 +143,6 @@ const Index = () => {
     }
   }, [gameState, selectedPlayer, updatePlayerStats, getPlayerStats]);
 
-  // Boss challenge handlers
   const handleBossUnlock = useCallback(() => {
     if (gameState.currentMultiplier) {
       setBossTable(gameState.currentMultiplier);
@@ -156,44 +151,35 @@ const Index = () => {
   }, [gameState.currentMultiplier]);
 
   const handleBossComplete = useCallback((success: boolean) => {
-    if (success && selectedPlayer && bossTable) {
-      // Add table to conquered tables
-      const stats = getPlayerStats(selectedPlayer.id);
-      if (!stats.conqueredTables.includes(bossTable)) {
-        // Update conqueredTables directly
-        const updatedStats = {
-          ...stats,
-          conqueredTables: [...stats.conqueredTables, bossTable],
-        };
-        // Save to storage (we'll need to update the storage hook)
-      }
-      setCurrentStats(getPlayerStats(selectedPlayer.id));
-    }
-    
+    if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
     setBossTable(null);
     setCurrentScreen('game');
-  }, [selectedPlayer, bossTable, getPlayerStats]);
+  }, [selectedPlayer, getPlayerStats]);
 
-  const handleBossExit = useCallback(() => {
-    setBossTable(null);
-    setCurrentScreen('game');
-  }, []);
+  const handlePurchase = useCallback((item: ShopItem): boolean => {
+    if (!selectedPlayer || !currentStats || currentStats.totalStars < item.price) return false;
+    spendStars(selectedPlayer.id, item.price);
+    feedPet(item);
+    setCurrentStats(getPlayerStats(selectedPlayer.id));
+    return true;
+  }, [selectedPlayer, currentStats, spendStars, feedPet, getPlayerStats]);
 
-  const handlePlayAgain = () => {
-    setCurrentScreen('setup');
-  };
-
-  const handleReturnToMenu = () => {
-    setCurrentScreen('dashboard');
-    // Refresh stats
+  const handleSpendStars = useCallback((amount: number) => {
     if (selectedPlayer) {
+      spendStars(selectedPlayer.id, amount);
       setCurrentStats(getPlayerStats(selectedPlayer.id));
     }
+  }, [selectedPlayer, spendStars, getPlayerStats]);
+
+  const handlePlayAgain = () => setCurrentScreen('setup');
+  const handleReturnToMenu = () => {
+    if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
+    setCurrentScreen('home');
   };
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-garden flex items-center justify-center">
         <div className="text-2xl font-bold text-primary animate-pulse">טוען...</div>
       </div>
     );
@@ -201,12 +187,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Welcome Screen */}
-      {currentScreen === 'welcome' && (
-        <WelcomeScreen onStart={handleStart} />
-      )}
+      {currentScreen === 'welcome' && <WelcomeScreen onStart={handleStart} />}
 
-      {/* Profile Selection */}
       {currentScreen === 'profiles' && (
         <ProfileSelectionScreen
           players={players}
@@ -218,25 +200,30 @@ const Index = () => {
         />
       )}
 
-      {/* Player Dashboard */}
-      {currentScreen === 'dashboard' && selectedPlayer && currentStats && (
-        <PlayerDashboard
+      {currentScreen === 'home' && selectedPlayer && currentStats && (
+        <PetCareHome
           player={selectedPlayer}
           stats={currentStats}
-          onBack={handleBackToProfiles}
+          currentHunger={currentHunger}
+          isDoubleStarsActive={isDoubleStarsActive}
           onStartGame={handleStartSetup}
+          onSwitchPlayer={handleBackToProfiles}
+          onPurchase={handlePurchase}
+          onSpendStars={handleSpendStars}
+          onFeedPet={feedPet}
+          onPetInteract={interactWithPet}
         />
       )}
 
-      {/* Game Setup */}
       {currentScreen === 'setup' && selectedPlayer && currentStats && (
-        <SetupScreen
-          onStartGame={handleStartGame}
-          conqueredTables={currentStats.conqueredTables}
-        />
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <BackButton onClick={handleReturnToMenu} />
+          </div>
+          <SetupScreen onStartGame={handleStartGame} conqueredTables={currentStats.conqueredTables} />
+        </div>
       )}
 
-      {/* Game Screen */}
       {currentScreen === 'game' && selectedPlayer && currentStats && (
         <GameScreen
           multiplier={gameState.currentMultiplier}
@@ -259,26 +246,25 @@ const Index = () => {
         />
       )}
 
-      {/* Boss Challenge */}
       {currentScreen === 'boss' && bossTable && (
-        <BossChallenge
-          table={bossTable}
-          onComplete={handleBossComplete}
-          onExit={handleBossExit}
-        />
+        <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} />
       )}
 
-      {/* Summary Screen */}
       {currentScreen === 'summary' && selectedPlayer && (
-        <SummaryScreen
-          score={gameState.score}
-          stars={gameState.stars}
-          answeredQuestions={gameState.answeredQuestions}
-          selectedTables={gameState.selectedTables}
-          onPlayAgain={handlePlayAgain}
-          onChangeSettings={handleReturnToMenu}
-          playerStats={getPlayerStats(selectedPlayer.id)}
-        />
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <BackButton onClick={handleReturnToMenu} />
+          </div>
+          <SummaryScreen
+            score={gameState.score}
+            stars={gameState.stars}
+            answeredQuestions={gameState.answeredQuestions}
+            selectedTables={gameState.selectedTables}
+            onPlayAgain={handlePlayAgain}
+            onChangeSettings={handleReturnToMenu}
+            playerStats={getPlayerStats(selectedPlayer.id)}
+          />
+        </div>
       )}
     </div>
   );
