@@ -174,6 +174,19 @@ export function usePlayerStorage() {
     return updatedStats;
   }, [allStats, getPlayerStats, saveStats]);
 
+  // Spend stars (for shop purchases)
+  const spendStars = useCallback((playerId: string, amount: number) => {
+    const currentStats = getPlayerStats(playerId);
+    if (currentStats.totalStars >= amount) {
+      const updatedStats = {
+        ...currentStats,
+        totalStars: currentStats.totalStars - amount,
+      };
+      const newAllStats = { ...allStats, [playerId]: updatedStats };
+      saveStats(newAllStats);
+    }
+  }, [allStats, getPlayerStats, saveStats]);
+
   return {
     players,
     isLoaded,
@@ -182,5 +195,6 @@ export function usePlayerStorage() {
     resetPlayerHistory,
     getPlayerStats,
     updatePlayerStats,
+    spendStars,
   };
 }

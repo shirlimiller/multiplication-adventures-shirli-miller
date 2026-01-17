@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        game: ['Rubik', 'sans-serif'],
+        game: ['Nunito', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -42,6 +42,10 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        candy: {
+          DEFAULT: "hsl(var(--candy))",
+          foreground: "hsl(var(--candy-foreground))",
+        },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
@@ -52,7 +56,7 @@ export default {
         },
         card: {
           DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         world: {
           1: "hsl(var(--world-1))",
@@ -74,6 +78,7 @@ export default {
         xl: "calc(var(--radius) + 4px)",
         "2xl": "calc(var(--radius) + 8px)",
         "3xl": "calc(var(--radius) + 16px)",
+        "4xl": "calc(var(--radius) + 24px)",
       },
       keyframes: {
         "accordion-down": {
