@@ -36,6 +36,7 @@ export function PetCareHome({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
+  const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
 
   const handlePetClick = () => {
     onPetInteract();
@@ -54,9 +55,16 @@ export function PetCareHome({
     
     onSpendStars(item.price);
     onFeedPet(item);
+    setEatingFood(item);
     setIsEating(true);
-    setTimeout(() => setIsEating(false), 800);
     setIsShopOpen(false);
+    
+    // Extended eating animation
+    setTimeout(() => {
+      setIsEating(false);
+      setEatingFood(null);
+    }, 2500);
+    
     return true;
   }, [stats.totalStars, onSpendStars, onFeedPet]);
 
@@ -119,6 +127,7 @@ export function PetCareHome({
             hunger={currentHunger}
             onClick={handlePetClick}
             isEating={isEating}
+            eatingFood={eatingFood}
             animate
           />
         </div>

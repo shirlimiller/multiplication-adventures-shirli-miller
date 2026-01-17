@@ -29,7 +29,7 @@ export function CandyShop({
 
     setPurchasingItem(item.id);
     
-    // Animate item flying to fox
+    // Animate item flying to fox with extended eating animation
     setFlyingItem(item);
     
     setTimeout(() => {
@@ -38,7 +38,8 @@ export function CandyShop({
         onShowMessage(getYumMessage());
       }
       setPurchasingItem(null);
-      setFlyingItem(null);
+      // Keep food visible longer for eating animation
+      setTimeout(() => setFlyingItem(null), 1500);
     }, 800);
   };
 
