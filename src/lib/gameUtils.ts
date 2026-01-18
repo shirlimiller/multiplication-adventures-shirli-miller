@@ -33,7 +33,8 @@ export interface AnsweredQuestion {
 
 // Mastery requirements - based on per-multiplication tracking
 export const MASTERY_CONFIG = {
-  maxResponseTimeMs: 4000, // 4 seconds - fast answer threshold
+  maxResponseTimeMs: 4000, // 4 seconds - fast answer threshold for training mode
+  testModeMaxTimeMs: 6000, // 6 seconds - success threshold for test mode
   requiredCorrect: 15, // Must answer correctly at least 15 times per multiplication
   requiredFast: 3, // At least 3 of those must be under 4 seconds
 };

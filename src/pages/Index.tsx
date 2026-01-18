@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { WelcomeScreen } from '@/components/game/WelcomeScreen';
 import { ProfileSelectionScreen } from '@/components/game/ProfileSelectionScreen';
 import { PetCareHome } from '@/components/game/PetCareHome';
-import { SetupScreen } from '@/components/game/SetupScreen';
+import { SetupScreen, GameMode } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { BossChallenge } from '@/components/game/BossChallenge';
@@ -26,6 +26,7 @@ const Index = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [currentStats, setCurrentStats] = useState<PlayerStats | null>(null);
   const [bossTable, setBossTable] = useState<number | null>(null);
+  const [gameMode, setGameMode] = useState<GameMode>('training');
   
   const { 
     players, 
@@ -67,9 +68,10 @@ const Index = () => {
 
   const handleStartSetup = () => setCurrentScreen('setup');
 
-  const handleStartGame = useCallback((tables: number[], questionCount: number) => {
+  const handleStartGame = useCallback((tables: number[], questionCount: number, mode: GameMode) => {
     if (!selectedPlayer) return;
     
+    setGameMode(mode);
     const playerStats = getPlayerStats(selectedPlayer.id);
     const { multiplier, multiplicand, answer } = generateAdaptiveQuestion(tables, playerStats, []);
     
@@ -237,6 +239,7 @@ const Index = () => {
           mistakeCount={gameState.mistakeCount}
           totalStars={currentStats.totalStars}
           playerStats={currentStats}
+          gameMode={gameMode}
           onAnswer={handleAnswer}
           onContinue={handleContinue}
           onBossUnlock={handleBossUnlock}

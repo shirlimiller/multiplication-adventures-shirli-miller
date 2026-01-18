@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { WORLD_COLORS, WORLD_NAMES } from '@/lib/gameUtils';
-import { Check } from 'lucide-react';
+import { Check, Gamepad2, GraduationCap } from 'lucide-react';
+
+export type GameMode = 'training' | 'test';
 
 interface SetupScreenProps {
-  onStartGame: (tables: number[], questionCount: number) => void;
+  onStartGame: (tables: number[], questionCount: number, mode: GameMode) => void;
   conqueredTables: number[];
 }
 
 export function SetupScreen({ onStartGame, conqueredTables }: SetupScreenProps) {
   const [selectedTables, setSelectedTables] = useState<number[]>([2, 3]);
   const [questionCount, setQuestionCount] = useState(10);
+  const [gameMode, setGameMode] = useState<GameMode>('training');
 
   const toggleTable = (table: number) => {
     setSelectedTables(prev =>
@@ -23,7 +26,7 @@ export function SetupScreen({ onStartGame, conqueredTables }: SetupScreenProps) 
 
   const handleStart = () => {
     if (selectedTables.length > 0) {
-      onStartGame(selectedTables, questionCount);
+      onStartGame(selectedTables, questionCount, gameMode);
     }
   };
 
@@ -72,6 +75,47 @@ export function SetupScreen({ onStartGame, conqueredTables }: SetupScreenProps) 
               );
             })}
           </div>
+        </div>
+
+        {/* Game Mode Selection */}
+        <div className="bg-card rounded-3xl p-8 shadow-card space-y-6">
+          <h2 className="text-2xl font-bold text-foreground text-center">סוג משחק</h2>
+          
+          <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+            <button
+              onClick={() => setGameMode('training')}
+              className={`
+                flex flex-col items-center gap-3 p-6 rounded-2xl border-4 transition-all duration-200
+                ${gameMode === 'training' 
+                  ? 'border-primary bg-primary/10 scale-105 shadow-glow' 
+                  : 'border-muted bg-card hover:border-primary/50'}
+              `}
+            >
+              <Gamepad2 className={`w-12 h-12 ${gameMode === 'training' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="text-xl font-bold">אימון</span>
+              <span className="text-sm text-muted-foreground text-center">בחירה מתוך 4 תשובות</span>
+            </button>
+            
+            <button
+              onClick={() => setGameMode('test')}
+              className={`
+                flex flex-col items-center gap-3 p-6 rounded-2xl border-4 transition-all duration-200
+                ${gameMode === 'test' 
+                  ? 'border-accent bg-accent/10 scale-105 shadow-glow' 
+                  : 'border-muted bg-card hover:border-accent/50'}
+              `}
+            >
+              <GraduationCap className={`w-12 h-12 ${gameMode === 'test' ? 'text-accent' : 'text-muted-foreground'}`} />
+              <span className="text-xl font-bold">מבחן</span>
+              <span className="text-sm text-muted-foreground text-center">כתוב את התשובה בעצמך</span>
+            </button>
+          </div>
+          
+          {gameMode === 'test' && (
+            <p className="text-center text-sm text-muted-foreground animate-fade-in">
+              ⏱️ הצלחה = תשובה נכונה בפחות מ-6 שניות
+            </p>
+          )}
         </div>
 
         <div className="bg-card rounded-3xl p-8 shadow-card space-y-6">
