@@ -73,15 +73,16 @@ export const SHOP_ITEMS: ShopItem[] = [
 ];
 
 export const DEFAULT_PET_STATE: PetState = {
-  hunger: 30, // Start hungry so kids need to play to earn stars
-  lastFed: Date.now() - (3 * 60 * 60 * 1000), // 3 hours ago
+  hunger: 10, // Start very hungry so kids need to play to earn stars
+  lastFed: Date.now() - (5 * 60 * 60 * 1000), // 5 hours ago
   lastInteraction: Date.now(),
   totalTreats: 0,
   doubleStarsUntil: null,
 };
 
-// Hunger depletes over time - about 10% per hour of inactivity
-export const HUNGER_DEPLETION_RATE = 10; // per hour
+// Hunger depletes over time - about 100% per hour of inactivity (very hungry pet!)
+// This means ~150 stars needed to keep it fed (balanced with shop prices 15-40)
+export const HUNGER_DEPLETION_RATE = 100; // per hour - very fast depletion!
 export const HUNGER_THRESHOLD_HUNGRY = 40; // Below this, pet is hungry
 export const HUNGER_THRESHOLD_VERY_HUNGRY = 20; // Below this, pet is very hungry
 

@@ -3,10 +3,14 @@ import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { HungerBar } from './HungerBar';
 import { CandyShop } from './CandyShop';
-import { BackButton } from './BackButton';
+import { ClothingShop } from './ClothingShop';
+import { ShopIcon } from './ShopIcon';
+import { ClothingShopIcon } from './ClothingShopIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, getPetMessage, getPetMood } from '@/lib/petTypes';
-import { Star, ShoppingBag, Play, Trophy, Users } from 'lucide-react';
+import { ClothingItem } from '@/lib/clothingTypes';
+import { useClothingState } from '@/hooks/useClothingState';
+import { Star, Play, Trophy, Users } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
@@ -34,9 +38,19 @@ export function PetCareHome({
   onPetInteract,
 }: PetCareHomeProps) {
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
+  
+  const {
+    clothing,
+    purchaseItem,
+    equipItem,
+    unequipItem,
+    ownsItem,
+    isEquipped,
+  } = useClothingState(player.id);
 
   const handlePetClick = () => {
     onPetInteract();
@@ -71,6 +85,18 @@ export function PetCareHome({
   const handleShowMessage = (message: string) => {
     setFoxMessage(message);
   };
+
+  const handleClothingPurchase = useCallback((item: ClothingItem): boolean => {
+    if (ownsItem(item.id)) {
+      return true; // Already owned
+    }
+    if (stats.totalStars < item.price) {
+      return false;
+    }
+    
+    onSpendStars(item.price);
+    return purchaseItem(item);
+  }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-garden overflow-hidden relative">
@@ -120,7 +146,7 @@ export function PetCareHome({
           {/* Ground/Platform */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 h-16 bg-primary/20 rounded-full blur-lg" />
           
-          {/* Fox with message */}
+          {/* Fox with message and clothing */}
           <FoxMascot
             message={foxMessage}
             size="hero"
@@ -128,6 +154,7 @@ export function PetCareHome({
             onClick={handlePetClick}
             isEating={isEating}
             eatingFood={eatingFood}
+            clothing={clothing}
             animate
           />
         </div>
@@ -153,14 +180,12 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-center gap-4">
-        {/* Shop Button */}
-        <Button
-          onClick={() => setIsShopOpen(true)}
-          className="w-16 h-16 rounded-full bg-gradient-candy shadow-candy hover:scale-110 transition-all"
-        >
-          <ShoppingBag className="w-8 h-8 text-white" />
-        </Button>
+      <footer className="relative z-10 p-6 flex justify-center items-end gap-4">
+        {/* Clothing Shop Button */}
+        <ClothingShopIcon 
+          onClick={() => setIsClothingShopOpen(true)} 
+          size="medium"
+        />
 
         {/* Play Button - Large and prominent */}
         <Button
@@ -170,6 +195,12 @@ export function PetCareHome({
           <Play className="w-8 h-8 ml-2 fill-white" />
           בוא נשחק!
         </Button>
+
+        {/* Candy Shop Button */}
+        <ShopIcon 
+          onClick={() => setIsShopOpen(true)} 
+          size="medium"
+        />
       </footer>
 
       {/* Candy Shop Modal */}
@@ -179,6 +210,20 @@ export function PetCareHome({
         totalStars={stats.totalStars}
         onPurchase={handlePurchase}
         onShowMessage={handleShowMessage}
+      />
+
+      {/* Clothing Shop Modal */}
+      <ClothingShop
+        isOpen={isClothingShopOpen}
+        onClose={() => setIsClothingShopOpen(false)}
+        totalStars={stats.totalStars}
+        clothing={clothing}
+        onPurchase={handleClothingPurchase}
+        onEquip={equipItem}
+        onUnequip={unequipItem}
+        onSpendStars={onSpendStars}
+        ownsItem={ownsItem}
+        isEquipped={isEquipped}
       />
     </div>
   );

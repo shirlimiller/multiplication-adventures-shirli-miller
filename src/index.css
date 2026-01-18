@@ -232,6 +232,10 @@
   .animate-munch {
     animation: munch 0.3s ease-in-out infinite;
   }
+
+  .animate-breathe {
+    animation: breathe 3s ease-in-out infinite;
+  }
 }
 
 @keyframes bounce-soft {
@@ -336,5 +340,14 @@
   }
   50% { 
     transform: scaleY(0.9) scaleX(1.1); 
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    transform: scale(1) translateY(0); 
+  }
+  50% { 
+    transform: scale(1.02) translateY(-2px); 
   }
 }
