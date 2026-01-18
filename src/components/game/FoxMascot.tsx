@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import foxMascot from '@/assets/fox-mascot.png';
 import { getPetMood, HUNGER_THRESHOLD_HUNGRY, ShopItem } from '@/lib/petTypes';
+import { PlayerClothing, CLOTHING_ITEMS } from '@/lib/clothingTypes';
+import { cn } from '@/lib/utils';
 
 interface FoxMascotProps {
   message?: string;
@@ -12,6 +14,7 @@ interface FoxMascotProps {
   onClick?: () => void;
   isEating?: boolean;
   eatingFood?: ShopItem | null;
+  clothing?: PlayerClothing;
 }
 
 export function FoxMascot({ 
@@ -24,9 +27,11 @@ export function FoxMascot({
   onClick,
   isEating = false,
   eatingFood = null,
+  clothing,
 }: FoxMascotProps) {
   const [isJumping, setIsJumping] = useState(false);
   const [eatingPhase, setEatingPhase] = useState<'grab' | 'bite' | 'chew' | 'done'>('done');
+  const [idleAnimation, setIdleAnimation] = useState<'none' | 'blink' | 'wiggle' | 'breathe'>('breathe');
   
   const mood = getPetMood(hunger);
   const isHungry = hunger < HUNGER_THRESHOLD_HUNGRY;
@@ -42,6 +47,22 @@ export function FoxMascot({
       setEatingPhase('done');
     }
   }, [isEating, eatingFood]);
+
+  // Random idle animations
+  useEffect(() => {
+    if (isEating || isJumping) return;
+    
+    const interval = setInterval(() => {
+      const animations: ('blink' | 'wiggle' | 'breathe')[] = ['blink', 'wiggle', 'breathe'];
+      const random = animations[Math.floor(Math.random() * animations.length)];
+      setIdleAnimation(random);
+      
+      // Reset after animation
+      setTimeout(() => setIdleAnimation('breathe'), 800);
+    }, 3000 + Math.random() * 2000);
+
+    return () => clearInterval(interval);
+  }, [isEating, isJumping]);
 
   const handleClick = () => {
     if (onClick) {
@@ -62,9 +83,21 @@ export function FoxMascot({
     if (isEating) return 'animate-eat';
     if (isJumping) return 'animate-jump';
     if (isHungry) return 'animate-hungry';
-    if (animate) return 'animate-bounce-soft';
+    if (idleAnimation === 'wiggle') return 'animate-wiggle';
+    if (animate) return 'animate-breathe';
     return '';
   };
+
+  // Get equipped clothing items
+  const getEquippedItem = (type: keyof NonNullable<typeof clothing>['equippedItems']) => {
+    if (!clothing?.equippedItems[type]) return null;
+    return CLOTHING_ITEMS.find(item => item.id === clothing.equippedItems[type]);
+  };
+
+  const equippedHat = getEquippedItem('hat');
+  const equippedGlasses = getEquippedItem('glasses');
+  const equippedScarf = getEquippedItem('scarf');
+  const equippedBow = getEquippedItem('bow');
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`}>
@@ -76,9 +109,15 @@ export function FoxMascot({
       )}
       
       <div 
-        className={`relative ${onClick ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
+        className={cn(
+          'relative',
+          onClick && 'cursor-pointer hover:scale-110 transition-transform'
+        )}
         onClick={handleClick}
       >
+        {/* 3D Shadow effect */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-full blur-md transform scale-x-125" />
+        
         {/* Glow effect based on mood */}
         {mood === 'happy' && (
           <div className="absolute inset-0 blur-2xl bg-accent/30 rounded-full scale-150 animate-pulse" />
@@ -86,52 +125,132 @@ export function FoxMascot({
         
         {/* Hungry indicator */}
         {isHungry && !isEating && (
-          <div className="absolute -top-4 -right-2 text-2xl animate-bounce">
+          <div className="absolute -top-4 -right-2 text-2xl animate-bounce z-30">
             💭
           </div>
         )}
 
-        {/* Eating Animation Overlay */}
-        {isEating && eatingFood && eatingPhase !== 'done' && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-            {/* Food item animation */}
+        {/* 3D Container with perspective */}
+        <div 
+          className="relative"
+          style={{ 
+            perspective: '500px',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          {/* Equipped Clothing - Hat */}
+          {equippedHat && (
             <div 
-              className={`absolute transition-all duration-500 ease-out text-6xl ${
-                eatingPhase === 'grab' 
-                  ? 'top-0 right-0 scale-100 animate-bounce' 
-                  : eatingPhase === 'bite' 
-                    ? 'top-1/4 left-1/2 -translate-x-1/2 scale-75'
-                    : 'top-1/3 left-1/2 -translate-x-1/2 scale-0 opacity-0'
-              }`}
+              className={cn(
+                'absolute -top-4 left-1/2 -translate-x-1/2 text-4xl z-30 transition-transform',
+                getAnimationClass()
+              )}
+              style={{ transform: 'translateX(-50%) translateZ(20px)' }}
             >
-              {eatingFood.emoji}
+              {equippedHat.emoji}
             </div>
-            
-            {/* Bite particles */}
-            {eatingPhase === 'chew' && (
-              <div className="absolute top-1/3 left-1/2 -translate-x-1/2">
-                <span className="absolute text-2xl animate-ping" style={{ animationDuration: '0.3s' }}>✨</span>
-                <span className="absolute text-xl animate-ping -left-4" style={{ animationDuration: '0.4s', animationDelay: '0.1s' }}>⭐</span>
-                <span className="absolute text-xl animate-ping left-4" style={{ animationDuration: '0.35s', animationDelay: '0.2s' }}>💫</span>
+          )}
+
+          {/* Equipped Clothing - Glasses */}
+          {equippedGlasses && (
+            <div 
+              className={cn(
+                'absolute top-1/4 left-1/2 -translate-x-1/2 text-2xl z-30',
+                getAnimationClass()
+              )}
+            >
+              {equippedGlasses.emoji}
+            </div>
+          )}
+
+          {/* Eating Animation Overlay */}
+          {isEating && eatingFood && eatingPhase !== 'done' && (
+            <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
+              {/* Food item animation */}
+              <div 
+                className={cn(
+                  'absolute transition-all duration-500 ease-out text-6xl',
+                  eatingPhase === 'grab' && 'top-0 right-0 scale-100 animate-bounce',
+                  eatingPhase === 'bite' && 'top-1/4 left-1/2 -translate-x-1/2 scale-75',
+                  eatingPhase === 'chew' && 'top-1/3 left-1/2 -translate-x-1/2 scale-0 opacity-0'
+                )}
+              >
+                {eatingFood.emoji}
               </div>
+              
+              {/* Bite particles */}
+              {eatingPhase === 'chew' && (
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2">
+                  <span className="absolute text-2xl animate-ping" style={{ animationDuration: '0.3s' }}>✨</span>
+                  <span className="absolute text-xl animate-ping -left-4" style={{ animationDuration: '0.4s', animationDelay: '0.1s' }}>⭐</span>
+                  <span className="absolute text-xl animate-ping left-4" style={{ animationDuration: '0.35s', animationDelay: '0.2s' }}>💫</span>
+                </div>
+              )}
+              
+              {/* "Yum" text bubble */}
+              {eatingPhase === 'chew' && (
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-success text-white px-4 py-2 rounded-full font-bold text-lg animate-bounce shadow-lg">
+                  יאמי! 😋
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Main Fox Image with 3D effect */}
+          <div 
+            className={cn(
+              sizeClasses[size],
+              'relative z-10',
+              getAnimationClass()
             )}
+            style={{
+              transform: idleAnimation === 'blink' ? 'scaleY(0.98)' : 'none',
+              transition: 'transform 0.2s ease',
+            }}
+          >
+            {/* 3D depth layers */}
+            <div 
+              className="absolute inset-0 bg-orange-300/30 rounded-full blur-sm -z-10"
+              style={{ transform: 'translateZ(-10px) scale(1.1)' }}
+            />
             
-            {/* "Yum" text bubble */}
-            {eatingPhase === 'chew' && (
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-success text-white px-4 py-2 rounded-full font-bold text-lg animate-bounce shadow-lg">
-                יאמי! 😋
-              </div>
-            )}
+            <img
+              src={foxMascot}
+              alt="שועלי הקסם"
+              className={cn(
+                'w-full h-full object-contain drop-shadow-lg',
+                eatingPhase === 'bite' || eatingPhase === 'chew' ? 'animate-munch' : ''
+              )}
+              style={{
+                filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.2)) drop-shadow(0 4px 6px rgba(0,0,0,0.1))',
+              }}
+            />
           </div>
-        )}
-        
-        <img
-          src={foxMascot}
-          alt="שועלי הקסם"
-          className={`${sizeClasses[size]} object-contain relative z-10 ${getAnimationClass()} drop-shadow-lg ${
-            eatingPhase === 'bite' || eatingPhase === 'chew' ? 'animate-munch' : ''
-          }`}
-        />
+
+          {/* Equipped Clothing - Scarf */}
+          {equippedScarf && (
+            <div 
+              className={cn(
+                'absolute bottom-1/4 left-1/2 -translate-x-1/2 text-3xl z-20',
+                getAnimationClass()
+              )}
+            >
+              {equippedScarf.emoji}
+            </div>
+          )}
+
+          {/* Equipped Clothing - Bow */}
+          {equippedBow && (
+            <div 
+              className={cn(
+                'absolute bottom-1/3 right-0 text-2xl z-20',
+                getAnimationClass()
+              )}
+            >
+              {equippedBow.emoji}
+            </div>
+          )}
+        </div>
         
         {/* Click hint when interactive */}
         {onClick && !isJumping && !isEating && (
