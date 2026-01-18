@@ -6,6 +6,8 @@ import { StarHUD } from './StarHUD';
 import { WorldProgressBar } from './WorldProgressBar';
 import { SmartFeedback } from './SmartFeedback';
 import { VisualExplanation } from './VisualExplanation';
+import { NumberPad } from './NumberPad';
+import { GameMode } from './SetupScreen';
 import { 
   generateAnswerOptions, 
   getEncouragingMessage,
@@ -34,6 +36,7 @@ interface GameScreenProps {
   streak: number;
   totalStars: number;
   playerStats: PlayerStats;
+  gameMode: GameMode;
   onAnswer: (answer: number, isCorrect: boolean, responseTimeMs: number, starsEarned: number) => void;
   onContinue: () => void;
   onBossUnlock: () => void;
@@ -54,6 +57,7 @@ export function GameScreen({
   streak,
   totalStars,
   playerStats,
+  gameMode,
   onAnswer,
   onContinue,
   onBossUnlock,
@@ -83,7 +87,7 @@ export function GameScreen({
     setShowStarAnimation(false);
   }, [correctAnswer, multiplier, multiplicand]);
 
-  const calculateStarRewards = useCallback((isCorrect: boolean, isFast: boolean, currentStreak: number): StarReward[] => {
+  const calculateStarRewards = useCallback((isCorrect: boolean, isFast: boolean, currentStreak: number, mode: GameMode): StarReward[] => {
     if (!isCorrect) return [];
     
     const rewards: StarReward[] = [];
@@ -91,9 +95,9 @@ export function GameScreen({
     // Accuracy star - always for correct answer
     rewards.push({ type: 'accuracy', label: 'תשובה נכונה! ⭐' });
     
-    // Speed star - under 4 seconds
+    // Speed star - under threshold (4s for training, 6s for test)
     if (isFast) {
-      rewards.push({ type: 'speed', label: 'מהירות ברק! ⚡' });
+      rewards.push({ type: 'speed', label: mode === 'test' ? 'יודע בעל פה! 🎓' : 'מהירות ברק! ⚡' });
     }
     
     // Streak star - every 3rd consecutive correct
@@ -115,10 +119,12 @@ export function GameScreen({
     setSelectedAnswer(answer);
     
     const isAnswerCorrect = answer === correctAnswer;
-    const isFast = timeTaken <= MASTERY_CONFIG.maxResponseTimeMs;
+    // Use different time threshold based on game mode
+    const timeThreshold = gameMode === 'test' ? MASTERY_CONFIG.testModeMaxTimeMs : MASTERY_CONFIG.maxResponseTimeMs;
+    const isFast = timeTaken <= timeThreshold;
     
     // Calculate rewards
-    const rewards = calculateStarRewards(isAnswerCorrect, isFast, streak);
+    const rewards = calculateStarRewards(isAnswerCorrect, isFast, streak, gameMode);
     const starsEarned = rewards.length;
     
     if (isAnswerCorrect) {
@@ -143,7 +149,8 @@ export function GameScreen({
     setPendingStars(0);
   };
 
-  const isFastAnswer = responseTimeMs > 0 && responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
+  const timeThreshold = gameMode === 'test' ? MASTERY_CONFIG.testModeMaxTimeMs : MASTERY_CONFIG.maxResponseTimeMs;
+  const isFastAnswer = responseTimeMs > 0 && responseTimeMs <= timeThreshold;
   
   const getMessage = () => {
     if (!showFeedback) {
@@ -254,8 +261,18 @@ export function GameScreen({
             </div>
           )}
 
-          {/* Answer options */}
-          {!showFeedback && (
+          {/* Answer input - Number Pad for test mode, Multiple Choice for training */}
+          {!showFeedback && gameMode === 'test' && (
+            <NumberPad
+              onSubmit={handleAnswer}
+              disabled={showFeedback}
+              correctAnswer={correctAnswer}
+              showResult={showFeedback}
+              isCorrect={isCorrect}
+            />
+          )}
+
+          {!showFeedback && gameMode === 'training' && (
             <div className="grid grid-cols-2 gap-4 w-full max-w-md">
               {options.map((option) => (
                 <Button

@@ -1,0 +1,120 @@
+import { useState, useCallback, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Delete, Check } from 'lucide-react';
+
+interface NumberPadProps {
+  onSubmit: (answer: number) => void;
+  disabled?: boolean;
+  correctAnswer?: number;
+  showResult?: boolean;
+  isCorrect?: boolean | null;
+}
+
+export function NumberPad({ onSubmit, disabled = false, correctAnswer, showResult, isCorrect }: NumberPadProps) {
+  const [input, setInput] = useState('');
+  
+  // Reset input when question changes
+  useEffect(() => {
+    if (!showResult) {
+      setInput('');
+    }
+  }, [correctAnswer, showResult]);
+
+  const handleDigit = useCallback((digit: number) => {
+    if (disabled || input.length >= 3) return;
+    setInput(prev => prev + digit.toString());
+  }, [disabled, input]);
+
+  const handleDelete = useCallback(() => {
+    if (disabled) return;
+    setInput(prev => prev.slice(0, -1));
+  }, [disabled]);
+
+  const handleSubmit = useCallback(() => {
+    if (disabled || !input) return;
+    onSubmit(parseInt(input, 10));
+  }, [disabled, input, onSubmit]);
+
+  // Handle keyboard input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (disabled) return;
+      
+      if (e.key >= '0' && e.key <= '9') {
+        handleDigit(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace') {
+        handleDelete();
+      } else if (e.key === 'Enter' && input) {
+        handleSubmit();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [disabled, handleDigit, handleDelete, handleSubmit, input]);
+
+  const getInputStyle = () => {
+    if (!showResult) return 'border-primary/30 bg-white';
+    if (isCorrect) return 'border-green-500 bg-green-50 text-green-700';
+    return 'border-red-500 bg-red-50 text-red-700';
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4 w-full max-w-xs mx-auto">
+      {/* Display */}
+      <div 
+        className={`w-full h-20 rounded-2xl border-4 flex items-center justify-center text-5xl font-bold transition-all ${getInputStyle()}`}
+      >
+        {input || <span className="text-muted-foreground/40">?</span>}
+      </div>
+      
+      {/* Number Grid */}
+      <div className="grid grid-cols-3 gap-3 w-full">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+          <Button
+            key={num}
+            variant="secondary"
+            size="lg"
+            onClick={() => handleDigit(num)}
+            disabled={disabled}
+            className="text-3xl font-bold h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft active:scale-95"
+          >
+            {num}
+          </Button>
+        ))}
+        
+        {/* Delete button */}
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={handleDelete}
+          disabled={disabled || !input}
+          className="h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft text-red-500 hover:text-red-600 hover:bg-red-50"
+        >
+          <Delete className="w-8 h-8" />
+        </Button>
+        
+        {/* Zero */}
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => handleDigit(0)}
+          disabled={disabled}
+          className="text-3xl font-bold h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft active:scale-95"
+        >
+          0
+        </Button>
+        
+        {/* Submit button */}
+        <Button
+          size="lg"
+          onClick={handleSubmit}
+          disabled={disabled || !input}
+          className="h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft bg-gradient-gold text-white"
+        >
+          <Check className="w-8 h-8" />
+        </Button>
+      </div>
+    </div>
+  );
+}
