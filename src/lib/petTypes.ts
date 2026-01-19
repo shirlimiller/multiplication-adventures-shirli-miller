@@ -16,6 +16,7 @@ export interface WalkLocation {
   name: string;
   emoji: string;
   description: string;
+  price: number; // Cost in stars
   happinessRestore: number;
   duration: number; // in milliseconds (animation duration)
 }

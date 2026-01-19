@@ -9,6 +9,7 @@ export const WALK_LOCATIONS: WalkLocation[] = [
     name: 'פארק',
     emoji: '🏞️',
     description: 'מרחבים ירוקים ואוויר צח!',
+    price: 15,
     happinessRestore: 25,
     duration: 3000,
   },
@@ -17,6 +18,7 @@ export const WALK_LOCATIONS: WalkLocation[] = [
     name: 'חוף הים',
     emoji: '🏖️',
     description: 'חול, גלים ושמש!',
+    price: 25,
     happinessRestore: 35,
     duration: 4000,
   },
@@ -25,6 +27,7 @@ export const WALK_LOCATIONS: WalkLocation[] = [
     name: 'יער',
     emoji: '🌲',
     description: 'עצים גבוהים וציפורים!',
+    price: 20,
     happinessRestore: 30,
     duration: 3500,
   },
@@ -33,6 +36,7 @@ export const WALK_LOCATIONS: WalkLocation[] = [
     name: 'גן שעשועים',
     emoji: '🎢',
     description: 'מגלשות ונדנדות!',
+    price: 30,
     happinessRestore: 40,
     duration: 4500,
   },
@@ -41,6 +45,7 @@ export const WALK_LOCATIONS: WalkLocation[] = [
     name: 'הר',
     emoji: '⛰️',
     description: 'טיפוס ונוף מדהים!',
+    price: 40,
     happinessRestore: 45,
     duration: 5000,
   },
@@ -51,14 +56,20 @@ interface WalkSelectorProps {
   onClose: () => void;
   onSelectWalk: (location: WalkLocation) => void;
   currentHappiness: number;
+  totalStars: number;
+  onNotEnoughStars: () => void;
 }
 
-export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness }: WalkSelectorProps) {
+export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness, totalStars, onNotEnoughStars }: WalkSelectorProps) {
   const [selectedLocation, setSelectedLocation] = useState<WalkLocation | null>(null);
 
   if (!isOpen) return null;
 
   const handleSelectLocation = (location: WalkLocation) => {
+    if (totalStars < location.price) {
+      onNotEnoughStars();
+      return;
+    }
     setSelectedLocation(location);
     onSelectWalk(location);
     onClose();
@@ -96,6 +107,14 @@ export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness }
           </Button>
         </div>
         
+        {/* Stars indicator */}
+        <div className="mb-4 bg-gradient-gold/20 rounded-2xl p-3 flex items-center gap-3">
+          <span className="text-2xl">⭐</span>
+          <div className="flex-1">
+            <div className="text-sm font-bold">הכוכבים שלך: {totalStars}</div>
+          </div>
+        </div>
+        
         {/* Happiness indicator */}
         <div className="mb-4 bg-muted/50 rounded-2xl p-3 flex items-center gap-3">
           <span className="text-2xl">😊</span>
@@ -112,34 +131,42 @@ export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness }
         
         {/* Locations Grid */}
         <div className="grid gap-3">
-          {WALK_LOCATIONS.map((location) => (
-            <button
-              key={location.id}
-              onClick={() => handleSelectLocation(location)}
-              className="bg-muted/50 rounded-3xl p-4 text-right transition-all duration-200 hover:scale-[1.02] hover:shadow-card cursor-pointer flex items-center gap-4"
-            >
-              {/* Location emoji */}
-              <span className="text-5xl">{location.emoji}</span>
-              
-              <div className="flex-1">
-                {/* Location name */}
-                <h3 className="font-bold text-foreground text-lg">{location.name}</h3>
+          {WALK_LOCATIONS.map((location) => {
+            const canAfford = totalStars >= location.price;
+            return (
+              <button
+                key={location.id}
+                onClick={() => handleSelectLocation(location)}
+                className={`bg-muted/50 rounded-3xl p-4 text-right transition-all duration-200 hover:scale-[1.02] hover:shadow-card cursor-pointer flex items-center gap-4 ${!canAfford ? 'opacity-60' : ''}`}
+              >
+                {/* Location emoji */}
+                <span className="text-5xl">{location.emoji}</span>
                 
-                {/* Description */}
-                <p className="text-sm text-muted-foreground">{location.description}</p>
-                
-                {/* Happiness restore indicator */}
-                <div className="mt-1 text-sm text-amber-600 font-bold">
-                  +{location.happinessRestore}% שמחה 😊
+                <div className="flex-1">
+                  {/* Location name */}
+                  <h3 className="font-bold text-foreground text-lg">{location.name}</h3>
+                  
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground">{location.description}</p>
+                  
+                  {/* Price and happiness info */}
+                  <div className="mt-1 flex items-center gap-3">
+                    <span className={`text-sm font-bold ${canAfford ? 'text-accent' : 'text-red-500'}`}>
+                      ⭐ {location.price}
+                    </span>
+                    <span className="text-sm text-amber-600 font-bold">
+                      +{location.happinessRestore}% שמחה 😊
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
         
         {/* Info text */}
         <p className="text-center text-sm text-muted-foreground mt-6">
-          🌳 הטיולים בחינם! פשוט בחר לאן ללכת!
+          🌳 בחר מקום לטיול! עולה כוכבים!
         </p>
       </div>
     </div>

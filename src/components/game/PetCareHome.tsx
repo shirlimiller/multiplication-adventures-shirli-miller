@@ -74,6 +74,9 @@ export function PetCareHome({
   };
 
   const handleWalk = useCallback((location: WalkLocation) => {
+    // Deduct stars
+    onSpendStars(location.price);
+    
     setIsWalking(true);
     setFoxMessage(`יצאנו לטיול ל${location.name}! ${location.emoji}`);
     
@@ -83,7 +86,11 @@ export function PetCareHome({
       setIsWalking(false);
       setFoxMessage(getWalkMessage());
     }, location.duration);
-  }, [onWalkPet]);
+  }, [onWalkPet, onSpendStars]);
+
+  const handleNotEnoughStarsForWalk = useCallback(() => {
+    setFoxMessage('אני רוצה לצאת לטיול! בוא נשחק ונרוויח עוד כוכבים! 🌟');
+  }, []);
 
   const handlePurchase = useCallback((item: ShopItem): boolean => {
     if (stats.totalStars < item.price) {
@@ -263,6 +270,8 @@ export function PetCareHome({
         onClose={() => setIsWalkSelectorOpen(false)}
         onSelectWalk={handleWalk}
         currentHappiness={currentHappiness}
+        totalStars={stats.totalStars}
+        onNotEnoughStars={handleNotEnoughStarsForWalk}
       />
     </div>
   );
