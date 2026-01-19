@@ -8,6 +8,7 @@ interface WorldProgressBarProps {
   currentSessionCorrect: number;
   isBossUnlocked: boolean;
   isBossMode: boolean;
+  isBossCompleted?: boolean;
   onBossClick?: () => void;
 }
 
@@ -17,6 +18,7 @@ export function WorldProgressBar({
   currentSessionCorrect,
   isBossUnlocked,
   isBossMode,
+  isBossCompleted = false,
   onBossClick 
 }: WorldProgressBarProps) {
   const { masteredCount, multiplicationDetails, isMastered } = checkTableMastery(playerStats, table);
@@ -29,11 +31,22 @@ export function WorldProgressBar({
   }, 0);
   
   const maxPoints = 10 * MASTERY_CONFIG.requiredCorrect; // 150
-  const progressPercent = Math.min((totalPoints / maxPoints) * 100, 100);
   
-  // Add session progress for visual feedback
-  const sessionBonus = Math.min((currentSessionCorrect / maxPoints) * 100, 5); // Max 5% visual bonus
-  const displayProgress = Math.min(progressPercent + sessionBonus, 100);
+  // Progress logic:
+  // - During training: progress grows gradually but caps at 90%
+  // - Boss unlocked but not completed: stays at 90%
+  // - Boss completed (isMastered): jumps to 100%
+  let baseProgress = (totalPoints / maxPoints) * 100;
+  
+  // Add session progress for visual feedback (small increment per correct answer)
+  const sessionBonus = Math.min(currentSessionCorrect * 2, 10); // 2% per correct, max 10%
+  
+  // Cap at 90% until boss is completed
+  const cappedProgress = isMastered || isBossCompleted 
+    ? 100 
+    : Math.min(baseProgress + sessionBonus, 90);
+  
+  const displayProgress = cappedProgress;
 
   return (
     <div className="flex flex-col items-center gap-2 h-full py-4">
