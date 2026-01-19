@@ -3,7 +3,9 @@ import {
   PetState, 
   DEFAULT_PET_STATE, 
   ShopItem,
-  calculateCurrentHunger 
+  WalkLocation,
+  calculateCurrentHunger,
+  calculateCurrentHappiness,
 } from '@/lib/petTypes';
 
 const PET_STATE_KEY = 'multiplication_game_pet_state';
@@ -11,10 +13,13 @@ const PET_STATE_KEY = 'multiplication_game_pet_state';
 interface UsePetStateReturn {
   petState: PetState;
   currentHunger: number;
+  currentHappiness: number;
   isDoubleStarsActive: boolean;
   feedPet: (item: ShopItem) => void;
+  walkPet: (location: WalkLocation) => void;
   interactWithPet: () => void;
   updatePetState: (updates: Partial<PetState>) => void;
+  depleteHungerWhilePlaying: () => void;
 }
 
 export function usePetState(playerId: string | null): UsePetStateReturn {
@@ -25,6 +30,7 @@ export function usePetState(playerId: string | null): UsePetStateReturn {
 
   const petState = playerId ? (petStates[playerId] || DEFAULT_PET_STATE) : DEFAULT_PET_STATE;
   const currentHunger = calculateCurrentHunger(petState);
+  const currentHappiness = calculateCurrentHappiness(petState);
   
   // Check if double stars is currently active
   const isDoubleStarsActive = petState.doubleStarsUntil !== null && 
@@ -68,17 +74,51 @@ export function usePetState(playerId: string | null): UsePetStateReturn {
     updatePetState(updates);
   }, [playerId, petStates, updatePetState]);
 
+  const walkPet = useCallback((location: WalkLocation) => {
+    if (!playerId) return;
+    
+    const current = petStates[playerId] || DEFAULT_PET_STATE;
+    const currentHappinessValue = calculateCurrentHappiness(current);
+    const newHappiness = Math.min(100, currentHappinessValue + location.happinessRestore);
+    
+    const updates: Partial<PetState> = {
+      happiness: newHappiness,
+      lastWalk: Date.now(),
+      totalWalks: current.totalWalks + 1,
+    };
+
+    updatePetState(updates);
+  }, [playerId, petStates, updatePetState]);
+
   const interactWithPet = useCallback(() => {
     if (!playerId) return;
     updatePetState({ lastInteraction: Date.now() });
   }, [playerId, updatePetState]);
 
+  // Deplete hunger while playing (called during game)
+  const depleteHungerWhilePlaying = useCallback(() => {
+    if (!playerId) return;
+    
+    const current = petStates[playerId] || DEFAULT_PET_STATE;
+    const currentHungerValue = calculateCurrentHunger(current);
+    // Deplete 0.5% per call (called periodically during game)
+    const newHunger = Math.max(0, currentHungerValue - 0.5);
+    
+    updatePetState({
+      hunger: newHunger,
+      lastFed: Date.now(), // Reset timer so it doesn't stack with time-based depletion
+    });
+  }, [playerId, petStates, updatePetState]);
+
   return {
     petState,
     currentHunger,
+    currentHappiness,
     isDoubleStarsActive,
     feedPet,
+    walkPet,
     interactWithPet,
     updatePetState,
+    depleteHungerWhilePlaying,
   };
 }

@@ -6,6 +6,18 @@ export interface PetState {
   lastInteraction: number; // timestamp
   totalTreats: number; // lifetime treats consumed
   doubleStarsUntil: number | null; // timestamp when double stars expires
+  happiness: number; // 0-100, 100 = very happy, depletes over time
+  lastWalk: number; // timestamp
+  totalWalks: number; // lifetime walks taken
+}
+
+export interface WalkLocation {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  happinessRestore: number;
+  duration: number; // in milliseconds (animation duration)
 }
 
 export interface ShopItem {
@@ -20,52 +32,104 @@ export interface ShopItem {
 }
 
 export const SHOP_ITEMS: ShopItem[] = [
+  // Fruits - healthy and affordable
+  {
+    id: 'apple',
+    name: 'תפוח',
+    emoji: '🍎',
+    price: 12,
+    hungerRestore: 5,
+    description: 'בריא וטעים!',
+  },
+  {
+    id: 'banana',
+    name: 'בננה',
+    emoji: '🍌',
+    price: 14,
+    hungerRestore: 6,
+    description: 'מתוק וטעים!',
+  },
+  {
+    id: 'grapes',
+    name: 'ענבים',
+    emoji: '🍇',
+    price: 16,
+    hungerRestore: 7,
+    description: 'עסיסיים!',
+  },
+  {
+    id: 'watermelon',
+    name: 'אבטיח',
+    emoji: '🍉',
+    price: 20,
+    hungerRestore: 10,
+    description: 'מרענן!',
+  },
+  {
+    id: 'strawberry',
+    name: 'תות',
+    emoji: '🍓',
+    price: 18,
+    hungerRestore: 8,
+    description: 'מתוק במיוחד!',
+  },
+  // Snacks
   {
     id: 'lollipop',
     name: 'סוכריה על מקל',
     emoji: '🍭',
-    price: 15,
-    hungerRestore: 12,
+    price: 18,
+    hungerRestore: 7,
     description: 'טעימה ומתוקה!',
   },
   {
     id: 'fries',
     name: 'ציפס',
     emoji: '🍟',
-    price: 20,
-    hungerRestore: 18,
+    price: 25,
+    hungerRestore: 10,
     description: 'פריך וטעים!',
-  },
-  {
-    id: 'hamburger',
-    name: 'המבורגר',
-    emoji: '🍔',
-    price: 30,
-    hungerRestore: 35,
-    description: 'ארוחה משביעה!',
   },
   {
     id: 'chocolate',
     name: 'שוקולד',
     emoji: '🍫',
-    price: 18,
-    hungerRestore: 15,
+    price: 22,
+    hungerRestore: 8,
     description: 'מתוק ומטעים!',
+  },
+  // Main meals
+  {
+    id: 'hamburger',
+    name: 'המבורגר',
+    emoji: '🍔',
+    price: 40,
+    hungerRestore: 18,
+    description: 'ארוחה משביעה!',
   },
   {
     id: 'pizza',
     name: 'פיצה',
     emoji: '🍕',
-    price: 25,
-    hungerRestore: 28,
+    price: 35,
+    hungerRestore: 15,
     description: 'אוכל אמיתי!',
   },
+  {
+    id: 'ice_cream',
+    name: 'גלידה',
+    emoji: '🍦',
+    price: 28,
+    hungerRestore: 12,
+    description: 'קר ומתוק!',
+  },
+  // Special items
   {
     id: 'magic_cupcake',
     name: 'קאפקייק קסום',
     emoji: '🧁',
-    price: 40,
-    hungerRestore: 50,
+    price: 50,
+    hungerRestore: 25,
     effect: 'double_stars',
     effectDuration: 5 * 60 * 1000, // 5 minutes
     description: 'כוכבים כפולים ל-5 דקות!',
@@ -78,11 +142,38 @@ export const DEFAULT_PET_STATE: PetState = {
   lastInteraction: Date.now(),
   totalTreats: 0,
   doubleStarsUntil: null,
+  happiness: 20, // Start needing activity
+  lastWalk: Date.now() - (3 * 60 * 60 * 1000), // 3 hours ago
+  totalWalks: 0,
 };
 
-// Hunger depletes over time - about 100% per hour of inactivity (very hungry pet!)
-// This means ~150 stars needed to keep it fed (balanced with shop prices 15-40)
-export const HUNGER_DEPLETION_RATE = 100; // per hour - very fast depletion!
+// Happiness depletes over time - about 40% per hour of inactivity
+export const HAPPINESS_DEPLETION_RATE = 40; // per hour
+export const HAPPINESS_THRESHOLD_SAD = 40; // Below this, pet is sad
+export const HAPPINESS_THRESHOLD_VERY_SAD = 20; // Below this, pet is very sad
+
+export function calculateCurrentHappiness(petState: PetState): number {
+  const now = Date.now();
+  const hoursSinceLastWalk = (now - petState.lastWalk) / (1000 * 60 * 60);
+  const depleted = hoursSinceLastWalk * HAPPINESS_DEPLETION_RATE;
+  return Math.max(0, Math.min(100, petState.happiness - depleted));
+}
+
+export function getWalkMessage(): string {
+  const messages = [
+    'איזה כיף! זה היה טיול מדהים! 🏃',
+    'וואו! אני כל כך שמח! בוא נעשה את זה שוב! 🌟',
+    'הטיול הזה היה מושלם! תודה! 💚',
+    'אני מלא אנרגיה עכשיו! 🚀',
+    'איזה יום נפלא! אני אוהב לטייל איתך! 🌳',
+  ];
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// Hunger depletes over time - about 60% per hour of inactivity
+// With prices 12-50 and restore 5-25%, filling from 0 to 100 costs ~250-300 stars
+export const HUNGER_DEPLETION_RATE = 60; // per hour - moderate depletion
+export const HUNGER_ACTIVE_DEPLETION_RATE = 15; // per hour while playing
 export const HUNGER_THRESHOLD_HUNGRY = 40; // Below this, pet is hungry
 export const HUNGER_THRESHOLD_VERY_HUNGRY = 20; // Below this, pet is very hungry
 

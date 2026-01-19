@@ -2,12 +2,15 @@ import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { HungerBar } from './HungerBar';
+import { HappinessBar } from './HappinessBar';
 import { CandyShop } from './CandyShop';
 import { ClothingShop } from './ClothingShop';
+import { WalkSelector } from './WalkSelector';
 import { ShopIcon } from './ShopIcon';
 import { ClothingShopIcon } from './ClothingShopIcon';
+import { WalkIcon } from './WalkIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
-import { ShopItem, getPetMessage, getPetMood } from '@/lib/petTypes';
+import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { Star, Play, Trophy, Users } from 'lucide-react';
@@ -16,12 +19,14 @@ interface PetCareHomeProps {
   player: Player;
   stats: PlayerStats;
   currentHunger: number;
+  currentHappiness: number;
   isDoubleStarsActive: boolean;
   onStartGame: () => void;
   onSwitchPlayer: () => void;
   onPurchase: (item: ShopItem) => boolean;
   onSpendStars: (amount: number) => void;
   onFeedPet: (item: ShopItem) => void;
+  onWalkPet: (location: WalkLocation) => void;
   onPetInteract: () => void;
 }
 
@@ -29,19 +34,23 @@ export function PetCareHome({
   player,
   stats,
   currentHunger,
+  currentHappiness,
   isDoubleStarsActive,
   onStartGame,
   onSwitchPlayer,
   onPurchase,
   onSpendStars,
   onFeedPet,
+  onWalkPet,
   onPetInteract,
 }: PetCareHomeProps) {
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
+  const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
+  const [isWalking, setIsWalking] = useState(false);
   
   const {
     clothing,
@@ -57,10 +66,24 @@ export function PetCareHome({
     const mood = getPetMood(currentHunger);
     if (mood === 'hungry' || mood === 'very_hungry') {
       setFoxMessage('אני רעב! בוא נתרגל כדי להרוויח כוכבים לאוכל! 🍕');
+    } else if (currentHappiness < 40) {
+      setFoxMessage('אני צריך טיול! בוא ניקח הפסקה! 🌳');
     } else {
       setFoxMessage('היי! זה כייף שבאת! בוא נשחק! 🎉');
     }
   };
+
+  const handleWalk = useCallback((location: WalkLocation) => {
+    setIsWalking(true);
+    setFoxMessage(`יצאנו לטיול ל${location.name}! ${location.emoji}`);
+    
+    // Walk animation duration
+    setTimeout(() => {
+      onWalkPet(location);
+      setIsWalking(false);
+      setFoxMessage(getWalkMessage());
+    }, location.duration);
+  }, [onWalkPet]);
 
   const handlePurchase = useCallback((item: ShopItem): boolean => {
     if (stats.totalStars < item.price) {
@@ -159,9 +182,10 @@ export function PetCareHome({
           />
         </div>
 
-        {/* Hunger Bar */}
-        <div className="mt-8 w-full max-w-xs">
+        {/* Hunger and Happiness Bars */}
+        <div className="mt-8 w-full max-w-xs space-y-3">
           <HungerBar hunger={currentHunger} />
+          <HappinessBar happiness={currentHappiness} />
         </div>
 
         {/* Quick Stats */}
@@ -180,11 +204,18 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-center items-end gap-4">
+      <footer className="relative z-10 p-6 flex justify-center items-end gap-3">
         {/* Clothing Shop Button */}
         <ClothingShopIcon 
           onClick={() => setIsClothingShopOpen(true)} 
           size="medium"
+        />
+
+        {/* Walk Button */}
+        <WalkIcon 
+          onClick={() => setIsWalkSelectorOpen(true)} 
+          size="medium"
+          needsWalk={currentHappiness < 40}
         />
 
         {/* Play Button - Large and prominent */}
@@ -224,6 +255,14 @@ export function PetCareHome({
         onSpendStars={onSpendStars}
         ownsItem={ownsItem}
         isEquipped={isEquipped}
+      />
+
+      {/* Walk Selector Modal */}
+      <WalkSelector
+        isOpen={isWalkSelectorOpen}
+        onClose={() => setIsWalkSelectorOpen(false)}
+        onSelectWalk={handleWalk}
+        currentHappiness={currentHappiness}
       />
     </div>
   );
