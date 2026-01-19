@@ -4,13 +4,14 @@ import { Delete, Check } from 'lucide-react';
 
 interface NumberPadProps {
   onSubmit: (answer: number) => void;
+  onContinue?: () => void;
   disabled?: boolean;
   correctAnswer?: number;
   showResult?: boolean;
   isCorrect?: boolean | null;
 }
 
-export function NumberPad({ onSubmit, disabled = false, correctAnswer, showResult, isCorrect }: NumberPadProps) {
+export function NumberPad({ onSubmit, onContinue, disabled = false, correctAnswer, showResult, isCorrect }: NumberPadProps) {
   const [input, setInput] = useState('');
   
   // Reset input when question changes
@@ -38,6 +39,13 @@ export function NumberPad({ onSubmit, disabled = false, correctAnswer, showResul
   // Handle keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // If showing result and correct, Enter continues to next question
+      if (showResult && isCorrect && e.key === 'Enter') {
+        e.preventDefault();
+        onContinue?.();
+        return;
+      }
+      
       if (disabled) return;
       
       if (e.key >= '0' && e.key <= '9') {
@@ -51,7 +59,7 @@ export function NumberPad({ onSubmit, disabled = false, correctAnswer, showResul
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [disabled, handleDigit, handleDelete, handleSubmit, input]);
+  }, [disabled, handleDigit, handleDelete, handleSubmit, input, showResult, isCorrect, onContinue]);
 
   const getInputStyle = () => {
     if (!showResult) return 'border-primary/30 bg-white';
