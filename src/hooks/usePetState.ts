@@ -95,18 +95,23 @@ export function usePetState(playerId: string | null): UsePetStateReturn {
     updatePetState({ lastInteraction: Date.now() });
   }, [playerId, updatePetState]);
 
-  // Deplete hunger while playing (called during game)
+  // Deplete hunger and happiness while playing (called during game)
   const depleteHungerWhilePlaying = useCallback(() => {
     if (!playerId) return;
     
     const current = petStates[playerId] || DEFAULT_PET_STATE;
     const currentHungerValue = calculateCurrentHunger(current);
-    // Deplete 0.5% per call (called periodically during game)
+    const currentHappinessValue = calculateCurrentHappiness(current);
+    
+    // Deplete 0.5% hunger and 0.3% happiness per call (called periodically during game)
     const newHunger = Math.max(0, currentHungerValue - 0.5);
+    const newHappiness = Math.max(0, currentHappinessValue - 0.3);
     
     updatePetState({
       hunger: newHunger,
+      happiness: newHappiness,
       lastFed: Date.now(), // Reset timer so it doesn't stack with time-based depletion
+      lastWalk: Date.now(), // Reset timer for happiness too
     });
   }, [playerId, petStates, updatePetState]);
 
