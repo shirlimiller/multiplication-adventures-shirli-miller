@@ -68,8 +68,8 @@ export function NumberPad({ onSubmit, disabled = false, correctAnswer, showResul
         {input || <span className="text-muted-foreground/40">?</span>}
       </div>
       
-      {/* Number Grid */}
-      <div className="grid grid-cols-3 gap-3 w-full">
+      {/* Number Grid - RTL layout with 1-2-3 on top row */}
+      <div className="grid grid-cols-3 gap-3 w-full" dir="ltr">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
           <Button
             key={num}

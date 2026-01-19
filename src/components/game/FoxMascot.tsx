@@ -138,26 +138,35 @@ export function FoxMascot({
             transformStyle: 'preserve-3d',
           }}
         >
-          {/* Equipped Clothing - Hat */}
+          {/* Equipped Clothing - Hat - positioned above fox's head */}
           {equippedHat && (
             <div 
               className={cn(
-                'absolute -top-4 left-1/2 -translate-x-1/2 text-4xl z-30 transition-transform',
-                getAnimationClass()
+                'absolute z-30 transition-transform',
+                getAnimationClass(),
+                size === 'hero' ? '-top-8 text-5xl' : size === 'large' ? '-top-6 text-4xl' : '-top-4 text-3xl'
               )}
-              style={{ transform: 'translateX(-50%) translateZ(20px)' }}
+              style={{ 
+                left: '50%',
+                transform: 'translateX(-50%) translateZ(20px)',
+              }}
             >
               {equippedHat.emoji}
             </div>
           )}
 
-          {/* Equipped Clothing - Glasses */}
+          {/* Equipped Clothing - Glasses - positioned on fox's face */}
           {equippedGlasses && (
             <div 
               className={cn(
-                'absolute top-1/4 left-1/2 -translate-x-1/2 text-2xl z-30',
-                getAnimationClass()
+                'absolute z-30 transition-transform',
+                getAnimationClass(),
+                size === 'hero' ? 'top-[30%] text-4xl' : size === 'large' ? 'top-[28%] text-3xl' : 'top-[25%] text-2xl'
               )}
+              style={{ 
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
             >
               {equippedGlasses.emoji}
             </div>
@@ -227,24 +236,30 @@ export function FoxMascot({
             />
           </div>
 
-          {/* Equipped Clothing - Scarf */}
+          {/* Equipped Clothing - Scarf - positioned on fox's neck */}
           {equippedScarf && (
             <div 
               className={cn(
-                'absolute bottom-1/4 left-1/2 -translate-x-1/2 text-3xl z-20',
-                getAnimationClass()
+                'absolute z-20 transition-transform',
+                getAnimationClass(),
+                size === 'hero' ? 'bottom-[20%] text-5xl' : size === 'large' ? 'bottom-[22%] text-4xl' : 'bottom-[25%] text-3xl'
               )}
+              style={{ 
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
             >
               {equippedScarf.emoji}
             </div>
           )}
 
-          {/* Equipped Clothing - Bow */}
+          {/* Equipped Clothing - Bow - positioned on fox's side/chest */}
           {equippedBow && (
             <div 
               className={cn(
-                'absolute bottom-1/3 right-0 text-2xl z-20',
-                getAnimationClass()
+                'absolute z-20 transition-transform',
+                getAnimationClass(),
+                size === 'hero' ? 'bottom-[35%] -right-2 text-4xl' : size === 'large' ? 'bottom-[33%] -right-1 text-3xl' : 'bottom-[30%] right-0 text-2xl'
               )}
             >
               {equippedBow.emoji}
