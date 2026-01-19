@@ -261,10 +261,11 @@ export function GameScreen({
             </div>
           )}
 
-          {/* Answer input - Number Pad for test mode, Multiple Choice for training */}
-          {!showFeedback && gameMode === 'test' && (
+          {/* Answer input - Number Pad for test mode (always shown to allow Enter for continue) */}
+          {gameMode === 'test' && (
             <NumberPad
               onSubmit={handleAnswer}
+              onContinue={onContinue}
               disabled={showFeedback}
               correctAnswer={correctAnswer}
               showResult={showFeedback}

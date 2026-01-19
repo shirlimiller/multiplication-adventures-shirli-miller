@@ -121,13 +121,14 @@ export function SetupScreen({ onStartGame, conqueredTables }: SetupScreenProps) 
         <div className="bg-card rounded-3xl p-8 shadow-card space-y-6">
           <h2 className="text-2xl font-bold text-foreground text-center">כמה שאלות?</h2>
           
-          <div className="flex justify-center gap-4">
-            {[5, 10, 15, 20].map((count) => (
+          <div className="flex flex-wrap justify-center gap-3">
+            {[5, 10, 15, 20, 25, 30, 40, 50].map((count) => (
               <Button
                 key={count}
                 variant={questionCount === count ? 'game' : 'outline'}
                 size="lg"
                 onClick={() => setQuestionCount(count)}
+                className="min-w-[60px]"
               >
                 {count}
               </Button>
