@@ -14,7 +14,7 @@ import {
   generateAdaptiveQuestion,
 } from '@/lib/gameUtils';
 import { Player, PlayerStats } from '@/lib/playerTypes';
-import { ShopItem } from '@/lib/petTypes';
+import { ShopItem, WalkLocation } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 import { usePetState } from '@/hooks/usePetState';
 
@@ -41,9 +41,12 @@ const Index = () => {
 
   const {
     currentHunger,
+    currentHappiness,
     isDoubleStarsActive,
     feedPet,
+    walkPet,
     interactWithPet,
+    depleteHungerWhilePlaying,
   } = usePetState(selectedPlayer?.id || null);
 
   useEffect(() => {
@@ -207,12 +210,14 @@ const Index = () => {
           player={selectedPlayer}
           stats={currentStats}
           currentHunger={currentHunger}
+          currentHappiness={currentHappiness}
           isDoubleStarsActive={isDoubleStarsActive}
           onStartGame={handleStartSetup}
           onSwitchPlayer={handleBackToProfiles}
           onPurchase={handlePurchase}
           onSpendStars={handleSpendStars}
           onFeedPet={feedPet}
+          onWalkPet={walkPet}
           onPetInteract={interactWithPet}
         />
       )}
