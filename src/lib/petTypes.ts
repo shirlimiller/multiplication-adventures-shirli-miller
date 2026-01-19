@@ -137,12 +137,12 @@ export const SHOP_ITEMS: ShopItem[] = [
 ];
 
 export const DEFAULT_PET_STATE: PetState = {
-  hunger: 10, // Start very hungry so kids need to play to earn stars
+  hunger: 20, // Start hungry to encourage earning stars
   lastFed: Date.now() - (5 * 60 * 60 * 1000), // 5 hours ago
   lastInteraction: Date.now(),
   totalTreats: 0,
   doubleStarsUntil: null,
-  happiness: 20, // Start needing activity
+  happiness: 15, // Start low - pet wants to go for a walk!
   lastWalk: Date.now() - (3 * 60 * 60 * 1000), // 3 hours ago
   totalWalks: 0,
 };
