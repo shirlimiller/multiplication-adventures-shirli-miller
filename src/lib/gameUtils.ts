@@ -1,8 +1,27 @@
-import { MultiplicationStat, PlayerStats, getMultiplicationKey } from './playerTypes';
+import { MultiplicationStat, PlayerStats, getDivisionKey, getMultiplicationKey } from './playerTypes';
+
+export type Operation = 'multiply' | 'divide' | 'add' | 'subtract';
+
+export function getOperationSymbol(operation: Operation): string {
+  switch (operation) {
+    case 'add':
+      return '+';
+    case 'subtract':
+      return '−';
+    case 'divide':
+      return '÷';
+    case 'multiply':
+    default:
+      return '×';
+  }
+}
 
 export interface GameState {
   currentScreen: 'welcome' | 'setup' | 'game' | 'summary' | 'boss';
   selectedTables: number[];
+  operation: Operation;
+  rangeMin: number;
+  rangeMax: number;
   questionCount: number;
   currentQuestion: number;
   score: number;
@@ -19,6 +38,7 @@ export interface GameState {
   questionStartTime: number;
   mistakeCount: number; // Track mistakes for rotating visual items
   bossTable: number | null; // Which table's boss challenge is active
+  hintUsedInCurrentQuestion: boolean; // Track if hint was used in current question
 }
 
 export interface AnsweredQuestion {
@@ -29,6 +49,7 @@ export interface AnsweredQuestion {
   isCorrect: boolean;
   responseTimeMs: number;
   starsEarned: number; // Stars earned for this specific answer
+  operation?: Operation;
 }
 
 // Mastery requirements - based on per-multiplication tracking
@@ -42,6 +63,9 @@ export const MASTERY_CONFIG = {
 export const INITIAL_STATE: GameState = {
   currentScreen: 'welcome',
   selectedTables: [],
+  operation: 'multiply',
+  rangeMin: 1,
+  rangeMax: 10,
   questionCount: 10,
   currentQuestion: 0,
   score: 0,
@@ -58,6 +82,7 @@ export const INITIAL_STATE: GameState = {
   questionStartTime: 0,
   mistakeCount: 0,
   bossTable: null,
+  hintUsedInCurrentQuestion: false,
 };
 
 export const WORLD_COLORS: Record<number, string> = {
@@ -103,13 +128,19 @@ export function generateQuestion(tables: number[]): { multiplier: number; multip
 export function generateAdaptiveQuestion(
   tables: number[],
   playerStats: PlayerStats,
-  recentQuestions: AnsweredQuestion[] = []
+  recentQuestions: AnsweredQuestion[] = [],
+  rangeMin: number = 1,
+  rangeMax: number = 10
 ): { multiplier: number; multiplicand: number; answer: number } {
+  // Clamp range to sane values (and to 1..12 for multiplication facts)
+  const min = Math.max(1, Math.min(rangeMin, rangeMax));
+  const max = Math.min(12, Math.max(rangeMin, rangeMax));
+
   // Build weighted pool of all possible questions
   const questionPool: { table: number; multiplicand: number; weight: number }[] = [];
   
   tables.forEach(table => {
-    for (let mult = 1; mult <= 10; mult++) {
+    for (let mult = min; mult <= max; mult++) {
       const key = getMultiplicationKey(table, mult);
       const stat = playerStats.multiplicationStats[key];
       
@@ -188,6 +219,54 @@ export function generateAnswerOptions(correctAnswer: number): number[] {
   }
   
   return Array.from(options).sort(() => Math.random() - 0.5);
+}
+
+function randomInt(min: number, max: number): number {
+  const lo = Math.min(min, max);
+  const hi = Math.max(min, max);
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+}
+
+export function generateQuestionForOperation(params: {
+  operation: Operation;
+  selectedNumbers: number[]; // "focus" numbers the student selected
+  rangeMin: number;
+  rangeMax: number;
+}): { multiplier: number; multiplicand: number; answer: number } {
+  const { operation, selectedNumbers, rangeMin, rangeMax } = params;
+  const min = Math.min(rangeMin, rangeMax);
+  const max = Math.max(rangeMin, rangeMax);
+  const focus = selectedNumbers.length > 0 ? selectedNumbers : [randomInt(min, max)];
+  const pickFocus = () => focus[Math.floor(Math.random() * focus.length)];
+
+  switch (operation) {
+    case 'add': {
+      const a = pickFocus();
+      const b = randomInt(min, max);
+      return { multiplier: a, multiplicand: b, answer: a + b };
+    }
+    case 'subtract': {
+      // Keep non-negative results
+      const a = pickFocus();
+      const b = randomInt(min, max);
+      const big = Math.max(a, b);
+      const small = Math.min(a, b);
+      return { multiplier: big, multiplicand: small, answer: big - small };
+    }
+    case 'divide': {
+      // Integer division facts: dividend = divisor * quotient
+      const divisor = Math.max(1, pickFocus());
+      const quotient = randomInt(min, max);
+      const dividend = divisor * quotient;
+      return { multiplier: dividend, multiplicand: divisor, answer: quotient };
+    }
+    case 'multiply':
+    default: {
+      const table = pickFocus();
+      const mult = randomInt(Math.max(1, min), Math.min(12, max));
+      return { multiplier: table, multiplicand: mult, answer: table * mult };
+    }
+  }
 }
 
 export function getVisualExplanation(multiplier: number, multiplicand: number): string {
@@ -297,6 +376,61 @@ export function checkTableMastery(
     masteredCount,
     totalCount: 10,
     multiplicationDetails,
+  };
+}
+
+// Check if a division table (divisor) is fully mastered
+// All 10 quotients (1-10) must meet mastery requirements
+export function checkDivisionTableMastery(
+  playerStats: PlayerStats,
+  divisor: number
+): {
+  isMastered: boolean;
+  masteredCount: number;
+  totalCount: number;
+  divisionDetails: Array<{
+    quotient: number;
+    correctAnswers: number;
+    fastAnswers: number;
+    isMastered: boolean;
+    needsCorrect: number;
+    needsFast: number;
+  }>;
+} {
+  const divisionDetails: Array<{
+    quotient: number;
+    correctAnswers: number;
+    fastAnswers: number;
+    isMastered: boolean;
+    needsCorrect: number;
+    needsFast: number;
+  }> = [];
+
+  let masteredCount = 0;
+
+  for (let q = 1; q <= 10; q++) {
+    const key = getDivisionKey(divisor, q);
+    const stat = playerStats.divisionStats?.[key];
+    const isMastered = checkMultiplicationMastery(stat);
+    const correctAnswers = stat?.correctAnswers || 0;
+    const fastAnswers = stat?.fastAnswers || 0;
+    if (isMastered) masteredCount++;
+
+    divisionDetails.push({
+      quotient: q,
+      correctAnswers,
+      fastAnswers,
+      isMastered,
+      needsCorrect: Math.max(0, MASTERY_CONFIG.requiredCorrect - correctAnswers),
+      needsFast: Math.max(0, MASTERY_CONFIG.requiredFast - fastAnswers),
+    });
+  }
+
+  return {
+    isMastered: masteredCount === 10,
+    masteredCount,
+    totalCount: 10,
+    divisionDetails,
   };
 }
 

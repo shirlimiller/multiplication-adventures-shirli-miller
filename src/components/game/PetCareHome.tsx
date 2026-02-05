@@ -13,7 +13,8 @@ import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
 import { useClothingState } from '@/hooks/useClothingState';
-import { Star, Play, Trophy, Users } from 'lucide-react';
+import { checkDivisionTableMastery, checkTableMastery } from '@/lib/gameUtils';
+import { Star, Play, Award, Users } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
@@ -44,6 +45,8 @@ export function PetCareHome({
   onWalkPet,
   onPetInteract,
 }: PetCareHomeProps) {
+  const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
+  const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
@@ -129,7 +132,7 @@ export function PetCareHome({
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-garden overflow-hidden relative">
+    <div className="min-h-screen flex flex-col bg-village-map overflow-hidden relative">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Clouds */}
@@ -198,14 +201,14 @@ export function PetCareHome({
         {/* Quick Stats */}
         <div className="mt-6 flex gap-4">
           <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <Trophy className="w-6 h-6 text-primary mx-auto" />
-            <span className="text-sm font-bold">{stats.conqueredTables.length}/10</span>
-            <p className="text-xs text-muted-foreground">עולמות</p>
+            <Award className="w-6 h-6 text-yellow-500 mx-auto" />
+            <span className="text-sm font-bold">× {mulCertCount}/10</span>
+            <p className="text-xs text-muted-foreground">תעודות כפל</p>
           </div>
           <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <span className="text-2xl">🎮</span>
-            <span className="text-sm font-bold block">{stats.totalGames}</span>
-            <p className="text-xs text-muted-foreground">משחקים</p>
+            <Award className="w-6 h-6 text-sky-500 mx-auto" />
+            <span className="text-sm font-bold block">÷ {divCertCount}/10</span>
+            <p className="text-xs text-muted-foreground">תעודות חילוק</p>
           </div>
         </div>
       </main>

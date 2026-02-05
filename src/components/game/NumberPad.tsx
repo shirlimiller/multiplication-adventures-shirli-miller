@@ -9,9 +9,10 @@ interface NumberPadProps {
   correctAnswer?: number;
   showResult?: boolean;
   isCorrect?: boolean | null;
+  gameMode?: 'training' | 'test';
 }
 
-export function NumberPad({ onSubmit, onContinue, disabled = false, correctAnswer, showResult, isCorrect }: NumberPadProps) {
+export function NumberPad({ onSubmit, onContinue, disabled = false, correctAnswer, showResult, isCorrect, gameMode }: NumberPadProps) {
   const [input, setInput] = useState('');
   
   // Reset input when question changes
@@ -113,12 +114,16 @@ export function NumberPad({ onSubmit, onContinue, disabled = false, correctAnswe
           0
         </Button>
         
-        {/* Submit button */}
+        {/* Submit button - green when correct in test mode */}
         <Button
           size="lg"
           onClick={handleSubmit}
           disabled={disabled || !input}
-          className="h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft bg-gradient-gold text-white"
+          className={`h-16 rounded-2xl hover:scale-105 transition-transform shadow-soft ${
+            gameMode === 'test' && showResult && isCorrect
+              ? 'bg-green-500 hover:bg-green-600 text-white'
+              : 'bg-gradient-gold text-white'
+          }`}
         >
           <Check className="w-8 h-8" />
         </Button>

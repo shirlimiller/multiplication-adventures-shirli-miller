@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { PlayerHeader } from './PlayerHeader';
 import { Player, PlayerStats } from '@/lib/playerTypes';
-import { WORLD_NAMES, WORLD_COLORS } from '@/lib/gameUtils';
-import { Play, Trophy, Target, Clock } from 'lucide-react';
+import { checkDivisionTableMastery, checkTableMastery } from '@/lib/gameUtils';
+import { Award, Play, Target } from 'lucide-react';
 
 interface PlayerDashboardProps {
   player: Player;
@@ -17,21 +17,24 @@ export function PlayerDashboard({ player, stats, onBack, onStartGame }: PlayerDa
     ? Math.round((stats.totalCorrectAnswers / stats.totalQuestions) * 100) 
     : 0;
 
+  const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
+  const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
+
   const getWelcomeMessage = () => {
     if (stats.totalGames === 0) {
       return `שלום ${player.name}! 🎉 בוא נתחיל את ההרפתקה הראשונה שלך!`;
     }
-    if (stats.conqueredTables.length >= 10) {
-      return `${player.name} האלוף/ה! 🏆 כבשת את כל העולמות! רוצה לתרגל?`;
+    if (mulCertCount >= 10 && divCertCount >= 10) {
+      return `${player.name} האלוף/ה! 🏅 אספת את כל התעודות בכפל ובחילוק!`;
     }
-    if (stats.conqueredTables.length > 0) {
-      return `שלום ${player.name}! ✨ כבר כבשת ${stats.conqueredTables.length} עולמות! בוא נמשיך!`;
+    if (mulCertCount > 0 || divCertCount > 0) {
+      return `שלום ${player.name}! ✨ כבר יש לך תעודות: כפל ${mulCertCount}/10, חילוק ${divCertCount}/10. בוא נמשיך!`;
     }
-    return `שלום ${player.name}! 💪 בוא נכבוש עולמות חדשים היום!`;
+    return `שלום ${player.name}! 💪 בוא נתחיל לאסוף תעודות היום!`;
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-4 bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen flex flex-col p-4 bg-village-map relative">
       {/* Header */}
       <PlayerHeader player={player} stats={stats} onBack={onBack} />
 
@@ -42,9 +45,9 @@ export function PlayerDashboard({ player, stats, onBack, onStartGame }: PlayerDa
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
           <div className="bg-card rounded-2xl p-4 shadow-card text-center">
-            <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-extrabold">{stats.conqueredTables.length}/10</div>
-            <div className="text-xs text-muted-foreground">עולמות נכבשו</div>
+            <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{mulCertCount}/10</div>
+            <div className="text-xs text-muted-foreground">תעודות כפל</div>
           </div>
           
           <div className="bg-card rounded-2xl p-4 shadow-card text-center">
@@ -60,51 +63,11 @@ export function PlayerDashboard({ player, stats, onBack, onStartGame }: PlayerDa
           </div>
           
           <div className="bg-card rounded-2xl p-4 shadow-card text-center">
-            <Clock className="w-8 h-8 text-secondary mx-auto mb-2" />
-            <div className="text-2xl font-extrabold">{stats.totalGames}</div>
-            <div className="text-xs text-muted-foreground">משחקים</div>
+            <Award className="w-8 h-8 text-sky-500 mx-auto mb-2" />
+            <div className="text-2xl font-extrabold">{divCertCount}/10</div>
+            <div className="text-xs text-muted-foreground">תעודות חילוק</div>
           </div>
         </div>
-
-        {/* Conquered Tables */}
-        {stats.conqueredTables.length > 0 && (
-          <div className="w-full bg-card rounded-2xl p-6 shadow-card">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span>🏆</span> העולמות שכבשת
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {stats.conqueredTables.sort((a, b) => a - b).map(table => (
-                <span 
-                  key={table} 
-                  className={`${WORLD_COLORS[table]} text-white px-3 py-1.5 rounded-xl text-sm font-bold`}
-                >
-                  {table} - {WORLD_NAMES[table]}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Remaining Tables */}
-        {stats.conqueredTables.length < 10 && (
-          <div className="w-full bg-muted/50 rounded-2xl p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span>🎯</span> עולמות לכיבוש
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                .filter(t => !stats.conqueredTables.includes(t))
-                .map(table => (
-                  <span 
-                    key={table} 
-                    className="bg-muted text-muted-foreground px-3 py-1.5 rounded-xl text-sm font-bold"
-                  >
-                    {table} - {WORLD_NAMES[table]}
-                  </span>
-                ))}
-            </div>
-          </div>
-        )}
 
         {/* Start Game Button */}
         <Button

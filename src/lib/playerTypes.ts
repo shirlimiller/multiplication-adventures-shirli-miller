@@ -25,6 +25,8 @@ export interface PlayerStats {
   conqueredTables: number[];
   // Per-multiplication tracking: key is "table_multiplicand" e.g., "8_3" for 8×3
   multiplicationStats: Record<string, MultiplicationStat>;
+  // Per-division tracking: key is "divisor_quotient" e.g., "9_3" for 27÷9 (=3)
+  divisionStats: Record<string, MultiplicationStat>;
   // Legacy table stats for backward compatibility
   tableStats: Record<number, TableStat>;
   gameHistory: GameHistoryEntry[];
@@ -76,6 +78,7 @@ export const DEFAULT_PLAYER_STATS: Omit<PlayerStats, 'playerId'> = {
   totalStars: 0,
   conqueredTables: [],
   multiplicationStats: {},
+  divisionStats: {},
   tableStats: {},
   gameHistory: [],
 };
@@ -94,6 +97,7 @@ export function createPlayerStats(playerId: string): PlayerStats {
     ...DEFAULT_PLAYER_STATS,
     playerId,
     multiplicationStats: {},
+    divisionStats: {},
     tableStats: {},
     gameHistory: [],
     conqueredTables: [],
@@ -103,6 +107,11 @@ export function createPlayerStats(playerId: string): PlayerStats {
 // Helper to create multiplication key
 export function getMultiplicationKey(table: number, multiplicand: number): string {
   return `${table}_${multiplicand}`;
+}
+
+// Helper to create division key
+export function getDivisionKey(divisor: number, quotient: number): string {
+  return `${divisor}_${quotient}`;
 }
 
 // Helper to parse multiplication key

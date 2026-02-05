@@ -4,6 +4,7 @@ import { Player, PlayerStats } from '@/lib/playerTypes';
 import { Plus, Edit2, Trash2, X, RotateCcw } from 'lucide-react';
 import { AddPlayerDialog } from './AddPlayerDialog';
 import { ConfirmDialog } from './ConfirmDialog';
+import { checkDivisionTableMastery, checkTableMastery } from '@/lib/gameUtils';
 
 interface ProfileSelectionScreenProps {
   players: Player[];
@@ -33,7 +34,7 @@ export function ProfileSelectionScreen({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-village-map relative">
       <div className="w-full max-w-4xl space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -47,6 +48,8 @@ export function ProfileSelectionScreen({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {players.map((player) => {
             const stats = getPlayerStats(player.id);
+            const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
+            const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
             return (
               <div
                 key={player.id}
@@ -65,7 +68,7 @@ export function ProfileSelectionScreen({
                 {/* Stats preview */}
                 <div className="flex justify-center gap-3 text-sm text-muted-foreground">
                   <span>⭐ {stats.totalStars}</span>
-                  <span>🏆 {stats.conqueredTables.length}</span>
+                  <span>🏅 ×{mulCertCount} ÷{divCertCount}</span>
                 </div>
 
                 {/* Edit mode actions */}
@@ -162,7 +165,7 @@ export function ProfileSelectionScreen({
           }
         }}
         title="איפוס היסטוריה"
-        message={`האם את/ה בטוח/ה שרוצה לאפס את כל ההיסטוריה של ${resetConfirm?.name}? כל הכוכבים, העולמות שנכבשו וההתקדמות יאופסו.`}
+        message={`האם את/ה בטוח/ה שרוצה לאפס את כל ההיסטוריה של ${resetConfirm?.name}? כל הכוכבים, התעודות וההתקדמות יאופסו.`}
         confirmText="כן, אפס"
         cancelText="ביטול"
         variant="secondary"

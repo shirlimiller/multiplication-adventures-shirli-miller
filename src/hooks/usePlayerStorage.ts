@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Player, PlayerStats, createPlayerStats, GameHistoryEntry, getMultiplicationKey, createMultiplicationStat } from '@/lib/playerTypes';
-import { AnsweredQuestion, MASTERY_CONFIG, getConqueredTables } from '@/lib/gameUtils';
+import { Player, PlayerStats, createPlayerStats, GameHistoryEntry, getDivisionKey, getMultiplicationKey, createMultiplicationStat } from '@/lib/playerTypes';
+import { AnsweredQuestion, MASTERY_CONFIG, getConqueredTables, Operation } from '@/lib/gameUtils';
 
 const PLAYERS_KEY = 'multiplication_game_players';
 const STATS_KEY = 'multiplication_game_stats';
@@ -67,6 +67,10 @@ export function usePlayerStorage() {
       if (!stats.multiplicationStats) {
         stats.multiplicationStats = {};
       }
+      // Ensure divisionStats exists (for backward compatibility)
+      if (!stats.divisionStats) {
+        stats.divisionStats = {};
+      }
       return stats;
     }
     return createPlayerStats(playerId);
@@ -77,72 +81,14 @@ export function usePlayerStorage() {
     playerId: string,
     answeredQuestions: AnsweredQuestion[],
     selectedTables: number[],
-    stars: number
+    stars: number,
+    operation: Operation = 'multiply'
   ) => {
     const currentStats = getPlayerStats(playerId);
     
     // Calculate game results
     const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;
     const totalQuestions = answeredQuestions.length;
-    
-    // Update per-multiplication stats
-    const newMultiplicationStats = { ...currentStats.multiplicationStats };
-    
-    answeredQuestions.forEach(q => {
-      const key = getMultiplicationKey(q.multiplier, q.multiplicand);
-      const existing = newMultiplicationStats[key] || createMultiplicationStat();
-      
-      const isFast = q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
-      
-      newMultiplicationStats[key] = {
-        totalAttempts: existing.totalAttempts + 1,
-        correctAnswers: existing.correctAnswers + (q.isCorrect ? 1 : 0),
-        fastAnswers: existing.fastAnswers + (q.isCorrect && isFast ? 1 : 0),
-        totalTimeMs: existing.totalTimeMs + q.responseTimeMs,
-        lastAttempted: Date.now(),
-      };
-    });
-    
-    // Update legacy table-specific stats (for dashboard compatibility)
-    const newTableStats = { ...currentStats.tableStats };
-    
-    selectedTables.forEach(table => {
-      const tableQuestions = answeredQuestions.filter(q => q.multiplier === table);
-      const tableCorrect = tableQuestions.filter(q => q.isCorrect);
-      const tableFast = tableCorrect.filter(q => q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs);
-      const avgTime = tableCorrect.length > 0 
-        ? tableCorrect.reduce((sum, q) => sum + q.responseTimeMs, 0) / tableCorrect.length
-        : 0;
-      
-      const existing = newTableStats[table] || {
-        attempts: 0,
-        correct: 0,
-        fastAnswers: 0,
-        averageTimeMs: 0,
-        lastPlayed: 0,
-      };
-      
-      // Update with weighted average for time
-      const totalCorrectSoFar = existing.correct + tableCorrect.length;
-      const newAvgTime = totalCorrectSoFar > 0
-        ? ((existing.averageTimeMs * existing.correct) + (avgTime * tableCorrect.length)) / totalCorrectSoFar
-        : 0;
-      
-      newTableStats[table] = {
-        attempts: existing.attempts + tableQuestions.length,
-        correct: existing.correct + tableCorrect.length,
-        fastAnswers: existing.fastAnswers + tableFast.length,
-        averageTimeMs: Math.round(newAvgTime),
-        lastPlayed: Date.now(),
-      };
-    });
-
-    // Calculate conquered tables based on per-multiplication mastery
-    const updatedStatsForCheck: PlayerStats = {
-      ...currentStats,
-      multiplicationStats: newMultiplicationStats,
-    };
-    const newConqueredTables = getConqueredTables(updatedStatsForCheck);
 
     // Create game history entry
     const gameEntry: GameHistoryEntry = {
@@ -152,21 +98,113 @@ export function usePlayerStorage() {
       stars,
       correctAnswers,
       totalQuestions,
-      conqueredInGame: newConqueredTables.filter(t => !currentStats.conqueredTables.includes(t)),
+      conqueredInGame: [],
     };
 
     // Update stats
-    const updatedStats: PlayerStats = {
+    let updatedStats: PlayerStats = {
       ...currentStats,
       totalGames: currentStats.totalGames + 1,
       totalCorrectAnswers: currentStats.totalCorrectAnswers + correctAnswers,
       totalQuestions: currentStats.totalQuestions + totalQuestions,
       totalStars: currentStats.totalStars + stars,
-      conqueredTables: newConqueredTables,
-      multiplicationStats: newMultiplicationStats,
-      tableStats: newTableStats,
       gameHistory: [...currentStats.gameHistory, gameEntry],
     };
+
+    // Multiplication updates mastery/table stats
+    if (operation === 'multiply') {
+      const newMultiplicationStats = { ...currentStats.multiplicationStats };
+      answeredQuestions.forEach(q => {
+        const key = getMultiplicationKey(q.multiplier, q.multiplicand);
+        const existing = newMultiplicationStats[key] || createMultiplicationStat();
+        const isFast = q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
+        newMultiplicationStats[key] = {
+          totalAttempts: existing.totalAttempts + 1,
+          correctAnswers: existing.correctAnswers + (q.isCorrect ? 1 : 0),
+          fastAnswers: existing.fastAnswers + (q.isCorrect && isFast ? 1 : 0),
+          totalTimeMs: existing.totalTimeMs + q.responseTimeMs,
+          lastAttempted: Date.now(),
+        };
+      });
+
+      const newTableStats = { ...currentStats.tableStats };
+      selectedTables.forEach(table => {
+        const tableQuestions = answeredQuestions.filter(q => q.multiplier === table);
+        const tableCorrect = tableQuestions.filter(q => q.isCorrect);
+        const tableFast = tableCorrect.filter(q => q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs);
+        const avgTime = tableCorrect.length > 0
+          ? tableCorrect.reduce((sum, q) => sum + q.responseTimeMs, 0) / tableCorrect.length
+          : 0;
+
+        const existing = newTableStats[table] || {
+          attempts: 0,
+          correct: 0,
+          fastAnswers: 0,
+          averageTimeMs: 0,
+          lastPlayed: 0,
+        };
+
+        const totalCorrectSoFar = existing.correct + tableCorrect.length;
+        const newAvgTime = totalCorrectSoFar > 0
+          ? ((existing.averageTimeMs * existing.correct) + (avgTime * tableCorrect.length)) / totalCorrectSoFar
+          : 0;
+
+        newTableStats[table] = {
+          attempts: existing.attempts + tableQuestions.length,
+          correct: existing.correct + tableCorrect.length,
+          fastAnswers: existing.fastAnswers + tableFast.length,
+          averageTimeMs: Math.round(newAvgTime),
+          lastPlayed: Date.now(),
+        };
+      });
+
+      const updatedStatsForCheck: PlayerStats = {
+        ...updatedStats,
+        multiplicationStats: newMultiplicationStats,
+      };
+      const newConqueredTables = getConqueredTables(updatedStatsForCheck);
+
+      // Patch history entry with conquered-in-game info
+      const patchedHistory = [...updatedStats.gameHistory];
+      const last = patchedHistory[patchedHistory.length - 1];
+      patchedHistory[patchedHistory.length - 1] = {
+        ...last,
+        conqueredInGame: newConqueredTables.filter(t => !currentStats.conqueredTables.includes(t)),
+      };
+
+      updatedStats = {
+        ...updatedStats,
+        conqueredTables: newConqueredTables,
+        multiplicationStats: newMultiplicationStats,
+        tableStats: newTableStats,
+        gameHistory: patchedHistory,
+      };
+    }
+
+    // Division updates division table "certificates" stats (no worlds)
+    if (operation === 'divide') {
+      const newDivisionStats = { ...currentStats.divisionStats };
+      answeredQuestions.forEach(q => {
+        // For division: multiplier=dividend, multiplicand=divisor, correctAnswer=quotient
+        const divisor = q.multiplicand;
+        const quotient = q.correctAnswer;
+        const key = getDivisionKey(divisor, quotient);
+        const existing = newDivisionStats[key] || createMultiplicationStat();
+        const isFast = q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs;
+        newDivisionStats[key] = {
+          totalAttempts: existing.totalAttempts + 1,
+          correctAnswers: existing.correctAnswers + (q.isCorrect ? 1 : 0),
+          fastAnswers: existing.fastAnswers + (q.isCorrect && isFast ? 1 : 0),
+          totalTimeMs: existing.totalTimeMs + q.responseTimeMs,
+          lastAttempted: Date.now(),
+        };
+      });
+
+      updatedStats = {
+        ...updatedStats,
+        divisionStats: newDivisionStats,
+      };
+    }
 
     const newAllStats = { ...allStats, [playerId]: updatedStats };
     saveStats(newAllStats);

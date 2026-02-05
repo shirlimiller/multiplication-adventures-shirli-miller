@@ -1,5 +1,6 @@
 import { Player, PlayerStats } from '@/lib/playerTypes';
-import { ArrowRight, Star, Trophy } from 'lucide-react';
+import { checkDivisionTableMastery, checkTableMastery } from '@/lib/gameUtils';
+import { ArrowRight, Award, Star } from 'lucide-react';
 
 interface PlayerHeaderProps {
   player: Player;
@@ -8,6 +9,9 @@ interface PlayerHeaderProps {
 }
 
 export function PlayerHeader({ player, stats, onBack }: PlayerHeaderProps) {
+  const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
+  const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
+
   return (
     <div className="bg-card shadow-soft rounded-2xl px-4 py-3 flex items-center justify-between">
       {/* Back button */}
@@ -28,8 +32,10 @@ export function PlayerHeader({ player, stats, onBack }: PlayerHeaderProps) {
             <span className="font-bold">{stats.totalStars}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Trophy className="w-4 h-4 text-primary" />
-            <span className="font-bold">{stats.conqueredTables.length}/10</span>
+              <Award className="w-4 h-4 text-yellow-500" />
+              <span className="font-bold">× {mulCertCount}/10</span>
+              <span className="text-muted-foreground">|</span>
+              <span className="font-bold">÷ {divCertCount}/10</span>
           </div>
         </div>
 

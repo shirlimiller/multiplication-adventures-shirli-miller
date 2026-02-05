@@ -1,14 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
-import { AnsweredQuestion, WORLD_NAMES, MASTERY_CONFIG, checkTableMastery } from '@/lib/gameUtils';
+import { AnsweredQuestion, MASTERY_CONFIG, checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
-import { Star, Trophy, Target, RefreshCw, Clock, Zap } from 'lucide-react';
+import { Award, Star, Trophy, RefreshCw, Clock, Zap } from 'lucide-react';
 
 interface SummaryScreenProps {
   answeredQuestions: AnsweredQuestion[];
   score: number;
   stars: number;
   selectedTables: number[];
+  operation: Operation;
   playerStats: PlayerStats;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
@@ -19,6 +20,7 @@ export function SummaryScreen({
   score,
   stars,
   selectedTables,
+  operation,
   playerStats,
   onPlayAgain,
   onChangeSettings,
@@ -30,18 +32,6 @@ export function SummaryScreen({
     ? Math.round(answeredQuestions.filter(q => q.isCorrect).reduce((sum, q) => sum + q.responseTimeMs, 0) / Math.max(1, answeredQuestions.filter(q => q.isCorrect).length))
     : 0;
   const fastAnswers = answeredQuestions.filter(q => q.isCorrect && q.responseTimeMs <= MASTERY_CONFIG.maxResponseTimeMs).length;
-
-  // Analyze which tables need more practice using per-multiplication stats
-  const tableStats = selectedTables.map(table => {
-    const mastery = checkTableMastery(playerStats, table);
-    return {
-      table,
-      ...mastery,
-    };
-  });
-
-  const masteredTables = tableStats.filter(t => t.isMastered).map(t => t.table);
-  const needsPractice = tableStats.filter(t => !t.isMastered);
 
   const getMessage = () => {
     if (percentage === 100 && fastAnswers >= answeredQuestions.length * 0.7) {
@@ -99,59 +89,30 @@ export function SummaryScreen({
           </div>
         </div>
 
-        {/* Mastered tables */}
-        {masteredTables.length > 0 && (
-          <div className="bg-success/10 border-2 border-success rounded-3xl p-6">
-            <h3 className="text-xl font-bold text-success mb-3 flex items-center gap-2">
-              <span>🏆</span> עולמות שנכבשו!
+        {/* Certificates for selected tables (× and ÷) */}
+        {selectedTables.length > 0 && (
+          <div className="bg-card rounded-3xl p-6 shadow-card">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Award className="w-6 h-6 text-yellow-500" />
+              תעודות ללוחות שבחרת
             </h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              כל הכפולות נענו נכון ומהיר!
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {masteredTables.map(table => (
-                <span key={table} className="bg-success text-white px-4 py-2 rounded-xl font-bold">
-                  {WORLD_NAMES[table]} ({table})
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tables that need practice - with detailed per-multiplication breakdown */}
-        {needsPractice.length > 0 && (
-          <div className="bg-secondary/30 border-2 border-secondary rounded-3xl p-6">
-            <h3 className="text-xl font-bold text-secondary mb-3 flex items-center gap-2">
-              <span>💪</span> עולמות לתרגול נוסף
-            </h3>
-            <div className="space-y-4">
-              {needsPractice.map(({ table, masteredCount, totalCount, multiplicationDetails }) => {
-                // Find the weakest multiplications
-                const weakMultiplications = multiplicationDetails
-                  .filter(m => !m.isMastered)
-                  .slice(0, 3); // Show top 3 weakest
-                
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {[...new Set(selectedTables)].sort((a, b) => a - b).map((t) => {
+                const mul = checkTableMastery(playerStats, t).isMastered;
+                const div = checkDivisionTableMastery(playerStats, t).isMastered;
+                const certClass = (earned: boolean) => earned ? 'opacity-100' : 'opacity-30 grayscale blur-[1px]';
                 return (
-                  <div key={table} className="bg-card rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold">{WORLD_NAMES[table]} ({table})</span>
-                      <span className="text-sm text-muted-foreground">
-                        {masteredCount}/{totalCount} כפולות מושלטות
-                      </span>
-                    </div>
-                    
-                    {/* Show weak multiplications */}
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      {weakMultiplications.map(m => (
-                        <div key={m.multiplicand} className="flex justify-between">
-                          <span>{table} × {m.multiplicand}</span>
-                          <span className="text-destructive">
-                            {m.needsCorrect > 0 && `צריך עוד ${m.needsCorrect} נכונות`}
-                            {m.needsCorrect > 0 && m.needsFast > 0 && ', '}
-                            {m.needsFast > 0 && `${m.needsFast} מהירות`}
-                          </span>
-                        </div>
-                      ))}
+                  <div key={t} className="bg-muted/30 rounded-2xl p-3 text-center">
+                    <div className="text-2xl font-extrabold mb-2">{t}</div>
+                    <div className="flex justify-center gap-2">
+                      <div className={`flex items-center gap-1 bg-background/80 rounded-full px-2 py-1 ${certClass(mul)}`}>
+                        <Award className="w-4 h-4 text-yellow-500" />
+                        <span className="text-xs font-bold">×</span>
+                      </div>
+                      <div className={`flex items-center gap-1 bg-background/80 rounded-full px-2 py-1 ${certClass(div)}`}>
+                        <Award className="w-4 h-4 text-sky-500" />
+                        <span className="text-xs font-bold">÷</span>
+                      </div>
                     </div>
                   </div>
                 );
@@ -160,10 +121,9 @@ export function SummaryScreen({
           </div>
         )}
 
-        {/* Mastery requirements explanation */}
         <div className="bg-muted/50 rounded-2xl p-4 text-center text-sm text-muted-foreground">
-          <p>🎯 כדי לכבוש עולם:</p>
-          <p>כל כפולה (1-10) צריכה {MASTERY_CONFIG.requiredCorrect} תשובות נכונות, לפחות {MASTERY_CONFIG.requiredFast} מהן מהירות (פחות מ-{MASTERY_CONFIG.maxResponseTimeMs / 1000} שניות)</p>
+          <p>🎯 כדי לקבל תעודה ללוח:</p>
+          <p>כל עובדה (1–10) צריכה {MASTERY_CONFIG.requiredCorrect} תשובות נכונות, ולפחות {MASTERY_CONFIG.requiredFast} מהן מהירות (פחות מ-{MASTERY_CONFIG.maxResponseTimeMs / 1000} שניות)</p>
         </div>
 
         {/* Action buttons */}
@@ -183,7 +143,7 @@ export function SummaryScreen({
             size="lg"
             onClick={onChangeSettings}
           >
-            בחר עולמות אחרים
+            בחר הגדרות אחרות
           </Button>
         </div>
       </div>

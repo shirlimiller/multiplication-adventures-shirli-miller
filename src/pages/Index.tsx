@@ -12,6 +12,8 @@ import {
   INITIAL_STATE, 
   AnsweredQuestion,
   generateAdaptiveQuestion,
+  generateQuestionForOperation,
+  Operation,
 } from '@/lib/gameUtils';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation } from '@/lib/petTypes';
@@ -71,22 +73,41 @@ const Index = () => {
 
   const handleStartSetup = () => setCurrentScreen('setup');
 
-  const handleStartGame = useCallback((tables: number[], questionCount: number, mode: GameMode) => {
+  const handleStartGame = useCallback((config: {
+    operation: Operation;
+    selectedNumbers: number[];
+    rangeMin: number;
+    rangeMax: number;
+    questionCount: number;
+    mode: GameMode;
+  }) => {
     if (!selectedPlayer) return;
     
-    setGameMode(mode);
+    setGameMode(config.mode);
     const playerStats = getPlayerStats(selectedPlayer.id);
-    const { multiplier, multiplicand, answer } = generateAdaptiveQuestion(tables, playerStats, []);
+    const { multiplier, multiplicand, answer } =
+      config.operation === 'multiply'
+        ? generateAdaptiveQuestion(config.selectedNumbers, playerStats, [], config.rangeMin, config.rangeMax)
+        : generateQuestionForOperation({
+            operation: config.operation,
+            selectedNumbers: config.selectedNumbers,
+            rangeMin: config.rangeMin,
+            rangeMax: config.rangeMax,
+          });
     
     setGameState({
       ...INITIAL_STATE,
       currentScreen: 'game',
-      selectedTables: tables,
-      questionCount,
+      selectedTables: config.selectedNumbers,
+      operation: config.operation,
+      rangeMin: config.rangeMin,
+      rangeMax: config.rangeMax,
+      questionCount: config.questionCount,
       currentMultiplier: multiplier,
       currentMultiplicand: multiplicand,
       correctAnswer: answer,
       questionStartTime: Date.now(),
+      hintUsedInCurrentQuestion: false,
     });
     setCurrentScreen('game');
   }, [selectedPlayer, getPlayerStats]);
@@ -103,6 +124,7 @@ const Index = () => {
       isCorrect,
       responseTimeMs,
       starsEarned: finalStars,
+      operation: gameState.operation,
     };
 
     setGameState(prev => ({
@@ -124,15 +146,27 @@ const Index = () => {
     if (nextQuestion >= gameState.questionCount) {
       if (selectedPlayer) {
         const totalStars = gameState.answeredQuestions.reduce((sum, q) => sum + q.starsEarned, 0);
-        updatePlayerStats(selectedPlayer.id, gameState.answeredQuestions, gameState.selectedTables, totalStars);
+        updatePlayerStats(selectedPlayer.id, gameState.answeredQuestions, gameState.selectedTables, totalStars, gameState.operation);
         setCurrentStats(getPlayerStats(selectedPlayer.id));
       }
       setCurrentScreen('summary');
     } else {
       const playerStats = selectedPlayer ? getPlayerStats(selectedPlayer.id) : null;
       const { multiplier, multiplicand, answer } = playerStats
-        ? generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions)
-        : { multiplier: gameState.selectedTables[0], multiplicand: 1, answer: gameState.selectedTables[0] };
+        ? (gameState.operation === 'multiply'
+            ? generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions, gameState.rangeMin, gameState.rangeMax)
+            : generateQuestionForOperation({
+                operation: gameState.operation,
+                selectedNumbers: gameState.selectedTables,
+                rangeMin: gameState.rangeMin,
+                rangeMax: gameState.rangeMax,
+              }))
+        : generateQuestionForOperation({
+            operation: gameState.operation,
+            selectedNumbers: gameState.selectedTables,
+            rangeMin: gameState.rangeMin,
+            rangeMax: gameState.rangeMax,
+          });
       
       setGameState(prev => ({
         ...prev,
@@ -144,12 +178,20 @@ const Index = () => {
         showFeedback: false,
         isCorrect: null,
         questionStartTime: Date.now(),
+        hintUsedInCurrentQuestion: false, // Reset hint flag for new question
       }));
     }
   }, [gameState, selectedPlayer, updatePlayerStats, getPlayerStats]);
 
+  const handleHintUsed = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      hintUsedInCurrentQuestion: true,
+    }));
+  }, []);
+
   const handleBossUnlock = useCallback(() => {
-    if (gameState.currentMultiplier) {
+    if (gameState.operation === 'multiply' && gameState.currentMultiplier) {
       setBossTable(gameState.currentMultiplier);
       setCurrentScreen('boss');
     }
@@ -182,16 +224,25 @@ const Index = () => {
     setCurrentScreen('home');
   };
 
+  const handleBackFromGame = useCallback(() => {
+    if (selectedPlayer && gameState.answeredQuestions.length > 0) {
+      const totalStars = gameState.answeredQuestions.reduce((sum, q) => sum + q.starsEarned, 0);
+      updatePlayerStats(selectedPlayer.id, gameState.answeredQuestions, gameState.selectedTables, totalStars, gameState.operation);
+      setCurrentStats(getPlayerStats(selectedPlayer.id));
+    }
+    setCurrentScreen('setup');
+  }, [selectedPlayer, gameState.answeredQuestions, gameState.selectedTables, gameState.operation, updatePlayerStats, getPlayerStats]);
+
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gradient-garden flex items-center justify-center">
+      <div className="min-h-screen bg-village-map flex items-center justify-center">
         <div className="text-2xl font-bold text-primary animate-pulse">טוען...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-village-map flex flex-col relative">
       {currentScreen === 'welcome' && <WelcomeScreen onStart={handleStart} />}
 
       {currentScreen === 'profiles' && (
@@ -227,31 +278,39 @@ const Index = () => {
           <div className="absolute top-4 right-4 z-10">
             <BackButton onClick={handleReturnToMenu} />
           </div>
-          <SetupScreen onStartGame={handleStartGame} conqueredTables={currentStats.conqueredTables} />
+          <SetupScreen onStartGame={handleStartGame} playerStats={currentStats} />
         </div>
       )}
 
       {currentScreen === 'game' && selectedPlayer && currentStats && (
-        <GameScreen
-          multiplier={gameState.currentMultiplier}
-          multiplicand={gameState.currentMultiplicand}
-          correctAnswer={gameState.correctAnswer}
-          currentQuestion={gameState.currentQuestion}
-          totalQuestions={gameState.questionCount}
-          score={gameState.score}
-          stars={gameState.stars}
-          streak={gameState.streak}
-          mistakeCount={gameState.mistakeCount}
-          totalStars={currentStats.totalStars}
-          playerStats={currentStats}
-          gameMode={gameMode}
-          onAnswer={handleAnswer}
-          onContinue={handleContinue}
-          onBossUnlock={handleBossUnlock}
-          showFeedback={gameState.showFeedback}
-          isCorrect={gameState.isCorrect}
-          questionStartTime={gameState.questionStartTime}
-        />
+        <div className="relative flex-1 flex flex-col">
+          <div className="absolute top-4 right-4 z-10">
+            <BackButton onClick={handleBackFromGame} />
+          </div>
+          <GameScreen
+            multiplier={gameState.currentMultiplier}
+            multiplicand={gameState.currentMultiplicand}
+            correctAnswer={gameState.correctAnswer}
+            currentQuestion={gameState.currentQuestion}
+            totalQuestions={gameState.questionCount}
+            score={gameState.score}
+            stars={gameState.stars}
+            streak={gameState.streak}
+            mistakeCount={gameState.mistakeCount}
+            totalStars={currentStats.totalStars}
+            playerStats={currentStats}
+            gameMode={gameMode}
+            operation={gameState.operation}
+            onAnswer={handleAnswer}
+            onContinue={handleContinue}
+            onBossUnlock={handleBossUnlock}
+            showFeedback={gameState.showFeedback}
+            isCorrect={gameState.isCorrect}
+            questionStartTime={gameState.questionStartTime}
+            hintUsedInCurrentQuestion={gameState.hintUsedInCurrentQuestion}
+            onHintUsed={handleHintUsed}
+          />
+        </div>
       )}
 
       {currentScreen === 'boss' && bossTable && (
@@ -268,6 +327,7 @@ const Index = () => {
             stars={gameState.stars}
             answeredQuestions={gameState.answeredQuestions}
             selectedTables={gameState.selectedTables}
+            operation={gameState.operation}
             onPlayAgain={handlePlayAgain}
             onChangeSettings={handleReturnToMenu}
             playerStats={getPlayerStats(selectedPlayer.id)}

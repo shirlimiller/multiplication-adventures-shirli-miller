@@ -2,80 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Fredoka+One&display=swap');
 
 @layer base {
   :root {
-    /* Vibrant Game World - Pastel Palette */
-    --background: 160 50% 97%;
-    --foreground: 220 30% 20%;
+    /* Animal Crossing: New Horizons - Soft Pastel Palette */
+    /* Sky blue background - like AC sky */
+    --background: 200 60% 96%;
+    --foreground: 220 25% 25%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 30% 20%;
+    /* Soft cream/beige cards - like aged paper */
+    --card: 35 45% 95%;
+    --card-foreground: 220 25% 25%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 20%;
+    --popover: 35 45% 95%;
+    --popover-foreground: 220 25% 25%;
 
-    /* Mint Green - Fresh and playful */
-    --primary: 160 60% 55%;
+    /* Soft pastel green - like AC grass */
+    --primary: 145 50% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Sky Blue - Calm and trustworthy */
-    --secondary: 200 80% 65%;
+    /* Soft pastel pink - like AC flowers */
+    --secondary: 340 60% 75%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Soft Cream */
-    --muted: 45 40% 95%;
-    --muted-foreground: 220 20% 45%;
+    /* Warm beige - like AC wood */
+    --muted: 35 40% 92%;
+    --muted-foreground: 220 20% 40%;
 
-    /* Soft Gold - Achievements and rewards */
-    --accent: 45 95% 60%;
-    --accent-foreground: 220 30% 20%;
+    /* Soft yellow - like AC sun */
+    --accent: 45 80% 70%;
+    --accent-foreground: 220 25% 25%;
 
-    /* Candy Pink - Fun interactions */
-    --candy: 340 75% 70%;
+    /* Soft pink - like AC cherry blossoms */
+    --candy: 340 65% 75%;
     --candy-foreground: 0 0% 100%;
 
-    /* Success green */
-    --success: 145 65% 50%;
+    /* Soft green - like AC success */
+    --success: 145 55% 55%;
     --success-foreground: 0 0% 100%;
 
-    /* Gentle error */
-    --destructive: 0 65% 65%;
+    /* Gentle coral - like AC error */
+    --destructive: 15 65% 70%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 30% 88%;
-    --input: 200 30% 88%;
-    --ring: 160 60% 55%;
+    /* Soft borders - like AC paths */
+    --border: 35 30% 85%;
+    --input: 35 30% 88%;
+    --ring: 145 50% 60%;
 
-    --radius: 1.5rem;
+    --radius: 2.5rem;
 
-    /* Custom game colors - Pastel versions */
-    --world-1: 340 70% 75%;
-    --world-2: 20 85% 70%;
-    --world-3: 45 90% 65%;
-    --world-4: 145 60% 55%;
-    --world-5: 175 65% 55%;
-    --world-6: 200 75% 65%;
-    --world-7: 230 65% 70%;
-    --world-8: 270 55% 70%;
-    --world-9: 300 55% 70%;
-    --world-10: 330 65% 70%;
+    /* Custom game colors - Animal Crossing pastels */
+    --world-1: 340 65% 80%; /* Soft pink */
+    --world-2: 20 70% 75%; /* Soft peach */
+    --world-3: 45 75% 75%; /* Soft yellow */
+    --world-4: 145 55% 65%; /* Soft green */
+    --world-5: 175 60% 65%; /* Soft teal */
+    --world-6: 200 65% 75%; /* Soft sky blue */
+    --world-7: 230 60% 75%; /* Soft blue */
+    --world-8: 270 55% 75%; /* Soft lavender */
+    --world-9: 300 60% 80%; /* Soft magenta */
+    --world-10: 330 65% 80%; /* Soft rose */
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(160 60% 60%) 0%, hsl(200 80% 65%) 50%, hsl(270 55% 70%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(145 65% 50%) 0%, hsl(175 65% 55%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 95% 60%) 0%, hsl(35 90% 55%) 100%);
-    --gradient-candy: linear-gradient(135deg, hsl(340 75% 70%) 0%, hsl(300 55% 70%) 100%);
-    --gradient-sky: linear-gradient(180deg, hsl(200 80% 85%) 0%, hsl(200 80% 65%) 100%);
-    --gradient-garden: linear-gradient(180deg, hsl(160 50% 97%) 0%, hsl(145 50% 90%) 100%);
+    /* Animal Crossing gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(145 50% 65%) 0%, hsl(200 65% 75%) 50%, hsl(340 65% 80%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(145 55% 60%) 0%, hsl(175 60% 65%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 80% 75%) 0%, hsl(35 75% 70%) 100%);
+    --gradient-candy: linear-gradient(135deg, hsl(340 65% 80%) 0%, hsl(300 60% 80%) 100%);
+    --gradient-sky: linear-gradient(180deg, hsl(200 65% 90%) 0%, hsl(200 65% 75%) 100%);
+    --gradient-garden: linear-gradient(180deg, hsl(200 60% 96%) 0%, hsl(145 50% 92%) 100%);
+    --gradient-village: linear-gradient(180deg, hsl(200 60% 96%) 0%, hsl(145 45% 88%) 50%, hsl(35 40% 90%) 100%);
 
-    /* Soft Shadows */
-    --shadow-soft: 0 4px 20px -5px hsl(220 30% 20% / 0.1);
-    --shadow-card: 0 8px 30px -10px hsl(220 30% 20% / 0.15);
-    --shadow-glow: 0 0 30px hsl(160 60% 55% / 0.3);
-    --shadow-candy: 0 8px 25px -5px hsl(340 75% 70% / 0.4);
-    --shadow-gold: 0 8px 25px -5px hsl(45 95% 60% / 0.4);
+    /* Soft Shadows - like AC depth */
+    --shadow-soft: 0 4px 20px -5px hsl(220 30% 20% / 0.08);
+    --shadow-card: 0 8px 30px -10px hsl(220 30% 20% / 0.12);
+    --shadow-glow: 0 0 30px hsl(145 50% 60% / 0.25);
+    --shadow-candy: 0 8px 25px -5px hsl(340 65% 75% / 0.3);
+    --shadow-gold: 0 8px 25px -5px hsl(45 80% 70% / 0.3);
+    --shadow-wood: 0 4px 15px -3px hsl(35 40% 30% / 0.15);
   }
 
   .dark {
@@ -117,8 +122,15 @@
 
 @layer utilities {
   .font-game {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 700;
+    font-family: 'Comfortaa', 'Fredoka One', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  
+  .font-playful {
+    font-family: 'Fredoka One', 'Comfortaa', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.03em;
   }
 
   .text-gradient {
@@ -152,6 +164,91 @@
     background: var(--gradient-garden);
   }
 
+  .bg-gradient-village {
+    background: var(--gradient-village);
+  }
+
+  /* Village Map Background */
+  .bg-village-map {
+    background: 
+      /* Sky gradient */
+      linear-gradient(180deg, hsl(200 60% 96%) 0%, hsl(200 60% 94%) 40%),
+      /* Grass texture pattern */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        hsl(145 45% 88% / 0.1) 2px,
+        hsl(145 45% 88% / 0.1) 4px
+      ),
+      /* Base grass */
+      linear-gradient(180deg, hsl(145 50% 92%) 0%, hsl(145 45% 88%) 100%);
+    position: relative;
+  }
+
+  .bg-village-map::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      /* Dirt paths */
+      radial-gradient(ellipse 200px 50px at 20% 30%, hsl(35 40% 70% / 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 150px 40px at 60% 50%, hsl(35 40% 70% / 0.25) 0%, transparent 50%),
+      radial-gradient(ellipse 180px 45px at 80% 70%, hsl(35 40% 70% / 0.3) 0%, transparent 50%),
+      /* Subtle texture */
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        hsl(145 45% 88% / 0.05) 10px,
+        hsl(145 45% 88% / 0.05) 20px
+      );
+    pointer-events: none;
+  }
+
+  /* Wood Texture */
+  .bg-wood {
+    background: 
+      linear-gradient(90deg, hsl(35 40% 75%) 0%, hsl(35 35% 70%) 50%, hsl(35 40% 75%) 100%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        hsl(35 30% 60% / 0.1) 2px,
+        hsl(35 30% 60% / 0.1) 3px
+      );
+    background-size: 100% 100%, 100% 4px;
+    position: relative;
+  }
+
+  .bg-wood::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 8px,
+        hsl(35 25% 50% / 0.05) 8px,
+        hsl(35 25% 50% / 0.05) 9px
+      );
+    pointer-events: none;
+  }
+
+  .texture-wood {
+    background: 
+      linear-gradient(90deg, hsl(35 40% 75%) 0%, hsl(35 35% 70%) 50%, hsl(35 40% 75%) 100%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        hsl(35 30% 60% / 0.1) 2px,
+        hsl(35 30% 60% / 0.1) 3px
+      );
+    background-size: 100% 100%, 100% 4px;
+  }
+
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
@@ -170,6 +267,43 @@
 
   .shadow-gold {
     box-shadow: var(--shadow-gold);
+  }
+
+  .shadow-wood {
+    box-shadow: var(--shadow-wood);
+  }
+
+  /* Animal Crossing Card Style */
+  .card-ac {
+    background: hsl(var(--card));
+    border-radius: 2.5rem;
+    border: 3px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-ac::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 30%, hsl(35 50% 98% / 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, hsl(145 40% 95% / 0.2) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Rounded corners for all interactive elements */
+  .rounded-ac {
+    border-radius: 1.5rem;
+  }
+
+  .rounded-ac-lg {
+    border-radius: 2rem;
+  }
+
+  .rounded-ac-xl {
+    border-radius: 2.5rem;
   }
 
   /* Game-specific animations */
@@ -350,4 +484,20 @@
   50% { 
     transform: scale(1.02) translateY(-2px); 
   }
+}
+
+@keyframes walk {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-3px) rotate(-2deg); 
+  }
+  75% { 
+    transform: translateY(-3px) rotate(2deg); 
+  }
+}
+
+.animate-walk {
+  animation: walk 0.8s ease-in-out infinite;
 }

@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        game: ['Nunito', 'sans-serif'],
+        game: ['Comfortaa', 'Fredoka One', 'sans-serif'],
+        playful: ['Fredoka One', 'Comfortaa', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

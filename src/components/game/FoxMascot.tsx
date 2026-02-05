@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import foxMascot from '@/assets/fox-mascot.png';
 import { getPetMood, HUNGER_THRESHOLD_HUNGRY, ShopItem } from '@/lib/petTypes';
 import { PlayerClothing, CLOTHING_ITEMS } from '@/lib/clothingTypes';
 import { cn } from '@/lib/utils';
@@ -31,7 +30,8 @@ export function FoxMascot({
 }: FoxMascotProps) {
   const [isJumping, setIsJumping] = useState(false);
   const [eatingPhase, setEatingPhase] = useState<'grab' | 'bite' | 'chew' | 'done'>('done');
-  const [idleAnimation, setIdleAnimation] = useState<'none' | 'blink' | 'wiggle' | 'breathe'>('breathe');
+  const [idleAnimation, setIdleAnimation] = useState<'none' | 'blink' | 'wiggle' | 'breathe' | 'walk'>('breathe');
+  const [walkCycle, setWalkCycle] = useState(0);
   
   const mood = getPetMood(hunger);
   const isHungry = hunger < HUNGER_THRESHOLD_HUNGRY;
@@ -53,16 +53,30 @@ export function FoxMascot({
     if (isEating || isJumping) return;
     
     const interval = setInterval(() => {
-      const animations: ('blink' | 'wiggle' | 'breathe')[] = ['blink', 'wiggle', 'breathe'];
+      const animations: ('blink' | 'wiggle' | 'breathe' | 'walk')[] = ['blink', 'wiggle', 'breathe', 'walk'];
       const random = animations[Math.floor(Math.random() * animations.length)];
       setIdleAnimation(random);
       
       // Reset after animation
-      setTimeout(() => setIdleAnimation('breathe'), 800);
+      setTimeout(() => setIdleAnimation('breathe'), random === 'walk' ? 2000 : 800);
     }, 3000 + Math.random() * 2000);
 
     return () => clearInterval(interval);
   }, [isEating, isJumping]);
+
+  // Walking animation cycle
+  useEffect(() => {
+    if (idleAnimation !== 'walk') {
+      setWalkCycle(0);
+      return;
+    }
+    
+    const interval = setInterval(() => {
+      setWalkCycle(prev => (prev + 1) % 4);
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [idleAnimation]);
 
   const handleClick = () => {
     if (onClick) {
@@ -84,6 +98,7 @@ export function FoxMascot({
     if (isJumping) return 'animate-jump';
     if (isHungry) return 'animate-hungry';
     if (idleAnimation === 'wiggle') return 'animate-wiggle';
+    if (idleAnimation === 'walk') return 'animate-walk';
     if (animate) return 'animate-breathe';
     return '';
   };
@@ -205,7 +220,7 @@ export function FoxMascot({
             </div>
           )}
           
-          {/* Main Fox Image with 3D effect */}
+          {/* Main Fox SVG with 3D Animal Crossing style */}
           <div 
             className={cn(
               sizeClasses[size],
@@ -223,9 +238,9 @@ export function FoxMascot({
               style={{ transform: 'translateZ(-10px) scale(1.1)' }}
             />
             
-            <img
-              src={foxMascot}
-              alt="שועלי הקסם"
+            {/* Animal Crossing Style Fox SVG */}
+            <svg
+              viewBox="0 0 200 200"
               className={cn(
                 'w-full h-full object-contain drop-shadow-lg',
                 eatingPhase === 'bite' || eatingPhase === 'chew' ? 'animate-munch' : ''
@@ -233,7 +248,231 @@ export function FoxMascot({
               style={{
                 filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.2)) drop-shadow(0 4px 6px rgba(0,0,0,0.1))',
               }}
-            />
+            >
+              {/* Body - rounded Animal Crossing style */}
+              <ellipse
+                cx="100"
+                cy="130"
+                rx="50"
+                ry="45"
+                fill="#FF8C42"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk' 
+                    ? `translateY(${walkCycle % 2 === 0 ? -2 : 2}px)`
+                    : 'none',
+                }}
+              />
+              
+              {/* Belly - lighter orange */}
+              <ellipse
+                cx="100"
+                cy="135"
+                rx="35"
+                ry="30"
+                fill="#FFB366"
+                className="transition-all duration-300"
+              />
+              
+              {/* Head - large and rounded */}
+              <ellipse
+                cx="100"
+                cy="70"
+                rx="45"
+                ry="50"
+                fill="#FF8C42"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? -1 : 1}px) rotate(${walkCycle % 2 === 0 ? -2 : 2}deg)`
+                    : idleAnimation === 'blink'
+                    ? 'scaleY(0.95)'
+                    : 'none',
+                }}
+              />
+              
+              {/* Ears - rounded triangles */}
+              <path
+                d="M 70 50 Q 65 30 75 35 Q 80 25 85 35 Q 75 30 70 50"
+                fill="#FF8C42"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? -1 : 1}px) rotate(${walkCycle % 2 === 0 ? -3 : 3}deg)`
+                    : 'none',
+                }}
+              />
+              <path
+                d="M 130 50 Q 135 30 125 35 Q 120 25 115 35 Q 125 30 130 50"
+                fill="#FF8C42"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? -1 : 1}px) rotate(${walkCycle % 2 === 0 ? 3 : -3}deg)`
+                    : 'none',
+                }}
+              />
+              
+              {/* Inner ears - pink */}
+              <ellipse cx="75" cy="40" rx="8" ry="12" fill="#FFB3D9" />
+              <ellipse cx="125" cy="40" rx="8" ry="12" fill="#FFB3D9" />
+              
+              {/* Eyes - large and expressive */}
+              <ellipse
+                cx="85"
+                cy="75"
+                rx="12"
+                ry="15"
+                fill="white"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'blink' ? 'scaleY(0.1)' : 'none',
+                }}
+              />
+              <ellipse
+                cx="115"
+                cy="75"
+                rx="12"
+                ry="15"
+                fill="white"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'blink' ? 'scaleY(0.1)' : 'none',
+                }}
+              />
+              
+              {/* Pupils - black, can move */}
+              <circle
+                cx="85"
+                cy="75"
+                r="8"
+                fill="#333"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translate(${walkCycle % 2 === 0 ? -1 : 1}px, ${walkCycle % 2 === 0 ? -1 : 1}px)`
+                    : 'none',
+                }}
+              />
+              <circle
+                cx="115"
+                cy="75"
+                r="8"
+                fill="#333"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translate(${walkCycle % 2 === 0 ? 1 : -1}px, ${walkCycle % 2 === 0 ? -1 : 1}px)`
+                    : 'none',
+                }}
+              />
+              
+              {/* Eye shine */}
+              <circle cx="87" cy="73" r="3" fill="white" />
+              <circle cx="117" cy="73" r="3" fill="white" />
+              
+              {/* Nose - small triangle */}
+              <path
+                d="M 100 85 L 95 95 L 105 95 Z"
+                fill="#FF69B4"
+                className="transition-all duration-300"
+              />
+              
+              {/* Mouth - simple curve */}
+              <path
+                d="M 95 100 Q 100 105 105 100"
+                stroke="#333"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk' || isJumping
+                    ? 'scaleY(1.2)'
+                    : 'none',
+                }}
+              />
+              
+              {/* Tail - fluffy and curved */}
+              <ellipse
+                cx="150"
+                cy="140"
+                rx="25"
+                ry="35"
+                fill="#FF8C42"
+                className="transition-all duration-300"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `rotate(${walkCycle % 2 === 0 ? -10 : 10}deg) translateY(${walkCycle % 2 === 0 ? -2 : 2}px)`
+                    : idleAnimation === 'wiggle'
+                    ? 'rotate(-15deg)'
+                    : 'rotate(-5deg)',
+                }}
+              />
+              <ellipse cx="155" cy="145" rx="15" ry="20" fill="#FFB366" />
+              
+              {/* Front legs - can move when walking */}
+              <ellipse
+                cx="75"
+                cy="150"
+                rx="12"
+                ry="25"
+                fill="#FF8C42"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? -5 : 0}px) rotate(${walkCycle % 2 === 0 ? -5 : 5}deg)`
+                    : 'none',
+                }}
+              />
+              <ellipse
+                cx="95"
+                cy="155"
+                rx="12"
+                ry="25"
+                fill="#FF8C42"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? 0 : -5}px) rotate(${walkCycle % 2 === 0 ? 5 : -5}deg)`
+                    : 'none',
+                }}
+              />
+              
+              {/* Back legs */}
+              <ellipse
+                cx="125"
+                cy="155"
+                rx="12"
+                ry="25"
+                fill="#FF8C42"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? -5 : 0}px) rotate(${walkCycle % 2 === 0 ? -5 : 5}deg)`
+                    : 'none',
+                }}
+              />
+              <ellipse
+                cx="145"
+                cy="150"
+                rx="12"
+                ry="25"
+                fill="#FF8C42"
+                className="transition-all duration-200"
+                style={{
+                  transform: idleAnimation === 'walk'
+                    ? `translateY(${walkCycle % 2 === 0 ? 0 : -5}px) rotate(${walkCycle % 2 === 0 ? 5 : -5}deg)`
+                    : 'none',
+                }}
+              />
+              
+              {/* Paws */}
+              <ellipse cx="75" cy="170" rx="8" ry="6" fill="#FFB366" />
+              <ellipse cx="95" cy="175" rx="8" ry="6" fill="#FFB366" />
+              <ellipse cx="125" cy="175" rx="8" ry="6" fill="#FFB366" />
+              <ellipse cx="145" cy="170" rx="8" ry="6" fill="#FFB366" />
+            </svg>
           </div>
 
           {/* Equipped Clothing - Scarf - positioned on fox's neck */}

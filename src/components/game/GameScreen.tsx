@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
 import { FlyingStars } from './FlyingStars';
 import { StarHUD } from './StarHUD';
-import { WorldProgressBar } from './WorldProgressBar';
 import { SmartFeedback } from './SmartFeedback';
 import { VisualExplanation } from './VisualExplanation';
 import { NumberPad } from './NumberPad';
@@ -13,11 +12,12 @@ import {
   getEncouragingMessage,
   WORLD_COLORS,
   MASTERY_CONFIG,
-  checkTableMastery
+  getOperationSymbol,
+  Operation
 } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
-import { Zap } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 
 interface StarReward {
   type: 'accuracy' | 'speed' | 'streak';
@@ -37,12 +37,15 @@ interface GameScreenProps {
   totalStars: number;
   playerStats: PlayerStats;
   gameMode: GameMode;
+  operation: Operation;
   onAnswer: (answer: number, isCorrect: boolean, responseTimeMs: number, starsEarned: number) => void;
   onContinue: () => void;
   onBossUnlock: () => void;
   showFeedback: boolean;
   isCorrect: boolean | null;
   questionStartTime: number;
+  hintUsedInCurrentQuestion: boolean;
+  onHintUsed: () => void;
 }
 
 export function GameScreen({
@@ -58,12 +61,15 @@ export function GameScreen({
   totalStars,
   playerStats,
   gameMode,
+  operation,
   onAnswer,
   onContinue,
   onBossUnlock,
   showFeedback,
   isCorrect,
   questionStartTime,
+  hintUsedInCurrentQuestion,
+  onHintUsed,
 }: GameScreenProps) {
   const [options, setOptions] = useState<number[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -72,23 +78,46 @@ export function GameScreen({
   const [showStarAnimation, setShowStarAnimation] = useState(false);
   const [starCounterRef, setStarCounterRef] = useState<HTMLDivElement | null>(null);
   const [pendingStars, setPendingStars] = useState(0);
+  const [showMultipleChoice, setShowMultipleChoice] = useState(false);
   
   const { playCorrect, playCorrectFast, playIncorrect, playClick } = useSoundEffects();
 
-  // Check if boss is unlocked for current table
-  const { masteredCount } = checkTableMastery(playerStats, multiplier);
-  const progressPercent = (masteredCount / 10) * 100;
-  const isBossUnlocked = progressPercent >= 100;
+  // Auto-advance to next question when answer is correct
+  useEffect(() => {
+    if (!showFeedback || !isCorrect) return;
+    const timer = setTimeout(() => onContinue(), 1400);
+    return () => clearTimeout(timer);
+  }, [showFeedback, isCorrect, onContinue]);
 
   useEffect(() => {
     setOptions(generateAnswerOptions(correctAnswer));
     setSelectedAnswer(null);
     setStarRewards([]);
     setShowStarAnimation(false);
+    setShowMultipleChoice(false);
   }, [correctAnswer, multiplier, multiplicand]);
 
-  const calculateStarRewards = useCallback((isCorrect: boolean, isFast: boolean, currentStreak: number, mode: GameMode): StarReward[] => {
-    if (!isCorrect) return [];
+  const calculateStarRewards = useCallback((isCorrect: boolean, isFast: boolean, currentStreak: number, mode: GameMode, hintUsed: boolean): { rewards: StarReward[], starsEarned: number, rewardMessage: string } => {
+    if (!isCorrect) return { rewards: [], starsEarned: 0, rewardMessage: '' };
+    
+    const BASE_REWARD = 2; // Base stars per correct answer
+    const TEST_MODE_MULTIPLIER = 2; // 2x multiplier for test mode without hint
+    
+    let starsEarned = BASE_REWARD;
+    let rewardMessage = '';
+    
+    // In test mode, if no hint was used, apply 2x multiplier
+    if (mode === 'test' && !hintUsed) {
+      starsEarned = BASE_REWARD * TEST_MODE_MULTIPLIER;
+      rewardMessage = 'Perfect! You earned 4 stars (Test Bonus!)';
+    } else if (mode === 'test' && hintUsed) {
+      starsEarned = BASE_REWARD;
+      rewardMessage = 'Good job! You used a hint and earned 2 stars.';
+    } else {
+      // Training mode - base reward
+      starsEarned = BASE_REWARD;
+      rewardMessage = `Perfect! You earned ${BASE_REWARD} stars!`;
+    }
     
     const rewards: StarReward[] = [];
     
@@ -106,7 +135,11 @@ export function GameScreen({
       rewards.push({ type: 'streak', label: `${newStreak} ברצף! 🔥` });
     }
     
-    return rewards;
+    // Note: The starsEarned is now based on base reward and test mode multiplier
+    // The additional rewards (speed, streak) are visual feedback but don't add to base count
+    // We'll use the calculated starsEarned value
+    
+    return { rewards, starsEarned, rewardMessage };
   }, []);
 
   const handleAnswer = (answer: number) => {
@@ -123,12 +156,12 @@ export function GameScreen({
     const timeThreshold = gameMode === 'test' ? MASTERY_CONFIG.testModeMaxTimeMs : MASTERY_CONFIG.maxResponseTimeMs;
     const isFast = timeTaken <= timeThreshold;
     
-    // Calculate rewards
-    const rewards = calculateStarRewards(isAnswerCorrect, isFast, streak, gameMode);
-    const starsEarned = rewards.length;
+    // Calculate rewards with hint consideration
+    const rewardResult = calculateStarRewards(isAnswerCorrect, isFast, streak, gameMode, hintUsedInCurrentQuestion);
+    const starsEarned = rewardResult.starsEarned;
     
     if (isAnswerCorrect) {
-      setStarRewards(rewards);
+      setStarRewards(rewardResult.rewards);
       setShowStarAnimation(true);
       setPendingStars(starsEarned);
       
@@ -144,6 +177,14 @@ export function GameScreen({
     onAnswer(answer, isAnswerCorrect, timeTaken, starsEarned);
   };
 
+  const handleHintClick = () => {
+    if (showFeedback || hintUsedInCurrentQuestion) return;
+    
+    playClick();
+    setShowMultipleChoice(true);
+    onHintUsed();
+  };
+
   const handleStarAnimationComplete = () => {
     setShowStarAnimation(false);
     setPendingStars(0);
@@ -157,12 +198,6 @@ export function GameScreen({
       return `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - אתה יכול! 💪`;
     }
     return getEncouragingMessage(isCorrect!, isFastAnswer);
-  };
-
-  const formatTime = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const tenths = Math.floor((ms % 1000) / 100);
-    return `${seconds}.${tenths}`;
   };
 
   // Get star counter position for flying animation
@@ -184,18 +219,6 @@ export function GameScreen({
           targetPosition={getStarCounterPosition()}
         />
       )}
-
-      {/* Sidebar Progress Bar */}
-      <div className="hidden md:flex w-20">
-        <WorldProgressBar
-          table={multiplier}
-          playerStats={playerStats}
-          currentSessionCorrect={stars}
-          isBossUnlocked={isBossUnlocked}
-          isBossMode={false}
-          onBossClick={onBossUnlock}
-        />
-      </div>
 
       {/* Main Game Area */}
       <div className="flex-1 flex flex-col">
@@ -230,19 +253,31 @@ export function GameScreen({
           <FoxMascot message={getMessage()} animate={!showFeedback} />
 
           {/* Question - displayed left to right, NO TIMER during question */}
-          <div className={`${WORLD_COLORS[multiplier]} text-white rounded-3xl p-8 shadow-card text-center ${showFeedback && !isCorrect ? 'animate-shake' : ''}`} dir="ltr">
-            <div className="text-5xl md:text-6xl font-extrabold">
-              {multiplicand} × {multiplier} = ?
+          <div className="flex flex-col items-center gap-3">
+          <div className={`${operation === 'multiply' ? WORLD_COLORS[multiplier] : 'bg-primary'} text-white rounded-ac-xl p-8 shadow-card text-center border-[3px] border-white/20 ${showFeedback && !isCorrect ? 'animate-shake' : ''}`} dir="ltr">
+              <div className="text-5xl md:text-6xl font-extrabold">
+                {operation === 'divide' 
+                  ? `${multiplier} ${getOperationSymbol(operation)} ${multiplicand} = ?`
+                  : `${multiplicand} ${getOperationSymbol(operation)} ${multiplier} = ?`}
+              </div>
             </div>
+            
+            {/* 2x Stars Badge - only in test mode, disappears when hint is used */}
+            {gameMode === 'test' && !showFeedback && (
+              <div className={`flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-300 ${
+                hintUsedInCurrentQuestion 
+                  ? 'bg-muted/50 text-muted-foreground/50' 
+                  : 'bg-accent/20 text-accent animate-pulse'
+              }`}>
+                <span className="text-lg">⭐</span>
+                <span className="font-bold">2x כוכבים</span>
+                {hintUsedInCurrentQuestion && (
+                  <span className="text-xs ml-2">(בונוס בוטל)</span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Show response time ONLY after a fast correct answer */}
-          {showFeedback && isCorrect && isFastAnswer && (
-            <div className="flex items-center gap-2 bg-blue-500/20 text-blue-500 rounded-xl px-4 py-2 animate-fade-in">
-              <Zap className="w-5 h-5" />
-              <span className="font-bold">{formatTime(responseTimeMs)} שניות</span>
-            </div>
-          )}
 
           {/* Feedback or Visual Explanation */}
           {showFeedback && !isCorrect && (
@@ -261,8 +296,52 @@ export function GameScreen({
             </div>
           )}
 
-          {/* Answer input - Number Pad for test mode (always shown to allow Enter for continue) */}
-          {gameMode === 'test' && (
+          {/* Answer input - Number Pad for test mode OR Multiple Choice if hint was used */}
+          {gameMode === 'test' && !showMultipleChoice && !showFeedback && (
+            <div className="flex flex-col items-center gap-4 w-full max-w-md">
+              <NumberPad
+                onSubmit={handleAnswer}
+                onContinue={onContinue}
+                disabled={showFeedback}
+                correctAnswer={correctAnswer}
+                showResult={showFeedback}
+                isCorrect={isCorrect}
+                gameMode={gameMode}
+              />
+              
+              {/* Hint Button - only visible in test mode before feedback */}
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleHintClick}
+                disabled={showFeedback || hintUsedInCurrentQuestion}
+                className="flex items-center gap-2 text-lg font-bold px-6 py-3 rounded-xl hover:scale-105 transition-transform shadow-soft border-accent text-accent hover:bg-accent/10"
+              >
+                <Lightbulb className="w-5 h-5" />
+                <span>רמז 💡</span>
+              </Button>
+            </div>
+          )}
+
+          {/* Multiple Choice Options - shown when hint is used in test mode */}
+          {gameMode === 'test' && showMultipleChoice && !showFeedback && (
+            <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+              {options.map((option) => (
+                <Button
+                  key={option}
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => handleAnswer(option)}
+                  className="text-3xl font-bold py-8 rounded-2xl hover:scale-105 transition-transform shadow-soft"
+                >
+                  {option}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {/* Number Pad for test mode feedback - V turns green when correct */}
+          {gameMode === 'test' && showFeedback && (
             <NumberPad
               onSubmit={handleAnswer}
               onContinue={onContinue}
@@ -270,6 +349,7 @@ export function GameScreen({
               correctAnswer={correctAnswer}
               showResult={showFeedback}
               isCorrect={isCorrect}
+              gameMode={gameMode}
             />
           )}
 
@@ -289,16 +369,12 @@ export function GameScreen({
             </div>
           )}
 
-          {/* Continue button */}
-          {showFeedback && (
+          {/* Continue button - only for wrong answers (correct auto-advances) */}
+          {showFeedback && !isCorrect && (
             <Button
               size="lg"
               onClick={onContinue}
-              className={`text-xl font-bold px-10 py-6 rounded-2xl shadow-lg transition-all hover:scale-105 ${
-                isCorrect 
-                  ? 'bg-gradient-gold text-white' 
-                  : 'bg-primary text-primary-foreground'
-              }`}
+              className="text-xl font-bold px-10 py-6 rounded-2xl shadow-lg transition-all hover:scale-105 bg-primary text-primary-foreground"
             >
               {currentQuestion + 1 >= totalQuestions ? 'סיום! 🎉' : 'המשך ➡️'}
             </Button>

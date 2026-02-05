@@ -7,7 +7,7 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-village-map relative">
       <div className="text-center space-y-8 max-w-2xl">
         <h1 className="text-5xl md:text-6xl font-extrabold text-gradient leading-tight">
           הרפתקת לוח הכפל
