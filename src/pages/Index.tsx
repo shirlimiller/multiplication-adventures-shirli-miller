@@ -85,9 +85,9 @@ const Index = () => {
     
     setGameMode(config.mode);
     const playerStats = getPlayerStats(selectedPlayer.id);
-    const { multiplier, multiplicand, answer } =
+    const result =
       config.operation === 'multiply'
-        ? generateAdaptiveQuestion(config.selectedNumbers, playerStats, [], config.rangeMin, config.rangeMax)
+        ? { ...generateAdaptiveQuestion(config.selectedNumbers, playerStats, [], config.rangeMin, config.rangeMax), actualOperation: 'multiply' as Operation }
         : generateQuestionForOperation({
             operation: config.operation,
             selectedNumbers: config.selectedNumbers,
@@ -100,12 +100,13 @@ const Index = () => {
       currentScreen: 'game',
       selectedTables: config.selectedNumbers,
       operation: config.operation,
+      currentQuestionOperation: result.actualOperation,
       rangeMin: config.rangeMin,
       rangeMax: config.rangeMax,
       questionCount: config.questionCount,
-      currentMultiplier: multiplier,
-      currentMultiplicand: multiplicand,
-      correctAnswer: answer,
+      currentMultiplier: result.multiplier,
+      currentMultiplicand: result.multiplicand,
+      correctAnswer: result.answer,
       questionStartTime: Date.now(),
       hintUsedInCurrentQuestion: false,
     });
@@ -124,7 +125,7 @@ const Index = () => {
       isCorrect,
       responseTimeMs,
       starsEarned: finalStars,
-      operation: gameState.operation,
+      operation: gameState.currentQuestionOperation,
     };
 
     setGameState(prev => ({
@@ -152,9 +153,9 @@ const Index = () => {
       setCurrentScreen('summary');
     } else {
       const playerStats = selectedPlayer ? getPlayerStats(selectedPlayer.id) : null;
-      const { multiplier, multiplicand, answer } = playerStats
+      const result = playerStats
         ? (gameState.operation === 'multiply'
-            ? generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions, gameState.rangeMin, gameState.rangeMax)
+            ? { ...generateAdaptiveQuestion(gameState.selectedTables, playerStats, gameState.answeredQuestions, gameState.rangeMin, gameState.rangeMax), actualOperation: 'multiply' as Operation }
             : generateQuestionForOperation({
                 operation: gameState.operation,
                 selectedNumbers: gameState.selectedTables,
@@ -171,14 +172,15 @@ const Index = () => {
       setGameState(prev => ({
         ...prev,
         currentQuestion: nextQuestion,
-        currentMultiplier: multiplier,
-        currentMultiplicand: multiplicand,
-        correctAnswer: answer,
+        currentMultiplier: result.multiplier,
+        currentMultiplicand: result.multiplicand,
+        correctAnswer: result.answer,
+        currentQuestionOperation: result.actualOperation,
         userAnswer: null,
         showFeedback: false,
         isCorrect: null,
         questionStartTime: Date.now(),
-        hintUsedInCurrentQuestion: false, // Reset hint flag for new question
+        hintUsedInCurrentQuestion: false,
       }));
     }
   }, [gameState, selectedPlayer, updatePlayerStats, getPlayerStats]);
@@ -300,7 +302,7 @@ const Index = () => {
             totalStars={currentStats.totalStars}
             playerStats={currentStats}
             gameMode={gameMode}
-            operation={gameState.operation}
+            operation={gameState.currentQuestionOperation}
             onAnswer={handleAnswer}
             onContinue={handleContinue}
             onBossUnlock={handleBossUnlock}

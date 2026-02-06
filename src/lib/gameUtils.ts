@@ -1,6 +1,6 @@
 import { MultiplicationStat, PlayerStats, getDivisionKey, getMultiplicationKey } from './playerTypes';
 
-export type Operation = 'multiply' | 'divide' | 'add' | 'subtract';
+export type Operation = 'multiply' | 'divide' | 'add' | 'subtract' | 'multiply_divide';
 
 export function getOperationSymbol(operation: Operation): string {
   switch (operation) {
@@ -11,6 +11,7 @@ export function getOperationSymbol(operation: Operation): string {
     case 'divide':
       return '÷';
     case 'multiply':
+    case 'multiply_divide':
     default:
       return '×';
   }
@@ -20,6 +21,7 @@ export interface GameState {
   currentScreen: 'welcome' | 'setup' | 'game' | 'summary' | 'boss';
   selectedTables: number[];
   operation: Operation;
+  currentQuestionOperation: Operation; // actual operation for current question (for mixed mode)
   rangeMin: number;
   rangeMax: number;
   questionCount: number;
@@ -64,6 +66,7 @@ export const INITIAL_STATE: GameState = {
   currentScreen: 'welcome',
   selectedTables: [],
   operation: 'multiply',
+  currentQuestionOperation: 'multiply',
   rangeMin: 1,
   rangeMax: 10,
   questionCount: 10,
@@ -232,18 +235,23 @@ export function generateQuestionForOperation(params: {
   selectedNumbers: number[]; // "focus" numbers the student selected
   rangeMin: number;
   rangeMax: number;
-}): { multiplier: number; multiplicand: number; answer: number } {
+}): { multiplier: number; multiplicand: number; answer: number; actualOperation: Operation } {
   const { operation, selectedNumbers, rangeMin, rangeMax } = params;
   const min = Math.min(rangeMin, rangeMax);
   const max = Math.max(rangeMin, rangeMax);
   const focus = selectedNumbers.length > 0 ? selectedNumbers : [randomInt(min, max)];
   const pickFocus = () => focus[Math.floor(Math.random() * focus.length)];
 
-  switch (operation) {
+  // For mixed mode, randomly pick multiply or divide
+  const effectiveOp: Operation = operation === 'multiply_divide'
+    ? (Math.random() < 0.5 ? 'multiply' : 'divide')
+    : operation;
+
+  switch (effectiveOp) {
     case 'add': {
       const a = pickFocus();
       const b = randomInt(min, max);
-      return { multiplier: a, multiplicand: b, answer: a + b };
+      return { multiplier: a, multiplicand: b, answer: a + b, actualOperation: 'add' };
     }
     case 'subtract': {
       // Keep non-negative results
@@ -251,20 +259,20 @@ export function generateQuestionForOperation(params: {
       const b = randomInt(min, max);
       const big = Math.max(a, b);
       const small = Math.min(a, b);
-      return { multiplier: big, multiplicand: small, answer: big - small };
+      return { multiplier: big, multiplicand: small, answer: big - small, actualOperation: 'subtract' };
     }
     case 'divide': {
       // Integer division facts: dividend = divisor * quotient
       const divisor = Math.max(1, pickFocus());
       const quotient = randomInt(min, max);
       const dividend = divisor * quotient;
-      return { multiplier: dividend, multiplicand: divisor, answer: quotient };
+      return { multiplier: dividend, multiplicand: divisor, answer: quotient, actualOperation: 'divide' };
     }
     case 'multiply':
     default: {
       const table = pickFocus();
       const mult = randomInt(Math.max(1, min), Math.min(12, max));
-      return { multiplier: table, multiplicand: mult, answer: table * mult };
+      return { multiplier: table, multiplicand: mult, answer: table * mult, actualOperation: 'multiply' };
     }
   }
 }

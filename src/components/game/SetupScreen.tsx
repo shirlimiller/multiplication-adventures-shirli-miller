@@ -29,6 +29,27 @@ export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
   const [questionCount, setQuestionCount] = useState(10);
   const [gameMode, setGameMode] = useState<GameMode>('training');
 
+  const handleOperationClick = (op: Operation) => {
+    // Allow combining multiply + divide
+    if (operation === 'multiply' && op === 'divide') {
+      setOperation('multiply_divide');
+    } else if (operation === 'divide' && op === 'multiply') {
+      setOperation('multiply_divide');
+    } else if (operation === 'multiply_divide' && op === 'multiply') {
+      setOperation('divide');
+    } else if (operation === 'multiply_divide' && op === 'divide') {
+      setOperation('multiply');
+    } else {
+      setOperation(op);
+    }
+  };
+
+  const isOperationSelected = (op: Operation) => {
+    if (op === 'multiply') return operation === 'multiply' || operation === 'multiply_divide';
+    if (op === 'divide') return operation === 'divide' || operation === 'multiply_divide';
+    return operation === op;
+  };
+
   const toggleNumber = (n: number) => {
     setSelectedNumbers(prev => (prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]));
   };
@@ -57,27 +78,39 @@ export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
 
         {/* Operation selection */}
         <div className="bg-card rounded-ac-xl p-8 shadow-card space-y-6 border-[3px] border-[hsl(var(--border))]">
-          <h2 className="text-2xl font-bold text-foreground text-center">בחר פעולה</h2>
+           <h2 className="text-2xl font-bold text-foreground text-center">בחר פעולה</h2>
+          <p className="text-center text-sm text-muted-foreground">
+            ניתן לבחור כפל וחילוק יחד! 🎯
+          </p>
           <div className="grid grid-cols-4 gap-4 max-w-xl mx-auto">
             {([
               { op: 'add' as const, label: 'חיבור', Icon: Plus },
               { op: 'subtract' as const, label: 'חיסור', Icon: Minus },
               { op: 'multiply' as const, label: 'כפל', Icon: X },
               { op: 'divide' as const, label: 'חילוק', Icon: Divide },
-            ]).map(({ op, label, Icon }) => (
-              <button
-                key={op}
-                onClick={() => setOperation(op)}
-                className={`
-                  flex flex-col items-center justify-center gap-2 p-4 rounded-full border-[3px] transition-all duration-200
-                  ${operation === op ? 'border-[hsl(145_40%_55%)] bg-wood scale-105 shadow-wood' : 'border-[hsl(35_30%_70%)] bg-wood hover:border-primary/50 shadow-wood'}
-                `}
-              >
-                <Icon className={`w-10 h-10 ${operation === op ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className="font-bold">{label}</span>
-              </button>
-            ))}
+            ]).map(({ op, label, Icon }) => {
+              const selected = isOperationSelected(op);
+              return (
+                <button
+                  key={op}
+                  onClick={() => handleOperationClick(op)}
+                  className={`
+                    flex flex-col items-center justify-center gap-2 p-4 rounded-full border-[3px] transition-all duration-200
+                    ${selected ? 'border-[hsl(145_40%_55%)] bg-wood scale-105 shadow-wood' : 'border-[hsl(35_30%_70%)] bg-wood hover:border-primary/50 shadow-wood'}
+                  `}
+                >
+                  <Icon className={`w-10 h-10 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-bold">{label}</span>
+                </button>
+              );
+            })}
           </div>
+
+          {operation === 'multiply_divide' && (
+            <p className="text-center text-sm font-bold text-primary animate-fade-in">
+              ✨ כפל + חילוק ביחד!
+            </p>
+          )}
 
           <p className="text-center text-sm text-muted-foreground">
             תעודות לכפל/חילוק יוצגו ליד כל מספר (× / ÷).
@@ -94,13 +127,34 @@ export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
               const divideCert = checkDivisionTableMastery(playerStats, n).isMastered;
               const certClass = (earned: boolean) =>
                 earned ? 'opacity-100' : 'opacity-30 grayscale blur-[1px]';
+              
+              // Ice cream colors for each number
+              const iceColors = [
+                'hsl(340 80% 75%)', // strawberry pink
+                'hsl(30 90% 70%)',  // mango orange
+                'hsl(50 90% 70%)',  // banana yellow
+                'hsl(145 60% 65%)', // mint green
+                'hsl(200 80% 70%)', // blueberry blue
+                'hsl(280 60% 75%)', // grape purple
+                'hsl(10 80% 72%)',  // peach
+                'hsl(170 60% 65%)', // pistachio
+                'hsl(320 70% 75%)', // raspberry
+                'hsl(45 85% 72%)',  // vanilla gold
+                'hsl(220 70% 72%)', // lavender
+                'hsl(0 75% 72%)',   // cherry red
+              ];
+              const bgColor = iceColors[(n - 1) % iceColors.length];
+              
               return (
                 <button
                   key={n}
                   onClick={() => toggleNumber(n)}
+                  style={{ backgroundColor: isSelected ? bgColor : undefined, borderColor: isSelected ? bgColor : undefined }}
                   className={`
                     relative flex items-center justify-center p-4 rounded-full border-[3px] transition-all duration-200 font-extrabold text-xl
-                    ${isSelected ? 'border-[hsl(145_40%_55%)] bg-wood scale-105 shadow-wood' : 'border-[hsl(35_30%_70%)] bg-wood hover:border-primary/50 shadow-wood'}
+                    ${isSelected 
+                      ? 'scale-105 shadow-lg text-white' 
+                      : 'border-[hsl(35_30%_70%)] bg-wood hover:border-primary/50 shadow-wood'}
                   `}
                 >
                   {n}
