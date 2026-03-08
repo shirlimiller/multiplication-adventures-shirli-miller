@@ -108,6 +108,7 @@ const Index = () => {
             selectedNumbers: config.selectedNumbers,
             rangeMin: config.rangeMin,
             rangeMax: config.rangeMax,
+            askedQuestions: [],
           });
     
     setGameState({
