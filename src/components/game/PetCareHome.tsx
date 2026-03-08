@@ -204,19 +204,133 @@ export function PetCareHome({
           <HappinessBar happiness={currentHappiness} />
         </div>
 
-        {/* Quick Stats */}
-        <div className="mt-6 flex gap-4">
+        {/* Balloon Game Launcher + Quick Stats */}
+        <div className="mt-6 flex gap-4 items-stretch">
           <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
             <Award className="w-6 h-6 text-yellow-500 mx-auto" />
             <span className="text-sm font-bold">× {mulCertCount}/10</span>
             <p className="text-xs text-muted-foreground">תעודות כפל</p>
           </div>
+          
+          {/* Balloon Game Button */}
+          <button
+            onClick={() => setShowBalloonConfig(true)}
+            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+          >
+            <span className="absolute -top-2 -right-1 text-xl animate-float">🎈</span>
+            <span className="absolute -top-1 -left-2 text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
+            <span className="absolute -bottom-1 right-1 text-lg animate-float" style={{ animationDelay: '1s' }}>🎈</span>
+            <div className="text-3xl mb-1">🎈</div>
+            <span className="text-sm font-extrabold text-white drop-shadow">משחק בלונים!</span>
+          </button>
+          
           <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
             <Award className="w-6 h-6 text-sky-500 mx-auto" />
             <span className="text-sm font-bold block">÷ {divCertCount}/10</span>
             <p className="text-xs text-muted-foreground">תעודות חילוק</p>
           </div>
         </div>
+
+        {/* Balloon Config Modal */}
+        {showBalloonConfig && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowBalloonConfig(false)}>
+            <div className="bg-card rounded-3xl p-6 shadow-card max-w-md w-full space-y-5 animate-fade-in" onClick={e => e.stopPropagation()}>
+              <h2 className="text-2xl font-extrabold text-center">🎈 משחק בלונים</h2>
+              
+              {/* Operation selection */}
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">בחר פעולה:</p>
+                <div className="flex gap-3 justify-center">
+                  {([
+                    { op: 'multiply' as const, label: 'כפל', icon: <X className="w-5 h-5" /> },
+                    { op: 'divide' as const, label: 'חילוק', icon: <Divide className="w-5 h-5" /> },
+                    { op: 'multiply_divide' as const, label: 'שניהם', icon: <span className="text-sm font-bold">×÷</span> },
+                  ]).map(({ op, label, icon }) => (
+                    <button
+                      key={op}
+                      onClick={() => setBalloonOp(op)}
+                      className={`flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border-2 transition-all ${
+                        balloonOp === op 
+                          ? 'border-primary bg-primary/10 scale-105' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {icon}
+                      <span className="text-xs font-bold">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* All numbers or pick */}
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">מספרים:</p>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => { setBalloonAllNumbers(true); setBalloonNumbers([]); }}
+                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                      balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    כל המספרים 🎲
+                  </button>
+                  <button
+                    onClick={() => setBalloonAllNumbers(false)}
+                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                      !balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    בחירה ידנית ✏️
+                  </button>
+                </div>
+
+                {!balloonAllNumbers && (
+                  <div className="grid grid-cols-6 gap-2 mt-3">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(n => {
+                      const selected = balloonNumbers.includes(n);
+                      const iceColors = [
+                        'hsl(340 80% 75%)', 'hsl(30 90% 70%)', 'hsl(50 90% 70%)',
+                        'hsl(145 60% 65%)', 'hsl(200 80% 70%)', 'hsl(280 60% 75%)',
+                        'hsl(10 80% 72%)', 'hsl(170 60% 65%)', 'hsl(320 70% 75%)',
+                        'hsl(45 85% 72%)', 'hsl(220 70% 72%)', 'hsl(0 75% 72%)',
+                      ];
+                      return (
+                        <button
+                          key={n}
+                          onClick={() => setBalloonNumbers(prev => 
+                            prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]
+                          )}
+                          style={{ backgroundColor: selected ? iceColors[n - 1] : undefined }}
+                          className={`w-10 h-10 rounded-full border-2 font-extrabold text-lg transition-all ${
+                            selected ? 'text-white border-transparent scale-110 shadow-lg' : 'border-border'
+                          }`}
+                        >
+                          {n}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Start button */}
+              <button
+                onClick={() => {
+                  const nums = balloonAllNumbers 
+                    ? Array.from({ length: 10 }, (_, i) => i + 1) 
+                    : balloonNumbers;
+                  if (nums.length === 0) return;
+                  setShowBalloonConfig(false);
+                  onStartBalloonGame({ operation: balloonOp, selectedNumbers: nums });
+                }}
+                disabled={!balloonAllNumbers && balloonNumbers.length === 0}
+                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-xl py-4 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
+              >
+                🎈 יאללה, בואו נשחק!
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Bottom Action Buttons */}

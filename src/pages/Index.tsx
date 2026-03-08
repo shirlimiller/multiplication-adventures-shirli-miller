@@ -281,6 +281,17 @@ const Index = () => {
           currentHappiness={currentHappiness}
           isDoubleStarsActive={isDoubleStarsActive}
           onStartGame={handleStartSetup}
+          onStartBalloonGame={(config) => {
+            setGameState(prev => ({
+              ...prev,
+              selectedTables: config.selectedNumbers,
+              operation: config.operation,
+              rangeMin: 1,
+              rangeMax: 10,
+            }));
+            setGameMode('balloon');
+            setCurrentScreen('balloon');
+          }}
           onSwitchPlayer={handleBackToProfiles}
           onPurchase={handlePurchase}
           onSpendStars={handleSpendStars}
