@@ -237,6 +237,19 @@ export function BalloonGame({
       setCorrectCount(c => c + 1);
       setShowStarAnimation(true);
 
+      // Flying gold stars animation for gold balloons
+      if (balloon.isGold) {
+        const balloonEl = document.querySelector(`[data-balloon-id="${balloon.id}"]`);
+        const rect = balloonEl?.getBoundingClientRect();
+        const startX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+        const startY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+        setFlyingGoldStars([
+          { id: Date.now(), startX, startY },
+          { id: Date.now() + 1, startX: startX + 20, startY: startY - 10 },
+        ]);
+        setTimeout(() => setFlyingGoldStars([]), 1500);
+      }
+
       // Confetti burst
       const newConfetti = Array.from({ length: 12 }, (_, i) => ({
         id: Date.now() + i,
