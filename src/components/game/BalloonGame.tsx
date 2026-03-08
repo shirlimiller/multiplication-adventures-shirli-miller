@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FoxMascot } from './FoxMascot';
 import { StarHUD } from './StarHUD';
 import { FlyingStars } from './FlyingStars';
 import { BackButton } from './BackButton';
+import { FoxMascot } from './FoxMascot';
 import { generateQuestionForOperation, getOperationSymbol, Operation, getEncouragingMessage } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
-import { Gauge } from 'lucide-react';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 const DIFFICULTY_CONFIG: Record<Difficulty, { baseSpeed: number; label: string; emoji: string; color: string }> = {
@@ -29,10 +28,10 @@ interface Balloon {
   id: number;
   value: number;
   isCorrect: boolean;
-  x: number; // percentage 0-100
-  y: number; // percentage, starts at 110 (below screen), goes to -20 (above)
+  x: number;
+  y: number;
   color: string;
-  speed: number; // pixels per frame
+  speed: number;
   popped: boolean;
   shaking: boolean;
 }
@@ -46,14 +45,14 @@ interface Question {
 }
 
 const BALLOON_COLORS = [
-  'hsl(340 80% 65%)', // strawberry
-  'hsl(200 80% 60%)', // sky blue
-  'hsl(45 90% 60%)',  // sunny yellow
-  'hsl(145 60% 55%)', // mint green
-  'hsl(280 60% 65%)', // grape purple
-  'hsl(20 85% 60%)',  // orange
-  'hsl(170 60% 55%)', // teal
-  'hsl(320 70% 65%)', // pink
+  'hsl(340 80% 65%)',
+  'hsl(200 80% 60%)',
+  'hsl(45 90% 60%)',
+  'hsl(145 60% 55%)',
+  'hsl(280 60% 65%)',
+  'hsl(20 85% 60%)',
+  'hsl(170 60% 55%)',
+  'hsl(320 70% 65%)',
 ];
 
 function generateQuestion(selectedNumbers: number[], operation: Operation, rangeMin: number, rangeMax: number): Question {
@@ -97,17 +96,29 @@ export function BalloonGame({
   const [maxBalloons, setMaxBalloons] = useState(2);
   const [lives, setLives] = useState(3);
   const [confetti, setConfetti] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [foxMessage, setFoxMessage] = useState('לחץ על הבלון עם התשובה הנכונה! 🎈');
   const [showStarAnimation, setShowStarAnimation] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
   const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const nextBalloonId = useRef(0);
   const animFrameRef = useRef<number>();
   const lastSpawnRef = useRef(0);
+  const gameOverRef = useRef(false);
   const { playCorrect, playCorrectFast, playIncorrect, playClick } = useSoundEffects();
+
+  // Keep ref in sync
+  useEffect(() => { gameOverRef.current = gameOver; }, [gameOver]);
+
+  // Auto-hide intro after 3 seconds
+  useEffect(() => {
+    if (showIntro) {
+      const t = setTimeout(() => setShowIntro(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [showIntro]);
 
   // Generate new question and balloons
   const spawnBalloons = useCallback(() => {
@@ -127,7 +138,7 @@ export function BalloonGame({
         value: val,
         isCorrect: val === q.answer,
         x,
-        y: 110 + Math.random() * 20, // start below screen with slight stagger
+        y: 110 + Math.random() * 20,
         color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         speed: speed + Math.random() * 0.05,
         popped: false,
@@ -143,43 +154,38 @@ export function BalloonGame({
     if (!gameOver) spawnBalloons();
   }, []);
 
-  // Animation loop
+  // Animation loop - correct balloon reappears from bottom when it escapes
   useEffect(() => {
     if (gameOver) return;
 
     const animate = () => {
       setBalloons(prev => {
-        let anyEscaped = false;
         const updated = prev.map(b => {
           if (b.popped) return b;
           const newY = b.y - b.speed;
-          if (newY < -15) anyEscaped = true;
           return { ...b, y: newY };
         });
 
-        // Check if all balloons escaped or popped
-        const allGone = updated.every(b => b.popped || b.y < -15);
-        if (allGone && updated.length > 0) {
-          // If the correct balloon escaped, lose a life
-          const correctEscaped = updated.some(b => b.isCorrect && !b.popped && b.y < -15);
-          if (correctEscaped) {
-            setLives(l => {
-              const newLives = l - 1;
-              if (newLives <= 0) {
-                setGameOver(true);
-                setFoxMessage('המשחק נגמר! כל הכבוד על הניסיון! 🌟');
-              }
-              return newLives;
-            });
-            setFoxMessage('אוי, הבלון ברח! ננסה שוב 💪');
+        // Recycle: wrong balloons that escaped are gone, correct balloon respawns from bottom
+        const recycled = updated.map(b => {
+          if (b.popped) return b;
+          if (b.y < -15) {
+            if (b.isCorrect) {
+              // Correct balloon reappears from bottom with new x position
+              return {
+                ...b,
+                y: 110 + Math.random() * 10,
+                x: 10 + Math.random() * 70,
+              };
+            } else {
+              // Wrong balloon disappears
+              return { ...b, popped: true };
+            }
           }
-          // Spawn new balloons after a short delay
-          setTimeout(() => {
-            if (!gameOver) spawnBalloons();
-          }, 800);
-          return updated;
-        }
-        return updated;
+          return b;
+        });
+
+        return recycled;
       });
 
       animFrameRef.current = requestAnimationFrame(animate);
@@ -196,7 +202,6 @@ export function BalloonGame({
     playClick();
 
     if (balloon.isCorrect) {
-      // Pop with confetti!
       playCorrectFast();
       setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, popped: true } : b));
       
@@ -205,7 +210,6 @@ export function BalloonGame({
       setStars(s => s + earned);
       setCorrectCount(c => c + 1);
       setShowStarAnimation(true);
-      setFoxMessage(getEncouragingMessage(true, true));
 
       // Confetti burst
       const newConfetti = Array.from({ length: 12 }, (_, i) => ({
@@ -228,31 +232,28 @@ export function BalloonGame({
 
       // Spawn next question after brief pause
       setTimeout(() => {
-        if (!gameOver) spawnBalloons();
+        if (!gameOverRef.current) spawnBalloons();
       }, 600);
     } else {
-      // Wrong answer - shake
+      // Wrong answer - shake & lose a life
       playIncorrect();
       setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, shaking: true } : b));
-      setFoxMessage(`לא נכון... חפש את ${question.answer}! 🤔`);
+      setLives(l => {
+        const newLives = l - 1;
+        if (newLives <= 0) {
+          setGameOver(true);
+        }
+        return newLives;
+      });
       setTimeout(() => {
         setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, shaking: false } : b));
       }, 500);
     }
-  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons]);
-
-  const handleEndGame = () => {
-    onGameEnd({
-      totalScore: score,
-      totalStars: stars,
-      correctAnswers: correctCount,
-      totalQuestions: questionNum,
-    });
-  };
+  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty]);
 
   if (gameOver) {
     return (
-      <div className="min-h-screen bg-village-map flex flex-col items-center justify-center p-6 gap-6">
+      <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col items-center justify-center p-6 gap-6">
         <FoxMascot message={`סיימת עם ${correctCount} תשובות נכונות ו-${stars} כוכבים! 🎉`} />
         <div className="grid grid-cols-3 gap-4 max-w-md w-full">
           <div className="bg-card rounded-3xl p-4 shadow-card text-center">
@@ -300,24 +301,57 @@ export function BalloonGame({
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col relative overflow-hidden select-none">
+      {/* Intro overlay */}
+      {showIntro && (
+        <div 
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowIntro(false)}
+        >
+          <div className="bg-card rounded-3xl p-8 mx-6 shadow-card border-4 border-accent text-center animate-scale-in max-w-sm">
+            <div className="text-5xl mb-4">🎈</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">
+              לחץ על הבלון עם התשובה הנכונה!
+            </div>
+            <div className="text-base text-muted-foreground">
+              לחץ כדי להתחיל...
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
         <BackButton onClick={onBack} />
         <StarHUD totalStars={totalStars} sessionStars={stars} />
-        
-        {/* Difficulty toggle */}
+      </div>
+
+      {/* Lives + Difficulty under header */}
+      <div className="relative z-20 flex items-center justify-center gap-4 px-3 pb-1">
+        {/* Lives */}
+        <div className="flex gap-0.5">
+          {Array.from({ length: 3 }, (_, i) => (
+            <span key={i} className={`text-2xl md:text-3xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
+              ❤️
+            </span>
+          ))}
+        </div>
+
+        {/* Difficulty picker */}
         <div className="relative">
           <button
             onClick={() => setShowDifficultyPicker(p => !p)}
-            className="flex items-center gap-1 bg-card/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
-            title="שנה מהירות"
+            className="flex items-center gap-2 bg-card/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-card border-2 border-border hover:scale-105 transition-transform"
           >
-            <Gauge className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs font-bold">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+            <span className="text-xl">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-[10px] text-muted-foreground font-medium">רמת קושי</span>
+              <span className="text-sm font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
+            </div>
+            <span className="text-lg">⚙️</span>
           </button>
           
           {showDifficultyPicker && (
-            <div className="absolute top-full mt-2 right-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[100px]">
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[140px]">
               {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
                 <button
                   key={key}
@@ -326,30 +360,21 @@ export function BalloonGame({
                     setSpeed(cfg.baseSpeed);
                     setShowDifficultyPicker(false);
                   }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
-                    difficulty === key ? 'bg-primary/20 scale-105' : 'hover:bg-muted'
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-base font-bold transition-all ${
+                    difficulty === key ? 'bg-primary/20 scale-105 ring-2 ring-primary' : 'hover:bg-muted'
                   }`}
                 >
-                  <span>{cfg.emoji}</span>
+                  <span className="text-xl">{cfg.emoji}</span>
                   <span>{cfg.label}</span>
                 </button>
               ))}
             </div>
           )}
         </div>
-        
-        {/* Lives */}
-        <div className="flex gap-0.5">
-          {Array.from({ length: 3 }, (_, i) => (
-            <span key={i} className={`text-xl md:text-2xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
-              ❤️
-            </span>
-          ))}
-        </div>
       </div>
 
-      {/* Question display - ellipse with balloon decorations */}
-      <div className="relative z-20 flex justify-center mb-2 md:mb-4">
+      {/* Question display */}
+      <div className="relative z-20 flex justify-center mb-1 md:mb-3">
         <div className="relative">
           <div className="absolute -top-2 -left-3 text-lg md:text-2xl animate-float">🎈</div>
           <div className="absolute -top-1 -right-3 text-lg md:text-2xl animate-float" style={{ animationDelay: '0.5s' }}>🎈</div>
@@ -365,12 +390,7 @@ export function BalloonGame({
         </div>
       </div>
 
-      {/* Fox - smaller on mobile */}
-      <div className="relative z-20 flex justify-center mb-1 md:mb-2">
-        <FoxMascot message={foxMessage} className="scale-[0.6] md:scale-75" />
-      </div>
-
-      {/* Balloon area */}
+      {/* Balloon area - takes all remaining space */}
       <div className="flex-1 relative z-10">
         {balloons.map(balloon => (
           <button
@@ -385,9 +405,9 @@ export function BalloonGame({
               bottom: `${100 - balloon.y}%`,
               transform: 'translate(-50%, 50%)',
               transition: balloon.popped ? 'all 0.3s ease-out' : 'none',
+              zIndex: 15,
             }}
           >
-            {/* Balloon SVG */}
             <div className="relative">
               <svg width="64" height="80" viewBox="0 0 80 100" className="drop-shadow-lg md:w-[80px] md:h-[100px]">
                 <path d="M40 80 Q42 90 38 100" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
