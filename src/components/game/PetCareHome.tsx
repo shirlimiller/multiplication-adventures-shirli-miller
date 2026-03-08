@@ -204,14 +204,15 @@ export function PetCareHome({
             <span className="text-[10px] font-bold text-muted-foreground">דמות</span>
           </button>
         
-        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
-          <Star className="w-5 h-5 text-white fill-white drop-shadow" />
-          <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
-          {isDoubleStarsActive && (
-            <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-              x2
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
+            <Star className="w-5 h-5 text-white fill-white drop-shadow" />
+            <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
+            {isDoubleStarsActive && (
+              <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                x2
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
