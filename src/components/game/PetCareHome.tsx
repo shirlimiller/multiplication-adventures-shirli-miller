@@ -501,6 +501,14 @@ export function PetCareHome({
         totalStars={stats.totalStars}
         onNotEnoughStars={handleNotEnoughStarsForWalk}
       />
+
+      {/* Character Switcher Modal */}
+      <CharacterSwitcher
+        isOpen={isCharacterSwitcherOpen}
+        onClose={() => setIsCharacterSwitcherOpen(false)}
+        currentCharacter={activeCharacter}
+        onSelect={handleSwitchCharacter}
+      />
     </div>
   );
 }
