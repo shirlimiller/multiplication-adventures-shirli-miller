@@ -321,19 +321,38 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-center items-end gap-3">
-        {/* Clothing Shop Button */}
-        <ClothingShopIcon 
-          onClick={() => setIsClothingShopOpen(true)} 
-          size="medium"
-        />
+      <footer className="relative z-10 p-6 flex justify-between items-end">
+        {/* Right side - Shop icons */}
+        <div className="flex gap-3 items-end">
+          {/* Food */}
+          <button
+            onClick={() => setIsShopOpen(true)}
+            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+          >
+            <span className="text-3xl">🍕</span>
+            <span className="text-[10px] font-bold text-muted-foreground">אוכל</span>
+          </button>
 
-        {/* Walk Button */}
-        <WalkIcon 
-          onClick={() => setIsWalkSelectorOpen(true)} 
-          size="medium"
-          needsWalk={currentHappiness < 40}
-        />
+          {/* Clothing */}
+          <button
+            onClick={() => setIsClothingShopOpen(true)}
+            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+          >
+            <span className="text-3xl">👕</span>
+            <span className="text-[10px] font-bold text-muted-foreground">בגדים</span>
+          </button>
+
+          {/* Walk */}
+          <button
+            onClick={() => setIsWalkSelectorOpen(true)}
+            className={`flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 ${
+              currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
+            }`}
+          >
+            <span className="text-3xl">🌳</span>
+            <span className="text-[10px] font-bold text-muted-foreground">טיול</span>
+          </button>
+        </div>
 
         {/* Play Button - Large and prominent */}
         <Button
@@ -343,12 +362,6 @@ export function PetCareHome({
           <Play className="w-8 h-8 ml-2 fill-white" />
           בוא נשחק!
         </Button>
-
-        {/* Candy Shop Button */}
-        <ShopIcon 
-          onClick={() => setIsShopOpen(true)} 
-          size="medium"
-        />
       </footer>
 
       {/* Candy Shop Modal */}
