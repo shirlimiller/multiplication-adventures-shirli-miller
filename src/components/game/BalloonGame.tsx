@@ -100,7 +100,9 @@ export function BalloonGame({
   const [foxMessage, setFoxMessage] = useState('לחץ על הבלון עם התשובה הנכונה! 🎈');
   const [showStarAnimation, setShowStarAnimation] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [speed, setSpeed] = useState(0.15);
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
+  const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
 
   const nextBalloonId = useRef(0);
   const animFrameRef = useRef<number>();
