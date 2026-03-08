@@ -32,7 +32,9 @@ const Index = () => {
   const [currentStats, setCurrentStats] = useState<PlayerStats | null>(null);
   const [bossTable, setBossTable] = useState<number | null>(null);
   const [gameMode, setGameMode] = useState<GameMode>('training');
+  const [activeCharacter, setActiveCharacter] = useState<CharacterId>('fox');
   
+
   const { 
     players, 
     isLoaded, 
