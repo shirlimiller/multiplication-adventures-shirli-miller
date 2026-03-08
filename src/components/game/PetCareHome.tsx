@@ -6,15 +6,17 @@ import { HappinessBar } from './HappinessBar';
 import { CandyShop } from './CandyShop';
 import { ClothingShop } from './ClothingShop';
 import { WalkSelector } from './WalkSelector';
+import { CharacterSwitcher } from './CharacterSwitcher';
 import { ShopIcon } from './ShopIcon';
 import { ClothingShopIcon } from './ClothingShopIcon';
 import { WalkIcon } from './WalkIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
+import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
-import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus } from 'lucide-react';
+import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus, RefreshCw } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
