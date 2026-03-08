@@ -1,5 +1,3 @@
-import { Smile, Frown } from 'lucide-react';
-
 interface HappinessBarProps {
   happiness: number; // 0-100
   className?: string;
@@ -15,7 +13,8 @@ export function HappinessBar({ happiness, className = '' }: HappinessBarProps) {
     return 'bg-gradient-to-r from-amber-400 to-orange-500';
   };
 
-  const getEmoji = () => {
+  // Bottle/drink icon that fills based on happiness
+  const getBottleIcon = () => {
     if (isVerySad) return '😢';
     if (isSad) return '😕';
     if (happiness >= 70) return '😄';
@@ -23,20 +22,23 @@ export function HappinessBar({ happiness, className = '' }: HappinessBarProps) {
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2.5 ${className}`}>
       <div className={`relative ${isSad ? 'animate-pulse' : ''}`}>
-        <span className="text-xl">{getEmoji()}</span>
+        <span className="text-2xl md:text-3xl">{getBottleIcon()}</span>
       </div>
       
-      <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden min-w-[80px]">
-        <div 
-          className={`h-full ${getBarColor()} transition-all duration-500 rounded-full`}
-          style={{ width: `${happiness}%` }}
-        />
+      <div className="flex-1">
+        <div className="text-[10px] md:text-xs font-bold text-muted-foreground mb-0.5">שמחה</div>
+        <div className="h-5 md:h-6 bg-muted rounded-full overflow-hidden min-w-[100px] border-2 border-border">
+          <div 
+            className={`h-full ${getBarColor()} transition-all duration-500 rounded-full`}
+            style={{ width: `${happiness}%` }}
+          />
+        </div>
       </div>
       
       {isSad && (
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
+        <span className="text-xs font-bold text-destructive whitespace-nowrap">
           {isVerySad ? 'עצוב מאוד!' : 'צריך טיול!'}
         </span>
       )}

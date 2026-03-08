@@ -225,10 +225,10 @@ export function PetCareHome({
             </button>
           </div>
 
-          {/* Center - Fox + bars + buttons below */}
+          {/* Center - Fox (smaller) + bars + play button below */}
           <div className="flex flex-col items-center flex-1 min-w-0">
-            <div className="relative w-full">
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 md:w-64 h-10 md:h-14 bg-primary/20 rounded-full blur-lg" />
+            <div className="relative w-full scale-[0.8] md:scale-90 origin-bottom">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 md:w-56 h-8 md:h-12 bg-primary/20 rounded-full blur-lg" />
               <FoxMascot
                 message={foxMessage}
                 size="hero"
@@ -242,13 +242,13 @@ export function PetCareHome({
             </div>
 
             {/* Hunger and Happiness Bars */}
-            <div className="mt-3 md:mt-6 w-full max-w-xs space-y-2">
+            <div className="mt-2 md:mt-4 w-full max-w-xs space-y-2">
               <HungerBar hunger={currentHunger} />
               <HappinessBar happiness={currentHappiness} />
             </div>
 
-            {/* Play button + Balloon game below fox */}
-            <div className="mt-3 md:mt-5 flex items-center gap-3">
+            {/* Play button below fox */}
+            <div className="mt-3 md:mt-5">
               <Button
                 onClick={onStartGame}
                 className="h-14 md:h-16 px-6 md:px-8 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-base md:text-lg hover:scale-105 transition-all"
@@ -256,17 +256,46 @@ export function PetCareHome({
                 <Play className="w-5 h-5 md:w-6 md:h-6 ml-2 fill-white" />
                 בוא נשחק!
               </Button>
-
-              <button
-                onClick={() => setShowBalloonConfig(true)}
-                className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-4 py-2.5 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
-              >
-                <span className="absolute -top-2 -right-1 text-sm animate-float">🎈</span>
-                <span className="absolute -top-1 -left-2 text-xs animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
-                <div className="text-xl mb-0.5">🎈</div>
-                <span className="text-[10px] font-extrabold text-white drop-shadow">בלונים!</span>
-              </button>
             </div>
+          </div>
+
+          {/* Left side - Balloon Game */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setShowBalloonConfig(true)}
+              className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl p-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+            >
+              {/* Colorful balloons SVG */}
+              <svg width="48" height="56" viewBox="0 0 100 120" className="mx-auto mb-1 drop-shadow-md md:w-[56px] md:h-[64px]">
+                {/* Red balloon */}
+                <ellipse cx="30" cy="35" rx="16" ry="20" fill="hsl(340 80% 60%)" />
+                <ellipse cx="24" cy="28" rx="4" ry="7" fill="white" opacity="0.3" transform="rotate(-15 24 28)" />
+                <line x1="30" y1="55" x2="50" y2="100" stroke="hsl(340 80% 50%)" strokeWidth="1" />
+                {/* Green balloon */}
+                <ellipse cx="50" cy="28" rx="16" ry="20" fill="hsl(145 60% 55%)" />
+                <ellipse cx="44" cy="21" rx="4" ry="7" fill="white" opacity="0.3" transform="rotate(-15 44 21)" />
+                <line x1="50" y1="48" x2="50" y2="100" stroke="hsl(145 60% 45%)" strokeWidth="1" />
+                {/* Blue balloon */}
+                <ellipse cx="70" cy="35" rx="16" ry="20" fill="hsl(200 80% 60%)" />
+                <ellipse cx="64" cy="28" rx="4" ry="7" fill="white" opacity="0.3" transform="rotate(-15 64 28)" />
+                <line x1="70" y1="55" x2="50" y2="100" stroke="hsl(200 80% 50%)" strokeWidth="1" />
+                {/* Yellow balloon */}
+                <ellipse cx="50" cy="45" rx="14" ry="18" fill="hsl(45 90% 60%)" />
+                <ellipse cx="45" cy="39" rx="3" ry="6" fill="white" opacity="0.3" transform="rotate(-15 45 39)" />
+                <line x1="50" y1="63" x2="50" y2="100" stroke="hsl(45 90% 50%)" strokeWidth="1" />
+                {/* Purple balloon */}
+                <ellipse cx="38" cy="50" rx="13" ry="17" fill="hsl(280 60% 65%)" />
+                <ellipse cx="33" cy="44" rx="3" ry="6" fill="white" opacity="0.3" transform="rotate(-15 33 44)" />
+                <line x1="38" y1="67" x2="50" y2="100" stroke="hsl(280 60% 55%)" strokeWidth="1" />
+                {/* Orange balloon */}
+                <ellipse cx="62" cy="50" rx="13" ry="17" fill="hsl(20 85% 60%)" />
+                <ellipse cx="57" cy="44" rx="3" ry="6" fill="white" opacity="0.3" transform="rotate(-15 57 44)" />
+                <line x1="62" y1="67" x2="50" y2="100" stroke="hsl(20 85% 50%)" strokeWidth="1" />
+                {/* Knot */}
+                <circle cx="50" cy="100" r="3" fill="hsl(var(--muted-foreground))" />
+              </svg>
+              <span className="text-[9px] md:text-[10px] font-extrabold text-white drop-shadow block leading-tight">משחק<br/>בלונים</span>
+            </button>
           </div>
         </div>
 
