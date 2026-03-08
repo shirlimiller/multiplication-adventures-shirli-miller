@@ -389,19 +389,14 @@ export function BalloonGame({
           >
             {/* Balloon SVG */}
             <div className="relative">
-              <svg width="80" height="100" viewBox="0 0 80 100" className="drop-shadow-lg">
-                {/* String */}
+              <svg width="64" height="80" viewBox="0 0 80 100" className="drop-shadow-lg md:w-[80px] md:h-[100px]">
                 <path d="M40 80 Q42 90 38 100" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
-                {/* Balloon body */}
                 <ellipse cx="40" cy="42" rx="32" ry="38" fill={balloon.color} />
-                {/* Shine */}
                 <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity="0.3" transform="rotate(-20 28 30)" />
-                {/* Knot */}
                 <polygon points="36,78 40,82 44,78 40,74" fill={balloon.color} />
               </svg>
-              {/* Number on balloon */}
-              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '20px' }}>
-                <span className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-md">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '16px' }}>
+                <span className="text-xl md:text-3xl font-extrabold text-white drop-shadow-md">
                   {balloon.value}
                 </span>
               </div>
