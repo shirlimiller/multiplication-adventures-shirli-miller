@@ -175,24 +175,22 @@ export function PetCareHome({
       </div>
       
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-4">
-        {/* Switch Player Button */}
+      <header className="relative z-10 flex items-center justify-between p-3 md:p-4">
         <Button
           variant="ghost"
           onClick={onSwitchPlayer}
-          className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft hover:shadow-card transition-all"
+          className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all text-sm"
         >
-          <Users className="w-5 h-5" />
+          <Users className="w-4 h-4" />
           <span className="font-bold">{player.name}</span>
-          <span className="text-2xl">{player.avatar}</span>
+          <span className="text-xl">{player.avatar}</span>
         </Button>
         
-        {/* Star Counter */}
-        <div className="flex items-center gap-2 bg-gradient-gold rounded-full px-5 py-2 shadow-gold">
-          <Star className="w-7 h-7 text-white fill-white drop-shadow" />
-          <span className="text-2xl font-extrabold text-white drop-shadow">{stats.totalStars}</span>
+        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold">
+          <Star className="w-5 h-5 text-white fill-white drop-shadow" />
+          <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
           {isDoubleStarsActive && (
-            <span className="bg-candy text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+            <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
               x2
             </span>
           )}
@@ -200,13 +198,9 @@ export function PetCareHome({
       </header>
 
       {/* Main Content - Pet Area */}
-      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 py-8">
-        {/* Living Room / Garden Setting */}
+      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-3 py-4 md:py-8 min-h-0">
         <div className="relative w-full max-w-lg">
-          {/* Ground/Platform */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 h-16 bg-primary/20 rounded-full blur-lg" />
-          
-          {/* Fox with message and clothing */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-60 md:w-80 h-12 md:h-16 bg-primary/20 rounded-full blur-lg" />
           <FoxMascot
             message={foxMessage}
             size="hero"
@@ -220,7 +214,7 @@ export function PetCareHome({
         </div>
 
         {/* Hunger and Happiness Bars */}
-        <div className="mt-8 w-full max-w-xs space-y-3">
+        <div className="mt-4 md:mt-8 w-full max-w-xs space-y-2">
           <HungerBar hunger={currentHunger} />
           <HappinessBar happiness={currentHappiness} />
         </div>
