@@ -279,19 +279,13 @@ export function GameScreen({
           </div>
 
 
-          {/* Feedback or Visual Explanation */}
+          {/* Feedback */}
           {showFeedback && !isCorrect && (
             <div className="w-full max-w-lg space-y-4">
               <SmartFeedback 
                 table={multiplier}
                 multiplicand={multiplicand}
                 correctAnswer={correctAnswer}
-              />
-              <VisualExplanation
-                multiplier={multiplier}
-                multiplicand={multiplicand}
-                correctAnswer={correctAnswer}
-                mistakeIndex={mistakeCount}
               />
             </div>
           )}
