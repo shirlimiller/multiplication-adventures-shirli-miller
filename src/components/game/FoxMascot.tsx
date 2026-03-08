@@ -349,7 +349,7 @@ export function FoxMascot({
                     <polygon points="120,178 124,188 135,190 127,197 129,208 120,202 111,208 113,197 105,190 116,188" fill="white" opacity="0.4" />
                   )}
                   {/* Cape for superhero */}
-                  {equippedShirt.id === 'superhero' && (
+                  {equippedShirt.id === 'shirt_hero' && (
                     <path d="M 75 170 Q 60 220 80 260 L 120 240 L 160 260 Q 180 220 165 170 Z" fill={equippedShirt.color} opacity="0.3" />
                   )}
                 </g>
