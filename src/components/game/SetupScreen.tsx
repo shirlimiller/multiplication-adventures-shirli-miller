@@ -218,23 +218,6 @@ export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
               <span className="text-xl font-bold">מבחן</span>
               <span className="text-sm text-muted-foreground text-center">כתוב את התשובה בעצמך</span>
             </button>
-            
-            <button
-              onClick={() => setGameMode('balloon')}
-              className={`
-                relative flex flex-col items-center gap-3 p-6 rounded-full border-[3px] transition-all duration-200 overflow-visible
-                ${gameMode === 'balloon' 
-                  ? 'border-[hsl(340_70%_65%)] bg-wood scale-105 shadow-candy' 
-                  : 'border-[hsl(35_30%_70%)] bg-wood hover:border-candy/50 shadow-wood'}
-              `}
-            >
-              {/* Decorative balloons */}
-              <span className="absolute -top-3 -right-2 text-xl animate-float" style={{ animationDelay: '0s' }}>🎈</span>
-              <span className="absolute -top-2 -left-3 text-lg animate-float" style={{ animationDelay: '0.7s' }}>🎈</span>
-              <PartyPopper className={`w-12 h-12 ${gameMode === 'balloon' ? 'text-candy' : 'text-muted-foreground'}`} />
-              <span className="text-xl font-bold">משחק בלונים</span>
-              <span className="text-sm text-muted-foreground text-center">תפוס את הבלון הנכון!</span>
-            </button>
           </div>
           
           {gameMode === 'test' && (
