@@ -8,9 +8,9 @@ import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 const DIFFICULTY_CONFIG: Record<Difficulty, { baseSpeed: number; label: string; emoji: string; color: string; starMultiplier: number }> = {
-  easy:   { baseSpeed: 0.12, label: 'לאט', emoji: '🐢', color: 'hsl(145 60% 55%)', starMultiplier: 1 },
-  medium: { baseSpeed: 0.22, label: 'בינוני', emoji: '🐇', color: 'hsl(45 90% 60%)', starMultiplier: 1 },
-  hard:   { baseSpeed: 0.35, label: 'מהיר', emoji: '🚀', color: 'hsl(340 80% 65%)', starMultiplier: 2 },
+  easy:   { baseSpeed: 0.08, label: 'לאט', emoji: '🐢', color: 'hsl(145 60% 55%)', starMultiplier: 1 },
+  medium: { baseSpeed: 0.14, label: 'בינוני', emoji: '🐇', color: 'hsl(45 90% 60%)', starMultiplier: 1 },
+  hard:   { baseSpeed: 0.22, label: 'מהיר', emoji: '🚀', color: 'hsl(340 80% 65%)', starMultiplier: 2 },
 };
 
 interface BalloonGameProps {
