@@ -13,8 +13,8 @@ import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
 import { useClothingState } from '@/hooks/useClothingState';
-import { checkDivisionTableMastery, checkTableMastery } from '@/lib/gameUtils';
-import { Star, Play, Award, Users } from 'lucide-react';
+import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
+import { Star, Play, Award, Users, X, Divide, Check } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
