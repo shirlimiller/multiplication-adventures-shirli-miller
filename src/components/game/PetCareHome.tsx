@@ -298,6 +298,7 @@ export function PetCareHome({
                 isEating={isEating}
                 eatingFood={eatingFood}
                 clothing={clothing}
+                characterId={activeCharacter}
                 animate
               />
             </div>
