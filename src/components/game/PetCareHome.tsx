@@ -344,45 +344,38 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-between items-end">
-        {/* Right side - Shop icons */}
-        <div className="flex gap-3 items-end">
-          {/* Food */}
+      <footer className="relative z-10 p-3 md:p-6 flex justify-between items-end safe-area-bottom">
+        <div className="flex gap-2 items-end">
           <button
             onClick={() => setIsShopOpen(true)}
-            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
           >
-            <span className="text-3xl">🍕</span>
-            <span className="text-[10px] font-bold text-muted-foreground">אוכל</span>
+            <span className="text-2xl">🍕</span>
+            <span className="text-[9px] font-bold text-muted-foreground">אוכל</span>
           </button>
-
-          {/* Clothing */}
           <button
             onClick={() => setIsClothingShopOpen(true)}
-            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
           >
-            <span className="text-3xl">👕</span>
-            <span className="text-[10px] font-bold text-muted-foreground">בגדים</span>
+            <span className="text-2xl">👕</span>
+            <span className="text-[9px] font-bold text-muted-foreground">בגדים</span>
           </button>
-
-          {/* Walk */}
           <button
             onClick={() => setIsWalkSelectorOpen(true)}
-            className={`flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 ${
+            className={`flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 ${
               currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
             }`}
           >
-            <span className="text-3xl">🌳</span>
-            <span className="text-[10px] font-bold text-muted-foreground">טיול</span>
+            <span className="text-2xl">🌳</span>
+            <span className="text-[9px] font-bold text-muted-foreground">טיול</span>
           </button>
         </div>
 
-        {/* Play Button - Large and prominent */}
         <Button
           onClick={onStartGame}
-          className="h-20 px-10 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-xl hover:scale-105 transition-all"
+          className="h-16 md:h-20 px-8 md:px-10 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-lg md:text-xl hover:scale-105 transition-all"
         >
-          <Play className="w-8 h-8 ml-2 fill-white" />
+          <Play className="w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
           בוא נשחק!
         </Button>
       </footer>
