@@ -230,10 +230,9 @@ export function PetCareHome({
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
   const handleSwitchCharacter = useCallback((id: CharacterId) => {
-    setActiveCharacter(id);
-    setPlayerCharacter(player.id, id);
+    onCharacterChange(id);
     setFoxMessage('וואו! אני נראה מדהים! 🎉');
-  }, [player.id]);
+  }, [onCharacterChange]);
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-village-map overflow-hidden relative" dir="rtl">
