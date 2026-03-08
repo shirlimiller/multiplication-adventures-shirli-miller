@@ -82,10 +82,11 @@ export function GameScreen({
   
   const { playCorrect, playCorrectFast, playIncorrect, playClick } = useSoundEffects();
 
-  // Auto-advance to next question when answer is correct
+  // Auto-advance to next question when answer is correct (1.4s) or wrong (4s)
   useEffect(() => {
-    if (!showFeedback || !isCorrect) return;
-    const timer = setTimeout(() => onContinue(), 1400);
+    if (!showFeedback) return;
+    const delay = isCorrect ? 1400 : 4000;
+    const timer = setTimeout(() => onContinue(), delay);
     return () => clearTimeout(timer);
   }, [showFeedback, isCorrect, onContinue]);
 
