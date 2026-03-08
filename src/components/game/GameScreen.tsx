@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { FlyingStars } from './FlyingStars';
 import { StarHUD } from './StarHUD';
 import { SmartFeedback } from './SmartFeedback';
