@@ -54,6 +54,8 @@ export function PetCareHome({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
+  const [isCharacterSwitcherOpen, setIsCharacterSwitcherOpen] = useState(false);
+  const [activeCharacter, setActiveCharacter] = useState<CharacterId>(() => getPlayerCharacter(player.id));
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
