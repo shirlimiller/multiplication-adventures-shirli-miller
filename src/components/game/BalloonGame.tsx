@@ -129,6 +129,11 @@ export function BalloonGame({
   const spawnBalloons = useCallback(() => {
     const q = generateQuestion(selectedNumbers, operation, rangeMin, rangeMax);
     setQuestion(q);
+    
+    // Check if this should be a gold balloon question (every 10 questions on hard mode)
+    const currentQuestionNum = questionNum + 1;
+    const isGoldQuestion = difficulty === 'hard' && currentQuestionNum > 0 && currentQuestionNum % 10 === 0;
+    
     setQuestionNum(prev => prev + 1);
 
     const wrongCount = maxBalloons - 1;
@@ -138,21 +143,23 @@ export function BalloonGame({
     const newBalloons: Balloon[] = values.map((val, i) => {
       const spacing = 80 / values.length;
       const x = 10 + spacing * i + Math.random() * (spacing * 0.5);
+      const isCorrectBalloon = val === q.answer;
       return {
         id: nextBalloonId.current++,
         value: val,
-        isCorrect: val === q.answer,
+        isCorrect: isCorrectBalloon,
         x,
         y: 110 + Math.random() * 20,
-        color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+        color: (isGoldQuestion && isCorrectBalloon) ? 'hsl(45 100% 50%)' : BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         speed: speed + Math.random() * 0.05,
         popped: false,
         shaking: false,
+        isGold: isGoldQuestion && isCorrectBalloon,
       };
     });
 
     setBalloons(newBalloons);
-  }, [selectedNumbers, operation, rangeMin, rangeMax, maxBalloons, speed]);
+  }, [selectedNumbers, operation, rangeMin, rangeMax, maxBalloons, speed, questionNum, difficulty]);
 
   // Initial spawn
   useEffect(() => {
