@@ -304,6 +304,40 @@ export function BalloonGame({
       <div className="relative z-20 flex items-center justify-between p-4">
         <BackButton onClick={onBack} />
         <StarHUD totalStars={totalStars} sessionStars={stars} />
+        
+        {/* Difficulty toggle */}
+        <div className="relative">
+          <button
+            onClick={() => setShowDifficultyPicker(p => !p)}
+            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-full px-3 py-2 shadow-card border-2 border-border hover:scale-105 transition-transform"
+            title="שנה מהירות"
+          >
+            <Gauge className="w-5 h-5 text-muted-foreground" />
+            <span className="text-sm font-bold">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+          </button>
+          
+          {showDifficultyPicker && (
+            <div className="absolute top-full mt-2 right-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[120px]">
+              {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setDifficulty(key);
+                    setSpeed(cfg.baseSpeed);
+                    setShowDifficultyPicker(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
+                    difficulty === key ? 'bg-primary/20 scale-105' : 'hover:bg-muted'
+                  }`}
+                >
+                  <span>{cfg.emoji}</span>
+                  <span>{cfg.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
         {/* Lives */}
         <div className="flex gap-1">
           {Array.from({ length: 3 }, (_, i) => (
