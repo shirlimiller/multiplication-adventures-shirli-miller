@@ -6,6 +6,7 @@ import { SetupScreen, GameMode } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { BossChallenge } from '@/components/game/BossChallenge';
+import { BalloonGame } from '@/components/game/BalloonGame';
 import { BackButton } from '@/components/game/BackButton';
 import { 
   GameState, 
@@ -20,7 +21,7 @@ import { ShopItem, WalkLocation } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 import { usePetState } from '@/hooks/usePetState';
 
-type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss';
+type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
@@ -84,6 +85,20 @@ const Index = () => {
     if (!selectedPlayer) return;
     
     setGameMode(config.mode);
+    
+    // Balloon mode goes to a different screen
+    if (config.mode === 'balloon') {
+      setGameState(prev => ({
+        ...prev,
+        selectedTables: config.selectedNumbers,
+        operation: config.operation,
+        rangeMin: config.rangeMin,
+        rangeMax: config.rangeMax,
+      }));
+      setCurrentScreen('balloon');
+      return;
+    }
+    
     const playerStats = getPlayerStats(selectedPlayer.id);
     const result =
       config.operation === 'multiply'
@@ -317,6 +332,26 @@ const Index = () => {
 
       {currentScreen === 'boss' && bossTable && (
         <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} />
+      )}
+
+      {currentScreen === 'balloon' && selectedPlayer && currentStats && (
+        <BalloonGame
+          selectedNumbers={gameState.selectedTables}
+          operation={gameState.operation}
+          rangeMin={gameState.rangeMin}
+          rangeMax={gameState.rangeMax}
+          totalStars={currentStats.totalStars}
+          isDoubleStarsActive={isDoubleStarsActive}
+          onGameEnd={(results) => {
+            // Award stars to player
+            if (results.totalStars > 0) {
+              updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
+              setCurrentStats(getPlayerStats(selectedPlayer.id));
+            }
+            setCurrentScreen('setup');
+          }}
+          onBack={() => setCurrentScreen('setup')}
+        />
       )}
 
       {currentScreen === 'summary' && selectedPlayer && (
