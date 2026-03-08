@@ -15,6 +15,8 @@ interface SummaryScreenProps {
   playerStats: PlayerStats;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 export function SummaryScreen({
