@@ -207,7 +207,7 @@ export function BossChallenge({ table, onComplete, onExit, characterId, clothing
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 flex flex-col items-center justify-center p-6">
         <div className="relative z-10 text-center space-y-6">
-          <FoxMascot message="לא נורא! נסה שוב - אתה יכול! 💪" animate />
+          <FoxMascot message="לא נורא! נסה שוב - אתה יכול! 💪" animate characterId={characterId} clothing={clothing} />
           
           <div className="bg-card/90 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto space-y-4">
             <h2 className="text-2xl font-bold text-foreground">כמעט! 🌟</h2>

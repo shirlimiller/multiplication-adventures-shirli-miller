@@ -79,6 +79,8 @@ export function SetupScreen({ onStartGame, playerStats, characterId, clothing }:
         <FoxMascot 
           message="מה תרצה לתרגל היום? 🎯"
           className="mb-8"
+          characterId={characterId}
+          clothing={clothing}
         />
 
         {/* Operation selection */}

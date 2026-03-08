@@ -66,7 +66,7 @@ export function SummaryScreen({
           <h1 className="text-4xl font-extrabold text-gradient mb-4">סיכום ההרפתקה!</h1>
         </div>
 
-        <FoxMascot message={getMessage()} />
+        <FoxMascot message={getMessage()} characterId={characterId} clothing={clothing} />
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

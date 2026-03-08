@@ -310,7 +310,7 @@ export function BalloonGame({
         <FoxMascot message={isNewHighScore 
           ? `שיא חדש! 🎉 ${correctCount} תשובות נכונות!` 
           : `כל הכבוד! ענית ${correctCount} תשובות נכונות! 🎉`
-        } />
+        } characterId={characterId} clothing={clothing} />
         
         {isNewHighScore && (
           <div className="text-2xl font-extrabold text-accent animate-bounce">🏆 שיא חדש! 🏆</div>
