@@ -19,6 +19,7 @@ interface BalloonGameProps {
   rangeMin: number;
   rangeMax: number;
   totalStars: number;
+  highScore: number;
   isDoubleStarsActive: boolean;
   onGameEnd: (results: { totalScore: number; totalStars: number; correctAnswers: number; totalQuestions: number }) => void;
   onBack: () => void;
