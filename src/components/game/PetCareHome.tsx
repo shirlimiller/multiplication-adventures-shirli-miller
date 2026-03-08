@@ -242,41 +242,49 @@ export function PetCareHome({
         {/* Balloon Config Modal */}
         {showBalloonConfig && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowBalloonConfig(false)}>
-            <div className="bg-card rounded-3xl p-6 shadow-card max-w-md w-full space-y-5 animate-fade-in" onClick={e => e.stopPropagation()}>
-              <h2 className="text-2xl font-extrabold text-center">🎈 משחק בלונים</h2>
+            <div className="bg-card rounded-3xl p-5 shadow-card max-w-sm w-full space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="text-xl font-extrabold text-center">🎈 משחק בלונים</h2>
               
-              {/* Operation selection */}
+              {/* Operation selection - multi-toggle */}
               <div className="space-y-2">
-                <p className="text-sm font-bold text-center">בחר פעולה:</p>
-                <div className="flex gap-3 justify-center">
+                <p className="text-sm font-bold text-center">סמן פעולות:</p>
+                <div className="grid grid-cols-4 gap-2">
                   {([
-                    { op: 'multiply' as const, label: 'כפל', icon: <X className="w-5 h-5" /> },
-                    { op: 'divide' as const, label: 'חילוק', icon: <Divide className="w-5 h-5" /> },
-                    { op: 'multiply_divide' as const, label: 'שניהם', icon: <span className="text-sm font-bold">×÷</span> },
-                  ]).map(({ op, label, icon }) => (
-                    <button
-                      key={op}
-                      onClick={() => setBalloonOp(op)}
-                      className={`flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border-2 transition-all ${
-                        balloonOp === op 
-                          ? 'border-primary bg-primary/10 scale-105' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      {icon}
-                      <span className="text-xs font-bold">{label}</span>
-                    </button>
-                  ))}
+                    { op: 'multiply', label: 'כפל', emoji: '✖️', color: 'hsl(145 60% 55%)' },
+                    { op: 'divide', label: 'חילוק', emoji: '➗', color: 'hsl(200 80% 60%)' },
+                    { op: 'add', label: 'חיבור', emoji: '➕', color: 'hsl(45 90% 60%)' },
+                    { op: 'subtract', label: 'חיסור', emoji: '➖', color: 'hsl(340 80% 65%)' },
+                  ]).map(({ op, label, emoji, color }) => {
+                    const selected = balloonOps.has(op);
+                    return (
+                      <button
+                        key={op}
+                        onClick={() => toggleBalloonOp(op)}
+                        style={{ borderColor: selected ? color : undefined, backgroundColor: selected ? `${color.replace(')', ' / 0.15)')}` : undefined }}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all relative ${
+                          selected ? 'scale-105 shadow-md' : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        {selected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        )}
+                        <span className="text-xl">{emoji}</span>
+                        <span className="text-[11px] font-bold">{label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* All numbers or pick */}
               <div className="space-y-2">
                 <p className="text-sm font-bold text-center">מספרים:</p>
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-2 justify-center">
                   <button
                     onClick={() => { setBalloonAllNumbers(true); setBalloonNumbers([]); }}
-                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
                       balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
                     }`}
                   >
@@ -284,7 +292,7 @@ export function PetCareHome({
                   </button>
                   <button
                     onClick={() => setBalloonAllNumbers(false)}
-                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
                       !balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
                     }`}
                   >
@@ -293,7 +301,7 @@ export function PetCareHome({
                 </div>
 
                 {!balloonAllNumbers && (
-                  <div className="grid grid-cols-6 gap-2 mt-3">
+                  <div className="grid grid-cols-6 gap-2 mt-2">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(n => {
                       const selected = balloonNumbers.includes(n);
                       const iceColors = [
@@ -309,7 +317,7 @@ export function PetCareHome({
                             prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]
                           )}
                           style={{ backgroundColor: selected ? iceColors[n - 1] : undefined }}
-                          className={`w-10 h-10 rounded-full border-2 font-extrabold text-lg transition-all ${
+                          className={`w-9 h-9 rounded-full border-2 font-extrabold text-base transition-all ${
                             selected ? 'text-white border-transparent scale-110 shadow-lg' : 'border-border'
                           }`}
                         >
@@ -329,10 +337,10 @@ export function PetCareHome({
                     : balloonNumbers;
                   if (nums.length === 0) return;
                   setShowBalloonConfig(false);
-                  onStartBalloonGame({ operation: balloonOp, selectedNumbers: nums });
+                  onStartBalloonGame({ operation: getResolvedOperation(), selectedNumbers: nums });
                 }}
                 disabled={!balloonAllNumbers && balloonNumbers.length === 0}
-                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-xl py-4 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-lg py-3 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
               >
                 🎈 יאללה, בואו נשחק!
               </button>
