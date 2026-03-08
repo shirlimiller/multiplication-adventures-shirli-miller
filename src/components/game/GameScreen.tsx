@@ -256,7 +256,7 @@ export function GameScreen({
           <div className="flex flex-col items-center gap-3">
           <div className={`${operation === 'multiply' ? WORLD_COLORS[multiplier] : 'bg-primary'} text-white rounded-ac-xl p-8 shadow-card text-center border-[3px] border-white/20 ${showFeedback && !isCorrect ? 'animate-shake' : ''}`} dir="ltr">
               <div className="text-5xl md:text-6xl font-extrabold">
-                {operation === 'divide' 
+                {(operation === 'divide' || operation === 'subtract')
                   ? `${multiplier} ${getOperationSymbol(operation)} ${multiplicand} = ?`
                   : `${multiplicand} ${getOperationSymbol(operation)} ${multiplier} = ?`}
               </div>
