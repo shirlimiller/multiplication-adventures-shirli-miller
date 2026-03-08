@@ -3,6 +3,8 @@ import { StarHUD } from './StarHUD';
 import { FlyingStars } from './FlyingStars';
 import { BackButton } from './BackButton';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { generateQuestionForOperation, getOperationSymbol, Operation, getEncouragingMessage } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 
@@ -23,6 +25,8 @@ interface BalloonGameProps {
   isDoubleStarsActive: boolean;
   onGameEnd: (results: { totalScore: number; totalStars: number; correctAnswers: number; totalQuestions: number }) => void;
   onBack: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 interface Balloon {
@@ -89,6 +93,8 @@ export function BalloonGame({
   isDoubleStarsActive,
   onGameEnd,
   onBack,
+  characterId,
+  clothing,
 }: BalloonGameProps) {
   const [question, setQuestion] = useState<Question>(() => generateQuestion(selectedNumbers, operation, rangeMin, rangeMax));
   const [balloons, setBalloons] = useState<Balloon[]>([]);
@@ -304,7 +310,7 @@ export function BalloonGame({
         <FoxMascot message={isNewHighScore 
           ? `שיא חדש! 🎉 ${correctCount} תשובות נכונות!` 
           : `כל הכבוד! ענית ${correctCount} תשובות נכונות! 🎉`
-        } />
+        } characterId={characterId} clothing={clothing} />
         
         {isNewHighScore && (
           <div className="text-2xl font-extrabold text-accent animate-bounce">🏆 שיא חדש! 🏆</div>

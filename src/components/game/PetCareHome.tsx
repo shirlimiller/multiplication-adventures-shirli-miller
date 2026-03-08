@@ -13,7 +13,7 @@ import { WalkIcon } from './WalkIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
-import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
+import { CharacterId } from '@/lib/characterTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus, RefreshCw } from 'lucide-react';
@@ -32,6 +32,8 @@ interface PetCareHomeProps {
   onFeedPet: (item: ShopItem) => void;
   onWalkPet: (location: WalkLocation) => void;
   onPetInteract: () => void;
+  activeCharacter: CharacterId;
+  onCharacterChange: (id: CharacterId) => void;
 }
 
 // Tiny head-only preview for the character switcher button
@@ -112,6 +114,8 @@ export function PetCareHome({
   onFeedPet,
   onWalkPet,
   onPetInteract,
+  activeCharacter,
+  onCharacterChange,
 }: PetCareHomeProps) {
   const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
   const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
@@ -119,7 +123,6 @@ export function PetCareHome({
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
   const [isCharacterSwitcherOpen, setIsCharacterSwitcherOpen] = useState(false);
-  const [activeCharacter, setActiveCharacter] = useState<CharacterId>(() => getPlayerCharacter(player.id));
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
@@ -227,10 +230,9 @@ export function PetCareHome({
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
   const handleSwitchCharacter = useCallback((id: CharacterId) => {
-    setActiveCharacter(id);
-    setPlayerCharacter(player.id, id);
+    onCharacterChange(id);
     setFoxMessage('וואו! אני נראה מדהים! 🎉');
-  }, [player.id]);
+  }, [onCharacterChange]);
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-village-map overflow-hidden relative" dir="rtl">

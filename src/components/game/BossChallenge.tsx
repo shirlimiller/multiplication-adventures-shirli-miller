@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { Crown, Zap, X, Trophy, Star, Flame } from 'lucide-react';
 import { WORLD_COLORS, WORLD_NAMES, generateAnswerOptions, MASTERY_CONFIG } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
@@ -9,6 +11,8 @@ interface BossChallengeProps {
   table: number;
   onComplete: (success: boolean) => void;
   onExit: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 interface BossQuestion {
@@ -18,7 +22,7 @@ interface BossQuestion {
   correct: boolean;
 }
 
-export function BossChallenge({ table, onComplete, onExit }: BossChallengeProps) {
+export function BossChallenge({ table, onComplete, onExit, characterId, clothing }: BossChallengeProps) {
   const [questions, setQuestions] = useState<BossQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -203,7 +207,7 @@ export function BossChallenge({ table, onComplete, onExit }: BossChallengeProps)
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 flex flex-col items-center justify-center p-6">
         <div className="relative z-10 text-center space-y-6">
-          <FoxMascot message="לא נורא! נסה שוב - אתה יכול! 💪" animate />
+          <FoxMascot message="לא נורא! נסה שוב - אתה יכול! 💪" animate characterId={characterId} clothing={clothing} />
           
           <div className="bg-card/90 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto space-y-4">
             <h2 className="text-2xl font-bold text-foreground">כמעט! 🌟</h2>
@@ -300,7 +304,9 @@ export function BossChallenge({ table, onComplete, onExit }: BossChallengeProps)
                 : 'אוי לא...'
               : 'אתה יכול! 💪'
           } 
-          animate={!showFeedback} 
+          animate={!showFeedback}
+          characterId={characterId}
+          clothing={clothing}
         />
 
         {currentQuestion && (

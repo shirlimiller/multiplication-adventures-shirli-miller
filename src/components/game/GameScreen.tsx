@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { FlyingStars } from './FlyingStars';
 import { StarHUD } from './StarHUD';
 import { SmartFeedback } from './SmartFeedback';
@@ -46,6 +48,8 @@ interface GameScreenProps {
   questionStartTime: number;
   hintUsedInCurrentQuestion: boolean;
   onHintUsed: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 export function GameScreen({
@@ -70,6 +74,8 @@ export function GameScreen({
   questionStartTime,
   hintUsedInCurrentQuestion,
   onHintUsed,
+  characterId,
+  clothing,
 }: GameScreenProps) {
   const [options, setOptions] = useState<number[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -251,7 +257,7 @@ export function GameScreen({
 
         {/* Game Content */}
         <div className="flex-1 flex flex-col items-center justify-center gap-6">
-          <FoxMascot message={getMessage()} animate={!showFeedback} />
+          <FoxMascot message={getMessage()} animate={!showFeedback} characterId={characterId} clothing={clothing} />
 
           {/* Question - displayed left to right, NO TIMER during question */}
           <div className="flex flex-col items-center gap-3">

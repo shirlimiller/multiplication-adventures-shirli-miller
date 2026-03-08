@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Gamepad2, GraduationCap, Plus, Minus, X, Divide } from 'lucide-react';
@@ -20,9 +22,11 @@ export interface GameSetupConfig {
 interface SetupScreenProps {
   onStartGame: (config: GameSetupConfig) => void;
   playerStats: PlayerStats;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
-export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
+export function SetupScreen({ onStartGame, playerStats, characterId, clothing }: SetupScreenProps) {
   const [operation, setOperation] = useState<Operation>('multiply');
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [rangeMin, setRangeMin] = useState(1);
@@ -75,6 +79,8 @@ export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
         <FoxMascot 
           message="מה תרצה לתרגל היום? 🎯"
           className="mb-8"
+          characterId={characterId}
+          clothing={clothing}
         />
 
         {/* Operation selection */}

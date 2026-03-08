@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { AnsweredQuestion, MASTERY_CONFIG, checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Star, Trophy, RefreshCw, Clock, Zap } from 'lucide-react';
@@ -13,6 +15,8 @@ interface SummaryScreenProps {
   playerStats: PlayerStats;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 export function SummaryScreen({
@@ -24,6 +28,8 @@ export function SummaryScreen({
   playerStats,
   onPlayAgain,
   onChangeSettings,
+  characterId,
+  clothing,
 }: SummaryScreenProps) {
   const totalQuestions = answeredQuestions.length;
   const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;
@@ -60,7 +66,7 @@ export function SummaryScreen({
           <h1 className="text-4xl font-extrabold text-gradient mb-4">סיכום ההרפתקה!</h1>
         </div>
 
-        <FoxMascot message={getMessage()} />
+        <FoxMascot message={getMessage()} characterId={characterId} clothing={clothing} />
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

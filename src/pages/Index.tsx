@@ -20,6 +20,8 @@ import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 import { usePetState } from '@/hooks/usePetState';
+import { useClothingState } from '@/hooks/useClothingState';
+import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 
 type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
 
@@ -30,7 +32,9 @@ const Index = () => {
   const [currentStats, setCurrentStats] = useState<PlayerStats | null>(null);
   const [bossTable, setBossTable] = useState<number | null>(null);
   const [gameMode, setGameMode] = useState<GameMode>('training');
+  const [activeCharacter, setActiveCharacter] = useState<CharacterId>('fox');
   
+
   const { 
     players, 
     isLoaded, 
@@ -52,6 +56,9 @@ const Index = () => {
     depleteHungerWhilePlaying,
   } = usePetState(selectedPlayer?.id || null);
 
+  const { clothing } = useClothingState(selectedPlayer?.id || null);
+
+
   useEffect(() => {
     if (selectedPlayer) {
       setCurrentStats(getPlayerStats(selectedPlayer.id));
@@ -63,8 +70,14 @@ const Index = () => {
   const handleSelectPlayer = (player: Player) => {
     setSelectedPlayer(player);
     setCurrentStats(getPlayerStats(player.id));
+    setActiveCharacter(getPlayerCharacter(player.id));
     setCurrentScreen('home');
   };
+
+  const handleCharacterChange = useCallback((id: CharacterId) => {
+    setActiveCharacter(id);
+    if (selectedPlayer) setPlayerCharacter(selectedPlayer.id, id);
+  }, [selectedPlayer]);
 
   const handleBackToProfiles = () => {
     setSelectedPlayer(null);
@@ -301,6 +314,8 @@ const Index = () => {
           onFeedPet={feedPet}
           onWalkPet={walkPet}
           onPetInteract={interactWithPet}
+          activeCharacter={activeCharacter}
+          onCharacterChange={handleCharacterChange}
         />
       )}
 
@@ -309,7 +324,7 @@ const Index = () => {
           <div className="absolute top-4 right-4 z-10">
             <BackButton onClick={handleReturnToMenu} />
           </div>
-          <SetupScreen onStartGame={handleStartGame} playerStats={currentStats} />
+          <SetupScreen onStartGame={handleStartGame} playerStats={currentStats} characterId={activeCharacter} clothing={clothing} />
         </div>
       )}
 
@@ -340,12 +355,14 @@ const Index = () => {
             questionStartTime={gameState.questionStartTime}
             hintUsedInCurrentQuestion={gameState.hintUsedInCurrentQuestion}
             onHintUsed={handleHintUsed}
+            characterId={activeCharacter}
+            clothing={clothing}
           />
         </div>
       )}
 
       {currentScreen === 'boss' && bossTable && (
-        <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} />
+        <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} characterId={activeCharacter} clothing={clothing} />
       )}
 
       {currentScreen === 'balloon' && selectedPlayer && currentStats && (
@@ -357,16 +374,15 @@ const Index = () => {
           totalStars={currentStats.totalStars}
           highScore={currentStats.balloonHighScore ?? 0}
           isDoubleStarsActive={isDoubleStarsActive}
+          characterId={activeCharacter}
+          clothing={clothing}
           onGameEnd={(results) => {
-            // Award stars and update high score
             if (results.totalStars > 0 || results.correctAnswers > (currentStats.balloonHighScore ?? 0)) {
               const stats = getPlayerStats(selectedPlayer.id);
               const newHighScore = Math.max(stats.balloonHighScore ?? 0, results.correctAnswers);
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
-              // Save high score directly
               const updatedStats = getPlayerStats(selectedPlayer.id);
               updatedStats.balloonHighScore = newHighScore;
-              // Persist via localStorage
               const storageKey = `math_game_stats_${selectedPlayer.id}`;
               localStorage.setItem(storageKey, JSON.stringify(updatedStats));
               setCurrentStats({ ...updatedStats });
@@ -394,6 +410,8 @@ const Index = () => {
             onPlayAgain={handlePlayAgain}
             onChangeSettings={handleReturnToMenu}
             playerStats={getPlayerStats(selectedPlayer.id)}
+            characterId={activeCharacter}
+            clothing={clothing}
           />
         </div>
       )}
