@@ -345,7 +345,7 @@ export function FoxMascot({
                     </g>
                   )}
                   {/* Star for star shirt */}
-                  {equippedShirt.id === 'tshirt_star' && (
+                  {equippedShirt.id === 'shirt_star' && (
                     <polygon points="120,178 124,188 135,190 127,197 129,208 120,202 111,208 113,197 105,190 116,188" fill="white" opacity="0.4" />
                   )}
                   {/* Cape for superhero */}
