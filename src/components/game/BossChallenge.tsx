@@ -11,6 +11,8 @@ interface BossChallengeProps {
   table: number;
   onComplete: (success: boolean) => void;
   onExit: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 interface BossQuestion {
