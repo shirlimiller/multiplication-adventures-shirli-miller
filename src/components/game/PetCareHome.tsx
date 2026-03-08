@@ -183,36 +183,40 @@ export function PetCareHome({
       
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-3 md:p-4">
-        <Button
-          variant="ghost"
-          onClick={onSwitchPlayer}
-          className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all text-sm"
-        >
-          <Users className="w-4 h-4" />
-          <span className="font-bold" dir="auto">{player.name}</span>
-          <span className="text-xl">{player.avatar}</span>
-        </Button>
-
         <div className="flex items-center gap-2">
-          {/* Character Switcher Button */}
+          <Button
+            variant="ghost"
+            onClick={onSwitchPlayer}
+            className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all text-sm"
+          >
+            <Users className="w-4 h-4" />
+            <span className="font-bold" dir="auto">{player.name}</span>
+            <span className="text-xl">{player.avatar}</span>
+          </Button>
+
+          {/* Character Switcher — large button with pet head preview */}
           <button
             onClick={() => setIsCharacterSwitcherOpen(true)}
-            className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all hover:scale-105"
+            className="relative flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20"
             title="החלף דמות"
           >
-            <RefreshCw className="w-4 h-4 text-muted-foreground" />
-            <span className="text-[10px] font-bold text-muted-foreground">דמות</span>
+            <div className="w-10 h-10 md:w-12 md:h-12">
+              <svg viewBox="0 0 240 280" className="w-full h-full" style={{ marginTop: '-2px' }}>
+                <CharacterHeadPreview characterId={activeCharacter} />
+              </svg>
+            </div>
+            <RefreshCw className="w-3.5 h-3.5 text-muted-foreground absolute -bottom-1 -left-1 bg-card rounded-full p-0.5 shadow-sm" />
           </button>
-        
-          <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
-            <Star className="w-5 h-5 text-white fill-white drop-shadow" />
-            <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
-            {isDoubleStarsActive && (
-              <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-                x2
-              </span>
-            )}
-          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
+          <Star className="w-5 h-5 text-white fill-white drop-shadow" />
+          <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
+          {isDoubleStarsActive && (
+            <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+              x2
+            </span>
+          )}
         </div>
       </header>
 
