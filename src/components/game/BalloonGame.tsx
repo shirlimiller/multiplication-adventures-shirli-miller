@@ -322,15 +322,30 @@ export function BalloonGame({
       {/* Header */}
       <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
         <BackButton onClick={onBack} />
+        
+        {/* Question display - center of header */}
+        <div className="relative pointer-events-none">
+          <div className="absolute -top-2 -left-3 text-sm md:text-lg animate-float">🎈</div>
+          <div className="absolute -top-1 -right-3 text-sm md:text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</div>
+          <div 
+            className="bg-card/95 backdrop-blur-sm border-[3px] border-accent shadow-gold px-4 py-2 md:px-8 md:py-3 text-center"
+            style={{ borderRadius: '50%' }}
+          >
+            <div className="text-2xl md:text-4xl font-extrabold text-foreground" dir="ltr">
+              {question.text} = ?
+            </div>
+          </div>
+        </div>
+
         <StarHUD totalStars={totalStars} sessionStars={stars} />
       </div>
 
-      {/* Lives + Difficulty under header */}
-      <div className="relative z-20 flex items-center justify-center gap-4 px-3 pb-1">
+      {/* Lives + Difficulty - left side */}
+      <div className="absolute top-14 md:top-16 left-2 md:left-4 z-20 flex flex-col items-center gap-2">
         {/* Lives */}
-        <div className="flex gap-0.5">
+        <div className="flex flex-col gap-0.5">
           {Array.from({ length: 3 }, (_, i) => (
-            <span key={i} className={`text-2xl md:text-3xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
+            <span key={i} className={`text-xl md:text-2xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
               ❤️
             </span>
           ))}
@@ -340,18 +355,15 @@ export function BalloonGame({
         <div className="relative">
           <button
             onClick={() => setShowDifficultyPicker(p => !p)}
-            className="flex items-center gap-2 bg-card/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-card border-2 border-border hover:scale-105 transition-transform"
+            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
           >
-            <span className="text-xl">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
-            <div className="flex flex-col items-start leading-tight">
-              <span className="text-[10px] text-muted-foreground font-medium">רמת קושי</span>
-              <span className="text-sm font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
-            </div>
-            <span className="text-lg">⚙️</span>
+            <span className="text-lg">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+            <span className="text-[8px] text-muted-foreground font-medium">רמת קושי</span>
+            <span className="text-[10px] font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
           </button>
           
           {showDifficultyPicker && (
-            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[140px]">
+            <div className="absolute top-full mt-2 left-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[120px]">
               {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
                 <button
                   key={key}
@@ -360,33 +372,16 @@ export function BalloonGame({
                     setSpeed(cfg.baseSpeed);
                     setShowDifficultyPicker(false);
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-base font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
                     difficulty === key ? 'bg-primary/20 scale-105 ring-2 ring-primary' : 'hover:bg-muted'
                   }`}
                 >
-                  <span className="text-xl">{cfg.emoji}</span>
+                  <span className="text-lg">{cfg.emoji}</span>
                   <span>{cfg.label}</span>
                 </button>
               ))}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Question display */}
-      <div className="relative z-20 flex justify-center mb-1 md:mb-3">
-        <div className="relative">
-          <div className="absolute -top-2 -left-3 text-lg md:text-2xl animate-float">🎈</div>
-          <div className="absolute -top-1 -right-3 text-lg md:text-2xl animate-float" style={{ animationDelay: '0.5s' }}>🎈</div>
-          
-          <div 
-            className="bg-card border-[3px] md:border-[4px] border-accent shadow-gold px-6 py-3 md:px-10 md:py-5 text-center"
-            style={{ borderRadius: '50%' }}
-          >
-            <div className="text-3xl md:text-5xl font-extrabold text-foreground" dir="ltr">
-              {question.text} = ?
-            </div>
-          </div>
         </div>
       </div>
 
