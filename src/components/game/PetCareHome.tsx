@@ -264,7 +264,7 @@ export function PetCareHome({
             className="relative flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20"
             title="החלף דמות"
           >
-            <div className="w-10 h-10 md:w-12 md:h-12">
+            <div className="w-16 h-16 md:w-20 md:h-20">
               <svg viewBox="0 0 240 280" className="w-full h-full" style={{ marginTop: '-2px' }}>
                 <CharacterHeadPreview characterId={activeCharacter} />
               </svg>
