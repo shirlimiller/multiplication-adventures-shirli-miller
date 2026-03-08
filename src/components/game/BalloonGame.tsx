@@ -104,6 +104,8 @@ export function BalloonGame({
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
   const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [startTime] = useState(() => Date.now());
+  const [endTime, setEndTime] = useState<number | null>(null);
 
   const nextBalloonId = useRef(0);
   const animFrameRef = useRef<number>();
