@@ -324,7 +324,12 @@ export function BalloonGame({
             שחק שוב! 🎮
           </button>
           <button
-            onClick={onBack}
+            onClick={() => onGameEnd({
+              totalScore: score,
+              totalStars: stars,
+              correctAnswers: correctCount,
+              totalQuestions: questionNum,
+            })}
             className="bg-muted text-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
           >
             חזרה
