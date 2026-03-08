@@ -220,16 +220,16 @@ export function PetCareHome({
         </div>
 
         {/* Balloon Game Launcher */}
-        <div className="mt-6">
+        <div className="mt-4 md:mt-6">
           <button
             onClick={() => setShowBalloonConfig(true)}
-            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-8 py-4 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
           >
-            <span className="absolute -top-2 -right-1 text-xl animate-float">🎈</span>
-            <span className="absolute -top-1 -left-2 text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
-            <span className="absolute -bottom-1 right-1 text-lg animate-float" style={{ animationDelay: '1s' }}>🎈</span>
-            <div className="text-3xl mb-1">🎈</div>
-            <span className="text-sm font-extrabold text-white drop-shadow">משחק בלונים!</span>
+            <span className="absolute -top-2 -right-1 text-lg animate-float">🎈</span>
+            <span className="absolute -top-1 -left-2 text-base animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
+            <span className="absolute -bottom-1 right-1 text-base animate-float" style={{ animationDelay: '1s' }}>🎈</span>
+            <div className="text-2xl mb-1">🎈</div>
+            <span className="text-xs font-extrabold text-white drop-shadow">משחק בלונים!</span>
           </button>
         </div>
 
