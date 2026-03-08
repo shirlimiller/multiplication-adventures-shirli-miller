@@ -162,6 +162,12 @@ export function PetCareHome({
     return purchaseItem(item);
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
+  const handleSwitchCharacter = useCallback((id: CharacterId) => {
+    setActiveCharacter(id);
+    setPlayerCharacter(player.id, id);
+    setFoxMessage('וואו! אני נראה מדהים! 🎉');
+  }, [player.id]);
+
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-village-map overflow-hidden relative" dir="rtl">
       {/* Decorative background elements */}
