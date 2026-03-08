@@ -489,54 +489,54 @@ export function FoxMascot({
               {/* ===== HAT (SVG, attached to head) ===== */}
               {equippedHat && (
                 <g>
-                  {equippedHat.id === 'crown' && (
+                  {equippedHat.id === 'hat_crown' && (
                     <g transform="translate(120, 42)">
-                      {/* Crown base */}
                       <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="#FFD700" stroke="#DAA520" strokeWidth="1.5" />
                       <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="url(#hatHighlight)" />
                       <rect x="-28" y="10" width="56" height="8" rx="2" fill="#FFD700" stroke="#DAA520" strokeWidth="1" />
-                      <rect x="-28" y="10" width="56" height="8" rx="2" fill="url(#hatHighlight)" />
-                      {/* Jewels */}
                       <circle cx="-12" cy="14" r="3" fill="#FF2020" />
                       <circle cx="0" cy="14" r="3" fill="#2060FF" />
                       <circle cx="12" cy="14" r="3" fill="#20CC20" />
-                      <circle cx="-12" cy="14" r="1" fill="white" opacity="0.6" />
-                      <circle cx="0" cy="14" r="1" fill="white" opacity="0.6" />
-                      <circle cx="12" cy="14" r="1" fill="white" opacity="0.6" />
                     </g>
                   )}
-                  {equippedHat.id === 'wizard_hat' && (
+                  {equippedHat.id === 'hat_wizard' && (
                     <g transform="translate(120, 45)">
                       <path d="M 0 -55 Q 15 -20 32 10 L -32 10 Q -15 -20 0 -55 Z" fill="#3B2080" stroke="#2A1060" strokeWidth="1.5" />
                       <path d="M 0 -55 Q 5 -25 10 10 L -10 10 Q -5 -25 0 -55 Z" fill="white" opacity="0.12" />
                       <ellipse cx="0" cy="10" rx="36" ry="6" fill="#3B2080" stroke="#2A1060" strokeWidth="1" />
-                      <ellipse cx="0" cy="10" rx="36" ry="6" fill="url(#hatHighlight)" />
-                      {/* Stars on hat */}
                       <text x="-8" y="-20" fontSize="10" fill="#FFD700">⭐</text>
                       <text x="5" y="-35" fontSize="8" fill="#FFD700">✨</text>
                     </g>
                   )}
-                  {equippedHat.id === 'party_hat' && (
+                  {equippedHat.id === 'hat_party' && (
                     <g transform="translate(120, 45)">
                       <path d="M 0 -50 L 25 12 L -25 12 Z" fill="url(#partyHatGrad)" stroke="#C02050" strokeWidth="1" />
                       <path d="M 0 -50 L 8 12 L -8 12 Z" fill="url(#hatHighlight)" />
-                      {/* Stripes */}
                       <line x1="-8" y1="-10" x2="8" y2="-10" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
                       <line x1="-15" y1="0" x2="15" y2="0" stroke="#40E0D0" strokeWidth="2" opacity="0.6" />
-                      {/* Pom-pom */}
                       <circle cx="0" cy="-52" r="6" fill="#FFD700" />
-                      <circle cx="-2" cy="-54" r="2" fill="white" opacity="0.5" />
                       <ellipse cx="0" cy="12" rx="28" ry="5" fill="url(#partyHatGrad)" opacity="0.7" />
                     </g>
                   )}
-                  {equippedHat.id === 'cap' && (
+                  {equippedHat.id === 'hat_cap' && (
                     <g transform="translate(120, 52)">
                       <ellipse cx="0" cy="5" rx="34" ry="10" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
                       <path d="M -30 5 Q -30 -15 0 -18 Q 30 -15 30 5 Z" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
-                      <path d="M -30 5 Q -30 -15 0 -18 Q 10 -15 10 5 Z" fill="url(#hatHighlight)" />
-                      {/* Visor */}
                       <ellipse cx="18" cy="8" rx="22" ry="6" fill="#1A4488" />
-                      <ellipse cx="18" cy="7" rx="20" ry="4" fill="#2266CC" opacity="0.5" />
+                    </g>
+                  )}
+                  {equippedHat.id === 'hat_cowboy' && (
+                    <g transform="translate(120, 50)">
+                      <ellipse cx="0" cy="8" rx="42" ry="8" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1.5" />
+                      <path d="M -24 8 Q -24 -18 0 -22 Q 24 -18 24 8 Z" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1" />
+                      <path d="M -20 8 Q -20 -12 0 -16 Q 8 -12 8 8 Z" fill="white" opacity="0.1" />
+                    </g>
+                  )}
+                  {equippedHat.id === 'hat_beanie' && (
+                    <g transform="translate(120, 48)">
+                      <path d="M -30 8 Q -32 -20 0 -25 Q 32 -20 30 8 Z" fill="#CC3333" stroke="#992222" strokeWidth="1" />
+                      <path d="M -28 8 Q -28 -4 0 -6 Q 28 -4 28 8 Z" fill="#992222" opacity="0.5" />
+                      <circle cx="0" cy="-27" r="5" fill="#CC3333" stroke="#992222" strokeWidth="0.5" />
                     </g>
                   )}
                 </g>
