@@ -324,7 +324,7 @@ const Index = () => {
           <div className="absolute top-4 right-4 z-10">
             <BackButton onClick={handleReturnToMenu} />
           </div>
-          <SetupScreen onStartGame={handleStartGame} playerStats={currentStats} />
+          <SetupScreen onStartGame={handleStartGame} playerStats={currentStats} characterId={activeCharacter} clothing={clothing} />
         </div>
       )}
 
