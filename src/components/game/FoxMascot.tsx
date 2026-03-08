@@ -138,9 +138,7 @@ export function FoxMascot({
     return CLOTHING_ITEMS.find(item => item.id === clothing.equippedItems[type]);
   };
   const equippedHat = getEquippedItem('hat');
-  const equippedGlasses = getEquippedItem('glasses');
-  const equippedScarf = getEquippedItem('scarf');
-  const equippedBow = getEquippedItem('bow');
+  const equippedSunglasses = getEquippedItem('sunglasses');
   const equippedShirt = getEquippedItem('shirt');
   const equippedPants = getEquippedItem('pants');
   const equippedShoes = getEquippedItem('shoes');
