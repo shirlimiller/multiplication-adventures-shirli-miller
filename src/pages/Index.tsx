@@ -85,6 +85,20 @@ const Index = () => {
     if (!selectedPlayer) return;
     
     setGameMode(config.mode);
+    
+    // Balloon mode goes to a different screen
+    if (config.mode === 'balloon') {
+      setGameState(prev => ({
+        ...prev,
+        selectedTables: config.selectedNumbers,
+        operation: config.operation,
+        rangeMin: config.rangeMin,
+        rangeMax: config.rangeMax,
+      }));
+      setCurrentScreen('balloon');
+      return;
+    }
+    
     const playerStats = getPlayerStats(selectedPlayer.id);
     const result =
       config.operation === 'multiply'
