@@ -39,6 +39,7 @@ export function PetCareHome({
   currentHappiness,
   isDoubleStarsActive,
   onStartGame,
+  onStartBalloonGame,
   onSwitchPlayer,
   onPurchase,
   onSpendStars,
