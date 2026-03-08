@@ -18,7 +18,7 @@ export function BackButton({ onClick, className = '' }: BackButtonProps) {
       `}
     >
       {/* 3D filled arrow like reference image */}
-      <svg width="32" height="32" viewBox="0 0 48 48" className="md:w-[40px] md:h-[40px]">
+      <svg width="32" height="32" viewBox="0 0 48 48" className="md:w-[40px] md:h-[40px] transform scale-x-[-1]">
         <defs>
           <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#86efac" />
