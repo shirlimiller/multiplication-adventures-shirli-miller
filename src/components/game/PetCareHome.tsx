@@ -270,7 +270,115 @@ export function PetCareHome({
           </div>
         </div>
 
-      {/* Candy Shop Modal */}
+        {/* Balloon Config Modal */}
+        {showBalloonConfig && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" dir="rtl" onClick={() => setShowBalloonConfig(false)}>
+            <div className="bg-card rounded-3xl p-5 shadow-card max-w-sm w-full space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="text-xl font-extrabold text-center">🎈 משחק בלונים</h2>
+              
+              {/* Operation selection */}
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">סמן פעולות:</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {([
+                    { op: 'multiply', label: 'כפל', emoji: '✖️', color: 'hsl(145 60% 55%)' },
+                    { op: 'divide', label: 'חילוק', emoji: '➗', color: 'hsl(200 80% 60%)' },
+                    { op: 'add', label: 'חיבור', emoji: '➕', color: 'hsl(45 90% 60%)' },
+                    { op: 'subtract', label: 'חיסור', emoji: '➖', color: 'hsl(340 80% 65%)' },
+                  ]).map(({ op, label, emoji, color }) => {
+                    const selected = balloonOps.has(op);
+                    return (
+                      <button
+                        key={op}
+                        onClick={() => toggleBalloonOp(op)}
+                        style={{ borderColor: selected ? color : undefined, backgroundColor: selected ? `${color.replace(')', ' / 0.15)')}` : undefined }}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all relative ${
+                          selected ? 'scale-105 shadow-md' : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        {selected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        )}
+                        <span className="text-xl">{emoji}</span>
+                        <span className="text-[11px] font-bold">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Number selection */}
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">מספרים:</p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => { setBalloonAllNumbers(true); setBalloonNumbers([]); }}
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
+                      balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    כל המספרים 🎲
+                  </button>
+                  <button
+                    onClick={() => setBalloonAllNumbers(false)}
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
+                      !balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    בחירה ידנית ✏️
+                  </button>
+                </div>
+
+                {!balloonAllNumbers && (
+                  <div className="grid grid-cols-6 gap-2 mt-2">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(n => {
+                      const selected = balloonNumbers.includes(n);
+                      const iceColors = [
+                        'hsl(340 80% 75%)', 'hsl(30 90% 70%)', 'hsl(50 90% 70%)',
+                        'hsl(145 60% 65%)', 'hsl(200 80% 70%)', 'hsl(280 60% 75%)',
+                        'hsl(10 80% 72%)', 'hsl(170 60% 65%)', 'hsl(320 70% 75%)',
+                        'hsl(45 85% 72%)', 'hsl(220 70% 72%)', 'hsl(0 75% 72%)',
+                      ];
+                      return (
+                        <button
+                          key={n}
+                          onClick={() => setBalloonNumbers(prev => 
+                            prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]
+                          )}
+                          style={{ backgroundColor: selected ? iceColors[n - 1] : undefined }}
+                          className={`w-9 h-9 rounded-full border-2 font-extrabold text-base transition-all ${
+                            selected ? 'text-white border-transparent scale-110 shadow-lg' : 'border-border'
+                          }`}
+                        >
+                          {n}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  const nums = balloonAllNumbers 
+                    ? Array.from({ length: 10 }, (_, i) => i + 1) 
+                    : balloonNumbers;
+                  if (nums.length === 0) return;
+                  setShowBalloonConfig(false);
+                  onStartBalloonGame({ operation: getResolvedOperation(), selectedNumbers: nums });
+                }}
+                disabled={!balloonAllNumbers && balloonNumbers.length === 0}
+                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-lg py-3 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
+              >
+                🎈 יאללה, בואו נשחק!
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+
       <CandyShop
         isOpen={isShopOpen}
         onClose={() => setIsShopOpen(false)}
