@@ -362,7 +362,7 @@ const Index = () => {
       )}
 
       {currentScreen === 'boss' && bossTable && (
-        <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} />
+        <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} characterId={activeCharacter} clothing={clothing} />
       )}
 
       {currentScreen === 'balloon' && selectedPlayer && currentStats && (
