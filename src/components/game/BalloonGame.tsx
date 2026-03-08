@@ -315,6 +315,7 @@ export function BalloonGame({
               setStars(0);
               setCorrectCount(0);
               setQuestionNum(0);
+              setMaxBalloons(2);
               setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
               spawnBalloons();
             }}
