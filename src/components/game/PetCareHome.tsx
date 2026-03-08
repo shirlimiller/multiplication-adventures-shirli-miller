@@ -23,6 +23,7 @@ interface PetCareHomeProps {
   currentHappiness: number;
   isDoubleStarsActive: boolean;
   onStartGame: () => void;
+  onStartBalloonGame: (config: { operation: Operation; selectedNumbers: number[] }) => void;
   onSwitchPlayer: () => void;
   onPurchase: (item: ShopItem) => boolean;
   onSpendStars: (amount: number) => void;
