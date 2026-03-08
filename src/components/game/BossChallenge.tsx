@@ -304,7 +304,9 @@ export function BossChallenge({ table, onComplete, onExit, characterId, clothing
                 : 'אוי לא...'
               : 'אתה יכול! 💪'
           } 
-          animate={!showFeedback} 
+          animate={!showFeedback}
+          characterId={characterId}
+          clothing={clothing}
         />
 
         {currentQuestion && (
