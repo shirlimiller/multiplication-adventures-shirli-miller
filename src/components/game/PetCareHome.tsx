@@ -14,7 +14,7 @@ import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } fro
 import { ClothingItem } from '@/lib/clothingTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
-import { Star, Play, Award, Users, X, Divide, Check } from 'lucide-react';
+import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
