@@ -18,14 +18,16 @@ interface ClothingShopProps {
   isEquipped: (id: string) => boolean;
 }
 
-type TabType = 'hat' | 'glasses' | 'scarf' | 'bow' | 'shirt';
+type TabType = 'hat' | 'glasses' | 'shirt' | 'pants' | 'shoes' | 'scarf' | 'bow';
 
 const TABS: { type: TabType; label: string; emoji: string }[] = [
   { type: 'hat', label: 'כובעים', emoji: '🎩' },
   { type: 'glasses', label: 'משקפיים', emoji: '🕶️' },
-  { type: 'scarf', label: 'צעיפים', emoji: '🧣' },
-  { type: 'bow', label: 'עניבות', emoji: '🎀' },
   { type: 'shirt', label: 'חולצות', emoji: '👕' },
+  { type: 'pants', label: 'מכנסיים', emoji: '👖' },
+  { type: 'shoes', label: 'נעליים', emoji: '👟' },
+  { type: 'scarf', label: 'צעיפים', emoji: '🧣' },
+  { type: 'bow', label: 'פפיונים', emoji: '🎀' },
 ];
 
 export function ClothingShop({
