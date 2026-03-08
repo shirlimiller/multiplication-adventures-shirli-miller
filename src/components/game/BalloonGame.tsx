@@ -230,9 +230,8 @@ export function BalloonGame({
       playCorrectFast();
       setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, popped: true } : b));
       
-      const baseEarned = isDoubleStarsActive ? 4 : 2;
-      const earned = baseEarned * DIFFICULTY_CONFIG[difficulty].starMultiplier;
-      setScore(s => s + 10 * DIFFICULTY_CONFIG[difficulty].starMultiplier);
+      const earned = balloon.isGold ? 2 : 1;
+      setScore(s => s + (balloon.isGold ? 20 : 10));
       setStars(s => s + earned);
       setCorrectCount(c => c + 1);
       setShowStarAnimation(true);
