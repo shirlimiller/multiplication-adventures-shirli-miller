@@ -70,9 +70,9 @@ export const CHARACTER_REGISTRY: CharacterDef[] = [
   },
   {
     id: 'cat',
-    name: 'חתול',
+    name: 'חתלתולה',
     emoji: '🐱',
-    description: 'חתול מתוק ושובב!',
+    description: 'חתלתולה אפורה חמודה ושובבה!',
     anchors: CAT_ANCHORS,
     viewBox: { width: 240, height: 280 },
   },
