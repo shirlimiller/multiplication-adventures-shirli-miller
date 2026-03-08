@@ -609,5 +609,3 @@ export function BalloonGame({
     </div>
   );
 }
-  );
-}
