@@ -542,64 +542,43 @@ export function FoxMascot({
                 </g>
               )}
 
-              {/* Glasses (SVG) - generic renderer */}
-              {equippedGlasses && (
+              {/* Sunglasses (SVG) */}
+              {equippedSunglasses && (
                 <g>
-                  {(equippedGlasses.id === 'sunglasses' || equippedGlasses.id === 'nerd_glasses') && (
+                  {(equippedSunglasses.id === 'sun_classic' || equippedSunglasses.id === 'sun_nerd') && (
                     <g>
-                      <rect x="80" y="88" width="28" height="20" rx="8" fill={equippedGlasses.color} opacity="0.85" stroke={equippedGlasses.color2} strokeWidth="1.5" />
-                      <rect x="132" y="88" width="28" height="20" rx="8" fill={equippedGlasses.color} opacity="0.85" stroke={equippedGlasses.color2} strokeWidth="1.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <rect x="80" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
+                      <rect x="132" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                       <rect x="82" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
                       <rect x="134" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'star_glasses' && (
+                  {equippedSunglasses.id === 'sun_star' && (
                     <g>
-                      <polygon points="98,82 102,92 112,94 105,101 107,112 98,106 89,112 91,101 84,94 94,92" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <polygon points="142,82 146,92 156,94 149,101 151,112 142,106 133,112 135,101 128,94 138,92" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <polygon points="98,82 102,92 112,94 105,101 107,112 98,106 89,112 91,101 84,94 94,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <polygon points="142,82 146,92 156,94 149,101 151,112 142,106 133,112 135,101 128,94 138,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'heart_glasses' && (
+                  {equippedSunglasses.id === 'sun_heart' && (
                     <g>
-                      <path d="M 98 92 C 88 82, 78 92, 98 108 C 118 92, 108 82, 98 92 Z" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <path d="M 142 92 C 132 82, 122 92, 142 108 C 162 92, 152 82, 142 92 Z" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <path d="M 98 92 C 88 82, 78 92, 98 108 C 118 92, 108 82, 98 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <path d="M 142 92 C 132 82, 122 92, 142 108 C 162 92, 152 82, 142 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'round_glasses' && (
+                  {equippedSunglasses.id === 'sun_round' && (
                     <g>
-                      <circle cx="94" cy="96" r="14" fill="none" stroke={equippedGlasses.color} strokeWidth="2.5" />
-                      <circle cx="146" cy="96" r="14" fill="none" stroke={equippedGlasses.color} strokeWidth="2.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color} strokeWidth="2" />
+                      <circle cx="94" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
+                      <circle cx="146" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color} strokeWidth="2" />
                       <circle cx="90" cy="92" r="4" fill="white" opacity="0.15" />
                       <circle cx="142" cy="92" r="4" fill="white" opacity="0.15" />
                     </g>
                   )}
                 </g>
               )}
-            </g>
-
-            {/* Scarf */}
-            {equippedScarf && (
-              <g>
-                <path d="M 75 152 Q 120 165 165 152 Q 168 160 165 168 Q 120 180 75 168 Q 72 160 75 152 Z" fill={equippedScarf.color || '#CC2020'} stroke={equippedScarf.color2 || '#AA1818'} strokeWidth="1" />
-                <path d="M 75 152 Q 100 162 120 158 Q 100 165 75 160 Z" fill="white" opacity="0.15" />
-                <path d="M 130 168 Q 135 185 128 195 Q 132 195 136 185 Q 140 175 135 168 Z" fill={equippedScarf.color || '#CC2020'} stroke={equippedScarf.color2 || '#AA1818'} strokeWidth="0.5" />
-              </g>
-            )}
-
-            {/* Bow */}
-            {equippedBow && (
-              <g transform="translate(160, 165)">
-                <ellipse cx="-12" cy="0" rx="12" ry="8" fill={equippedBow.color || '#FF69B4'} stroke={equippedBow.color2 || '#E05090'} strokeWidth="1" />
-                <ellipse cx="12" cy="0" rx="12" ry="8" fill={equippedBow.color || '#FF69B4'} stroke={equippedBow.color2 || '#E05090'} strokeWidth="1" />
-                <circle cx="0" cy="0" r="4" fill={equippedBow.color2 || '#E05090'} />
-                <ellipse cx="-8" cy="-3" rx="4" ry="2" fill="white" opacity="0.3" />
-                <ellipse cx="8" cy="-3" rx="4" ry="2" fill="white" opacity="0.3" />
-              </g>
-            )}
           </svg>
         </div>
         
