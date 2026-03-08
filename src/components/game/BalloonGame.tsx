@@ -363,13 +363,35 @@ export function BalloonGame({
           ))}
         </div>
 
-        {/* Difficulty picker */}
+        {/* Difficulty gauge */}
         <div className="relative">
           <button
             onClick={() => setShowDifficultyPicker(p => !p)}
-            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
+            className="flex flex-col items-center bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
           >
-            <span className="text-lg">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+            {/* Speedometer SVG gauge */}
+            <svg width="52" height="34" viewBox="0 0 100 60" className="md:w-[64px] md:h-[40px]">
+              {/* Green arc (easy) */}
+              <path d="M 10 55 A 45 45 0 0 1 36.7 13.5" fill="none" stroke="hsl(145 70% 45%)" strokeWidth="10" strokeLinecap="round" />
+              {/* Orange arc (medium) */}
+              <path d="M 36.7 13.5 A 45 45 0 0 1 63.3 13.5" fill="none" stroke="hsl(35 90% 55%)" strokeWidth="10" strokeLinecap="round" />
+              {/* Red arc (hard) */}
+              <path d="M 63.3 13.5 A 45 45 0 0 1 90 55" fill="none" stroke="hsl(0 75% 55%)" strokeWidth="10" strokeLinecap="round" />
+              {/* Needle */}
+              {(() => {
+                const angles: Record<Difficulty, number> = { easy: -70, medium: 0, hard: 70 };
+                const angle = angles[difficulty];
+                const rad = (angle - 90) * Math.PI / 180;
+                const nx = 50 + 30 * Math.cos(rad);
+                const ny = 55 + 30 * Math.sin(rad);
+                return (
+                  <>
+                    <line x1="50" y1="55" x2={nx} y2={ny} stroke="hsl(var(--foreground))" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="50" cy="55" r="5" fill="hsl(var(--foreground))" />
+                  </>
+                );
+              })()}
+            </svg>
             <span className="text-[8px] text-muted-foreground font-medium">רמת קושי</span>
             <span className="text-[10px] font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
           </button>
