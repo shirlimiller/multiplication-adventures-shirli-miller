@@ -247,7 +247,7 @@ export function PetCareHome({
       
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-3 md:p-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-start gap-1">
           <Button
             variant="ghost"
             onClick={onSwitchPlayer}
@@ -258,13 +258,13 @@ export function PetCareHome({
             <span className="text-xl">{player.avatar}</span>
           </Button>
 
-          {/* Character Switcher — large button with pet head preview */}
+          {/* Character Switcher — below player name */}
           <button
             onClick={() => setIsCharacterSwitcherOpen(true)}
-            className="relative flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20"
+            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20 mr-1"
             title="החלף דמות"
           >
-            <div className="w-20 h-20 md:w-24 md:h-24">
+            <div className="w-10 h-10 md:w-12 md:h-12">
               <svg viewBox="60 20 120 140" className="w-full h-full">
                 <CharacterHeadPreview characterId={activeCharacter} />
               </svg>
