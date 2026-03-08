@@ -13,7 +13,7 @@ import { WalkIcon } from './WalkIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
-import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
+import { CharacterId } from '@/lib/characterTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus, RefreshCw } from 'lucide-react';
