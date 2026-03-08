@@ -179,12 +179,19 @@ export function generateAdaptiveQuestion(
         weight += 5;
       }
       
-      // Reduce weight if recently asked (avoid repetition)
-      const recentlyAsked = recentQuestions.slice(-5).some(
+      // Exclude already-asked questions entirely (until pool exhausted)
+      const askedKey = `${table}_${mult}`;
+      const alreadyAsked = recentQuestions.some(
         q => q.multiplier === table && q.multiplicand === mult
       );
-      if (recentlyAsked) {
-        weight = Math.max(1, weight - 10);
+      
+      // Build unique pool of all possible combos
+      const totalPossible = tables.length * (max - min + 1);
+      const uniqueAsked = new Set(recentQuestions.map(q => `${q.multiplier}_${q.multiplicand}`)).size;
+      const allExhausted = uniqueAsked >= totalPossible;
+      
+      if (alreadyAsked && !allExhausted) {
+        weight = 0; // Skip entirely
       }
       
       questionPool.push({ table, multiplicand: mult, weight });

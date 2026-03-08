@@ -176,12 +176,14 @@ const Index = () => {
                 selectedNumbers: gameState.selectedTables,
                 rangeMin: gameState.rangeMin,
                 rangeMax: gameState.rangeMax,
+                askedQuestions: gameState.answeredQuestions,
               }))
         : generateQuestionForOperation({
             operation: gameState.operation,
             selectedNumbers: gameState.selectedTables,
             rangeMin: gameState.rangeMin,
             rangeMax: gameState.rangeMax,
+            askedQuestions: gameState.answeredQuestions,
           });
       
       setGameState(prev => ({
