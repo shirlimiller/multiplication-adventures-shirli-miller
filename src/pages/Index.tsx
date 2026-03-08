@@ -314,6 +314,8 @@ const Index = () => {
           onFeedPet={feedPet}
           onWalkPet={walkPet}
           onPetInteract={interactWithPet}
+          activeCharacter={activeCharacter}
+          onCharacterChange={handleCharacterChange}
         />
       )}
 
