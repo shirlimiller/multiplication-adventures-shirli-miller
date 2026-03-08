@@ -196,6 +196,7 @@ export function BalloonGame({
             const newLives = l - 1;
             if (newLives <= 0) {
               setGameOver(true);
+              setEndTime(Date.now());
             }
             return newLives;
           });
