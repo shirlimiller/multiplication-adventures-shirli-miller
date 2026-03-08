@@ -300,18 +300,6 @@ export function BalloonGame({
             <div className="text-xl font-extrabold">{score}</div>
             <div className="text-[10px] text-muted-foreground">ניקוד</div>
           </div>
-            <div className="text-xs text-muted-foreground">נכונות</div>
-          </div>
-          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
-            <div className="text-3xl mb-1">⭐</div>
-            <div className="text-2xl font-extrabold">{stars}</div>
-            <div className="text-xs text-muted-foreground">כוכבים</div>
-          </div>
-          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
-            <div className="text-3xl mb-1">🏆</div>
-            <div className="text-2xl font-extrabold">{score}</div>
-            <div className="text-xs text-muted-foreground">ניקוד</div>
-          </div>
         </div>
         <div className="flex gap-4">
           <button
