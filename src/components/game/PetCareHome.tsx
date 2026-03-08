@@ -32,6 +32,8 @@ interface PetCareHomeProps {
   onFeedPet: (item: ShopItem) => void;
   onWalkPet: (location: WalkLocation) => void;
   onPetInteract: () => void;
+  activeCharacter: CharacterId;
+  onCharacterChange: (id: CharacterId) => void;
 }
 
 // Tiny head-only preview for the character switcher button
