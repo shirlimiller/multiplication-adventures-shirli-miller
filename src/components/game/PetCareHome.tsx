@@ -192,6 +192,17 @@ export function PetCareHome({
           <span className="font-bold" dir="auto">{player.name}</span>
           <span className="text-xl">{player.avatar}</span>
         </Button>
+
+        <div className="flex items-center gap-2">
+          {/* Character Switcher Button */}
+          <button
+            onClick={() => setIsCharacterSwitcherOpen(true)}
+            className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all hover:scale-105"
+            title="החלף דמות"
+          >
+            <RefreshCw className="w-4 h-4 text-muted-foreground" />
+            <span className="text-[10px] font-bold text-muted-foreground">דמות</span>
+          </button>
         
         <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
           <Star className="w-5 h-5 text-white fill-white drop-shadow" />
