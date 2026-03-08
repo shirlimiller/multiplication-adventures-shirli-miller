@@ -5,7 +5,7 @@ import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/g
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Gamepad2, GraduationCap, Plus, Minus, X, Divide } from 'lucide-react';
 
-export type GameMode = 'training' | 'test';
+export type GameMode = 'training' | 'test' | 'balloon';
 
 export interface GameSetupConfig {
   operation: Operation;
