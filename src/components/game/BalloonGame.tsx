@@ -84,6 +84,7 @@ export function BalloonGame({
   rangeMin,
   rangeMax,
   totalStars,
+  highScore,
   isDoubleStarsActive,
   onGameEnd,
   onBack,
