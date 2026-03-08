@@ -6,15 +6,17 @@ import { HappinessBar } from './HappinessBar';
 import { CandyShop } from './CandyShop';
 import { ClothingShop } from './ClothingShop';
 import { WalkSelector } from './WalkSelector';
+import { CharacterSwitcher } from './CharacterSwitcher';
 import { ShopIcon } from './ShopIcon';
 import { ClothingShopIcon } from './ClothingShopIcon';
 import { WalkIcon } from './WalkIcon';
 import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } from '@/lib/petTypes';
 import { ClothingItem } from '@/lib/clothingTypes';
+import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
-import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus } from 'lucide-react';
+import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus, RefreshCw } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
@@ -52,6 +54,8 @@ export function PetCareHome({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
+  const [isCharacterSwitcherOpen, setIsCharacterSwitcherOpen] = useState(false);
+  const [activeCharacter, setActiveCharacter] = useState<CharacterId>(() => getPlayerCharacter(player.id));
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
@@ -158,6 +162,12 @@ export function PetCareHome({
     return purchaseItem(item);
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
+  const handleSwitchCharacter = useCallback((id: CharacterId) => {
+    setActiveCharacter(id);
+    setPlayerCharacter(player.id, id);
+    setFoxMessage('וואו! אני נראה מדהים! 🎉');
+  }, [player.id]);
+
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-village-map overflow-hidden relative" dir="rtl">
       {/* Decorative background elements */}
@@ -182,15 +192,27 @@ export function PetCareHome({
           <span className="font-bold" dir="auto">{player.name}</span>
           <span className="text-xl">{player.avatar}</span>
         </Button>
+
+        <div className="flex items-center gap-2">
+          {/* Character Switcher Button */}
+          <button
+            onClick={() => setIsCharacterSwitcherOpen(true)}
+            className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all hover:scale-105"
+            title="החלף דמות"
+          >
+            <RefreshCw className="w-4 h-4 text-muted-foreground" />
+            <span className="text-[10px] font-bold text-muted-foreground">דמות</span>
+          </button>
         
-        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
-          <Star className="w-5 h-5 text-white fill-white drop-shadow" />
-          <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
-          {isDoubleStarsActive && (
-            <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-              x2
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
+            <Star className="w-5 h-5 text-white fill-white drop-shadow" />
+            <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
+            {isDoubleStarsActive && (
+              <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                x2
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
@@ -276,6 +298,7 @@ export function PetCareHome({
                 isEating={isEating}
                 eatingFood={eatingFood}
                 clothing={clothing}
+                characterId={activeCharacter}
                 animate
               />
             </div>
@@ -477,6 +500,14 @@ export function PetCareHome({
         currentHappiness={currentHappiness}
         totalStars={stats.totalStars}
         onNotEnoughStars={handleNotEnoughStarsForWalk}
+      />
+
+      {/* Character Switcher Modal */}
+      <CharacterSwitcher
+        isOpen={isCharacterSwitcherOpen}
+        onClose={() => setIsCharacterSwitcherOpen(false)}
+        currentCharacter={activeCharacter}
+        onSelect={handleSwitchCharacter}
       />
     </div>
   );
