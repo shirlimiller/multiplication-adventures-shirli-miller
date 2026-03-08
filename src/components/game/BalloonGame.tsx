@@ -5,6 +5,14 @@ import { FlyingStars } from './FlyingStars';
 import { BackButton } from './BackButton';
 import { generateQuestionForOperation, getOperationSymbol, Operation, getEncouragingMessage } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { Gauge } from 'lucide-react';
+
+type Difficulty = 'easy' | 'medium' | 'hard';
+const DIFFICULTY_CONFIG: Record<Difficulty, { baseSpeed: number; label: string; emoji: string; color: string }> = {
+  easy:   { baseSpeed: 0.12, label: 'קל', emoji: '🐢', color: 'hsl(145 60% 55%)' },
+  medium: { baseSpeed: 0.22, label: 'בינוני', emoji: '🐇', color: 'hsl(45 90% 60%)' },
+  hard:   { baseSpeed: 0.35, label: 'קשה', emoji: '🚀', color: 'hsl(340 80% 65%)' },
+};
 
 interface BalloonGameProps {
   selectedNumbers: number[];
