@@ -273,37 +273,37 @@ export function BalloonGame({
   const isNewHighScore = correctCount > highScore;
 
   if (gameOver) {
+    const elapsedMs = (endTime || Date.now()) - startTime;
+    const minutes = Math.floor(elapsedMs / 60000);
+    const seconds = Math.floor((elapsedMs % 60000) / 1000);
+    const timeStr = minutes > 0 ? `${minutes} דקות ו-${seconds} שניות` : `${seconds} שניות`;
+
     return (
-      <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col items-center justify-center p-6 gap-6">
+      <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col items-center justify-center p-6 gap-6" dir="rtl">
         <FoxMascot message={isNewHighScore 
           ? `שיא חדש! 🎉 ${correctCount} תשובות נכונות!` 
-          : `סיימת עם ${correctCount} תשובות נכונות ו-${stars} כוכבים! 🎉`
+          : `כל הכבוד! ענית ${correctCount} תשובות נכונות! 🎉`
         } />
         
         {isNewHighScore && (
           <div className="text-2xl font-extrabold text-accent animate-bounce">🏆 שיא חדש! 🏆</div>
         )}
 
-        <div className="grid grid-cols-4 gap-3 max-w-md w-full">
-          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
-            <div className="text-2xl mb-1">🎯</div>
-            <div className="text-xl font-extrabold">{correctCount}</div>
-            <div className="text-[10px] text-muted-foreground">נכונות</div>
+        <div className="grid grid-cols-3 gap-4 max-w-sm w-full">
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <div className="text-3xl mb-1">🎯</div>
+            <div className="text-2xl font-extrabold">{correctCount}</div>
+            <div className="text-[10px] text-muted-foreground">תשובות נכונות</div>
           </div>
-          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
-            <div className="text-2xl mb-1">⭐</div>
-            <div className="text-xl font-extrabold">{stars}</div>
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <div className="text-3xl mb-1">⏱️</div>
+            <div className="text-lg font-extrabold">{timeStr}</div>
+            <div className="text-[10px] text-muted-foreground">זמן משחק</div>
+          </div>
+          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
+            <div className="text-3xl mb-1">⭐</div>
+            <div className="text-2xl font-extrabold">{stars}</div>
             <div className="text-[10px] text-muted-foreground">כוכבים</div>
-          </div>
-          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
-            <div className="text-2xl mb-1">🏆</div>
-            <div className="text-xl font-extrabold">{Math.max(highScore, correctCount)}</div>
-            <div className="text-[10px] text-muted-foreground">שיא</div>
-          </div>
-          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
-            <div className="text-2xl mb-1">🎮</div>
-            <div className="text-xl font-extrabold">{score}</div>
-            <div className="text-[10px] text-muted-foreground">ניקוד</div>
           </div>
         </div>
         <div className="flex gap-4">
