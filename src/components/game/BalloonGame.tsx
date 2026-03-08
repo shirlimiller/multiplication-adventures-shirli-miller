@@ -478,11 +478,23 @@ export function BalloonGame({
             }}
           >
             <div className="relative">
-              <svg width="64" height="80" viewBox="0 0 80 100" className="drop-shadow-lg md:w-[80px] md:h-[100px]">
-                <path d="M40 80 Q42 90 38 100" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+              {balloon.isGold && (
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-sm animate-pulse z-10">⭐⭐</div>
+              )}
+              <svg width="64" height="80" viewBox="0 0 80 100" className={`drop-shadow-lg md:w-[80px] md:h-[100px] ${balloon.isGold ? 'drop-shadow-[0_0_8px_gold]' : ''}`}>
+                <path d="M40 80 Q42 90 38 100" stroke={balloon.isGold ? 'hsl(45 80% 40%)' : 'hsl(var(--muted-foreground))'} strokeWidth="1.5" fill="none" />
                 <ellipse cx="40" cy="42" rx="32" ry="38" fill={balloon.color} />
-                <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity="0.3" transform="rotate(-20 28 30)" />
+                {balloon.isGold && <ellipse cx="40" cy="42" rx="32" ry="38" fill="url(#goldShine)" opacity="0.4" />}
+                <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity={balloon.isGold ? '0.5' : '0.3'} transform="rotate(-20 28 30)" />
                 <polygon points="36,78 40,82 44,78 40,74" fill={balloon.color} />
+                {balloon.isGold && (
+                  <defs>
+                    <radialGradient id="goldShine" cx="40%" cy="35%">
+                      <stop offset="0%" stopColor="white" />
+                      <stop offset="100%" stopColor="transparent" />
+                    </radialGradient>
+                  </defs>
+                )}
               </svg>
               <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '16px' }}>
                 <span className="text-xl md:text-3xl font-extrabold text-white drop-shadow-md">
