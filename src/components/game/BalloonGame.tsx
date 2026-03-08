@@ -221,7 +221,7 @@ export function BalloonGame({
         const next = prev + 1;
         if (next % 3 === 0 && maxBalloons < 8) {
           setMaxBalloons(m => Math.min(8, m + 1));
-          setSpeed(s => Math.min(0.35, s + 0.02));
+          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 2.5, s + 0.02));
         }
         return next;
       });
