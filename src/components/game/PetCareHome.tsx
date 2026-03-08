@@ -204,18 +204,11 @@ export function PetCareHome({
           <HappinessBar happiness={currentHappiness} />
         </div>
 
-        {/* Balloon Game Launcher + Quick Stats */}
-        <div className="mt-6 flex gap-4 items-stretch">
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <Award className="w-6 h-6 text-yellow-500 mx-auto" />
-            <span className="text-sm font-bold">× {mulCertCount}/10</span>
-            <p className="text-xs text-muted-foreground">תעודות כפל</p>
-          </div>
-          
-          {/* Balloon Game Button */}
+        {/* Balloon Game Launcher */}
+        <div className="mt-6">
           <button
             onClick={() => setShowBalloonConfig(true)}
-            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-8 py-4 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
           >
             <span className="absolute -top-2 -right-1 text-xl animate-float">🎈</span>
             <span className="absolute -top-1 -left-2 text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
@@ -223,12 +216,6 @@ export function PetCareHome({
             <div className="text-3xl mb-1">🎈</div>
             <span className="text-sm font-extrabold text-white drop-shadow">משחק בלונים!</span>
           </button>
-          
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <Award className="w-6 h-6 text-sky-500 mx-auto" />
-            <span className="text-sm font-bold block">÷ {divCertCount}/10</span>
-            <p className="text-xs text-muted-foreground">תעודות חילוק</p>
-          </div>
         </div>
 
         {/* Balloon Config Modal */}
