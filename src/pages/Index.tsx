@@ -359,9 +359,12 @@ const Index = () => {
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
               setCurrentStats(getPlayerStats(selectedPlayer.id));
             }
-            setCurrentScreen('setup');
+            setCurrentScreen('home');
           }}
-          onBack={() => setCurrentScreen('setup')}
+          onBack={() => {
+            if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
+            setCurrentScreen('home');
+          }}
         />
       )}
 
