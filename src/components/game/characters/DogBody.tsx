@@ -16,6 +16,7 @@ interface DogBodyProps {
   equippedPants: ClothingItem | null;
   equippedShoes: ClothingItem | null;
   eatingPhase: string;
+  isJumping: boolean;
   uniqueId: string;
 }
 
