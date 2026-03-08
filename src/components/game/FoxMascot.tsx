@@ -576,6 +576,7 @@ export function FoxMascot({
                       <circle cx="90" cy="92" r="4" fill="white" opacity="0.15" />
                       <circle cx="142" cy="92" r="4" fill="white" opacity="0.15" />
                     </g>
+                  )}
                 </g>
               )}
             </g>
