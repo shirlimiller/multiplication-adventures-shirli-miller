@@ -334,6 +334,26 @@ const Index = () => {
         <BossChallenge table={bossTable} onComplete={handleBossComplete} onExit={() => setCurrentScreen('game')} />
       )}
 
+      {currentScreen === 'balloon' && selectedPlayer && currentStats && (
+        <BalloonGame
+          selectedNumbers={gameState.selectedTables}
+          operation={gameState.operation}
+          rangeMin={gameState.rangeMin}
+          rangeMax={gameState.rangeMax}
+          totalStars={currentStats.totalStars}
+          isDoubleStarsActive={isDoubleStarsActive}
+          onGameEnd={(results) => {
+            // Award stars to player
+            if (results.totalStars > 0) {
+              updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
+              setCurrentStats(getPlayerStats(selectedPlayer.id));
+            }
+            setCurrentScreen('setup');
+          }}
+          onBack={() => setCurrentScreen('setup')}
+        />
+      )}
+
       {currentScreen === 'summary' && selectedPlayer && (
         <div className="relative">
           <div className="absolute top-4 right-4 z-10">
