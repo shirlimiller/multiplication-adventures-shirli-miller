@@ -281,6 +281,17 @@ const Index = () => {
           currentHappiness={currentHappiness}
           isDoubleStarsActive={isDoubleStarsActive}
           onStartGame={handleStartSetup}
+          onStartBalloonGame={(config) => {
+            setGameState(prev => ({
+              ...prev,
+              selectedTables: config.selectedNumbers,
+              operation: config.operation,
+              rangeMin: 1,
+              rangeMax: 10,
+            }));
+            setGameMode('balloon');
+            setCurrentScreen('balloon');
+          }}
           onSwitchPlayer={handleBackToProfiles}
           onPurchase={handlePurchase}
           onSpendStars={handleSpendStars}
@@ -348,9 +359,12 @@ const Index = () => {
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
               setCurrentStats(getPlayerStats(selectedPlayer.id));
             }
-            setCurrentScreen('setup');
+            setCurrentScreen('home');
           }}
-          onBack={() => setCurrentScreen('setup')}
+          onBack={() => {
+            if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
+            setCurrentScreen('home');
+          }}
         />
       )}
 
