@@ -20,7 +20,7 @@ import { ShopItem, WalkLocation } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 import { usePetState } from '@/hooks/usePetState';
 
-type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss';
+type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
