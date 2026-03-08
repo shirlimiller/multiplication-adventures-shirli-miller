@@ -57,9 +57,30 @@ export function PetCareHome({
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
   const [isWalking, setIsWalking] = useState(false);
   const [showBalloonConfig, setShowBalloonConfig] = useState(false);
-  const [balloonOp, setBalloonOp] = useState<'multiply' | 'divide' | 'multiply_divide'>('multiply');
+  const [balloonOps, setBalloonOps] = useState<Set<string>>(new Set(['multiply']));
   const [balloonNumbers, setBalloonNumbers] = useState<number[]>([]);
   const [balloonAllNumbers, setBalloonAllNumbers] = useState(true);
+
+  const toggleBalloonOp = (op: string) => {
+    setBalloonOps(prev => {
+      const next = new Set(prev);
+      if (next.has(op)) {
+        if (next.size > 1) next.delete(op); // must keep at least one
+      } else {
+        next.add(op);
+      }
+      return next;
+    });
+  };
+
+  const getResolvedOperation = (): Operation => {
+    const ops = Array.from(balloonOps);
+    if (ops.length === 1) return ops[0] as Operation;
+    if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
+    // For mixed including add/subtract, we'll use the first one for now
+    // The balloon game handles mixed via the operation prop
+    return ops[0] as Operation;
+  };
   
   const {
     clothing,
