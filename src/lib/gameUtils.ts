@@ -179,12 +179,19 @@ export function generateAdaptiveQuestion(
         weight += 5;
       }
       
-      // Reduce weight if recently asked (avoid repetition)
-      const recentlyAsked = recentQuestions.slice(-5).some(
+      // Exclude already-asked questions entirely (until pool exhausted)
+      const askedKey = `${table}_${mult}`;
+      const alreadyAsked = recentQuestions.some(
         q => q.multiplier === table && q.multiplicand === mult
       );
-      if (recentlyAsked) {
-        weight = Math.max(1, weight - 10);
+      
+      // Build unique pool of all possible combos
+      const totalPossible = tables.length * (max - min + 1);
+      const uniqueAsked = new Set(recentQuestions.map(q => `${q.multiplier}_${q.multiplicand}`)).size;
+      const allExhausted = uniqueAsked >= totalPossible;
+      
+      if (alreadyAsked && !allExhausted) {
+        weight = 0; // Skip entirely
       }
       
       questionPool.push({ table, multiplicand: mult, weight });
@@ -232,49 +239,69 @@ function randomInt(min: number, max: number): number {
 
 export function generateQuestionForOperation(params: {
   operation: Operation;
-  selectedNumbers: number[]; // "focus" numbers the student selected
+  selectedNumbers: number[];
   rangeMin: number;
   rangeMax: number;
+  askedQuestions?: AnsweredQuestion[];
 }): { multiplier: number; multiplicand: number; answer: number; actualOperation: Operation } {
-  const { operation, selectedNumbers, rangeMin, rangeMax } = params;
+  const { operation, selectedNumbers, rangeMin, rangeMax, askedQuestions = [] } = params;
   const min = Math.min(rangeMin, rangeMax);
   const max = Math.max(rangeMin, rangeMax);
   const focus = selectedNumbers.length > 0 ? selectedNumbers : [randomInt(min, max)];
-  const pickFocus = () => focus[Math.floor(Math.random() * focus.length)];
 
-  // For mixed mode, randomly pick multiply or divide
-  const effectiveOp: Operation = operation === 'multiply_divide'
-    ? (Math.random() < 0.5 ? 'multiply' : 'divide')
-    : operation;
+  // Build full pool of possible questions
+  const pool: { multiplier: number; multiplicand: number; answer: number; actualOperation: Operation }[] = [];
 
-  switch (effectiveOp) {
-    case 'add': {
-      const a = pickFocus();
-      const b = randomInt(min, max);
-      return { multiplier: a, multiplicand: b, answer: a + b, actualOperation: 'add' };
-    }
-    case 'subtract': {
-      // Keep non-negative results
-      const a = pickFocus();
-      const b = randomInt(min, max);
-      const big = Math.max(a, b);
-      const small = Math.min(a, b);
-      return { multiplier: big, multiplicand: small, answer: big - small, actualOperation: 'subtract' };
-    }
-    case 'divide': {
-      // Integer division facts: dividend = divisor * quotient
-      const divisor = Math.max(1, pickFocus());
-      const quotient = randomInt(min, max);
-      const dividend = divisor * quotient;
-      return { multiplier: dividend, multiplicand: divisor, answer: quotient, actualOperation: 'divide' };
-    }
-    case 'multiply':
-    default: {
-      const table = pickFocus();
-      const mult = randomInt(Math.max(1, min), Math.min(12, max));
-      return { multiplier: table, multiplicand: mult, answer: table * mult, actualOperation: 'multiply' };
+  const ops: Operation[] = operation === 'multiply_divide'
+    ? ['multiply', 'divide']
+    : [operation];
+
+  for (const op of ops) {
+    for (const f of focus) {
+      for (let n = Math.max(1, min); n <= max; n++) {
+        switch (op) {
+          case 'add':
+            pool.push({ multiplier: f, multiplicand: n, answer: f + n, actualOperation: 'add' });
+            break;
+          case 'subtract': {
+            const big = Math.max(f, n);
+            const small = Math.min(f, n);
+            pool.push({ multiplier: big, multiplicand: small, answer: big - small, actualOperation: 'subtract' });
+            break;
+          }
+          case 'divide': {
+            const divisor = Math.max(1, f);
+            const dividend = divisor * n;
+            pool.push({ multiplier: dividend, multiplicand: divisor, answer: n, actualOperation: 'divide' });
+            break;
+          }
+          case 'multiply':
+          default: {
+            const mult = Math.min(12, n);
+            pool.push({ multiplier: f, multiplicand: mult, answer: f * mult, actualOperation: 'multiply' });
+            break;
+          }
+        }
+      }
     }
   }
+
+  // Deduplicate pool by question signature
+  const uniquePool = pool.filter((q, i, arr) =>
+    arr.findIndex(x => x.multiplier === q.multiplier && x.multiplicand === q.multiplicand && x.actualOperation === q.actualOperation) === i
+  );
+
+  // Filter out already-asked questions
+  const askedKeys = new Set(askedQuestions.map(q => `${q.multiplier}_${q.multiplicand}_${q.operation}`));
+  let available = uniquePool.filter(q => !askedKeys.has(`${q.multiplier}_${q.multiplicand}_${q.actualOperation}`));
+
+  // If all exhausted, reset (allow repeats but start fresh cycle)
+  if (available.length === 0) {
+    available = uniquePool;
+  }
+
+  // Random pick from available
+  return available[Math.floor(Math.random() * available.length)];
 }
 
 export function getVisualExplanation(multiplier: number, multiplicand: number): string {
