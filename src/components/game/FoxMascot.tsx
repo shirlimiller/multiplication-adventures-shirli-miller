@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getPetMood, HUNGER_THRESHOLD_HUNGRY, ShopItem } from '@/lib/petTypes';
 import { PlayerClothing, CLOTHING_ITEMS } from '@/lib/clothingTypes';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from './WearableItems';
 import { cn } from '@/lib/utils';
 
 interface FoxMascotProps {
@@ -16,10 +17,10 @@ interface FoxMascotProps {
   clothing?: PlayerClothing;
 }
 
-export function FoxMascot({ 
-  message, 
-  className = '', 
-  showSpeechBubble = true, 
+export function FoxMascot({
+  message,
+  className = '',
+  showSpeechBubble = true,
   animate = true,
   hunger = 100,
   size = 'medium',
@@ -34,11 +35,11 @@ export function FoxMascot({
   const [walkCycle, setWalkCycle] = useState(0);
   const [headRotation, setHeadRotation] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const mood = getPetMood(hunger);
   const isHungry = hunger < HUNGER_THRESHOLD_HUNGRY;
 
-  // Head tracking - follow mouse
+  // Head tracking
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
@@ -47,7 +48,6 @@ export function FoxMascot({
       const centerY = rect.top + rect.height * 0.35;
       const dx = (e.clientX - centerX) / window.innerWidth;
       const dy = (e.clientY - centerY) / window.innerHeight;
-      // Damped rotation, max ±12deg
       setHeadRotation(prev => ({
         x: prev.x + (dx * 12 - prev.x) * 0.15,
         y: prev.y + (dy * 8 - prev.y) * 0.15,
@@ -57,7 +57,6 @@ export function FoxMascot({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Touch tracking for mobile
   useEffect(() => {
     const handleTouch = (e: TouchEvent) => {
       if (!containerRef.current || e.touches.length === 0) return;
@@ -76,7 +75,7 @@ export function FoxMascot({
     return () => window.removeEventListener('touchmove', handleTouch);
   }, []);
 
-  // Eating animation phases
+  // Eating animation
   useEffect(() => {
     if (isEating && eatingFood) {
       setEatingPhase('grab');
@@ -88,7 +87,7 @@ export function FoxMascot({
     }
   }, [isEating, eatingFood]);
 
-  // Random idle animations
+  // Idle animations
   useEffect(() => {
     if (isEating || isJumping) return;
     const interval = setInterval(() => {
@@ -100,7 +99,6 @@ export function FoxMascot({
     return () => clearInterval(interval);
   }, [isEating, isJumping]);
 
-  // Walking animation cycle
   useEffect(() => {
     if (idleAnimation !== 'walk') { setWalkCycle(0); return; }
     const interval = setInterval(() => setWalkCycle(prev => (prev + 1) % 4), 200);
@@ -143,7 +141,6 @@ export function FoxMascot({
   const equippedPants = getEquippedItem('pants');
   const equippedShoes = getEquippedItem('shoes');
 
-  // Blink transform
   const isBlink = idleAnimation === 'blink';
   const walkBob = idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -2 : 2) : 0;
   const walkRot = idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -2 : 2) : 0;
@@ -157,28 +154,25 @@ export function FoxMascot({
           <div className="absolute -bottom-3 right-10 w-6 h-6 bg-card rotate-45 shadow-card border-r-2 border-b-2 border-primary/20"></div>
         </div>
       )}
-      
-      <div 
-        className={cn(
-          'relative',
-          onClick && 'cursor-pointer hover:scale-110 transition-transform'
-        )}
+
+      <div
+        className={cn('relative', onClick && 'cursor-pointer hover:scale-110 transition-transform')}
         onClick={handleClick}
       >
         {/* Ground shadow */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-full blur-md transform scale-x-125" />
-        
+
         {/* Glow */}
         {mood === 'happy' && (
           <div className="absolute inset-0 blur-2xl bg-accent/30 rounded-full scale-150 animate-pulse" />
         )}
-        
+
         {/* Hungry indicator */}
         {isHungry && !isEating && (
           <div className="absolute -top-4 -right-2 text-2xl animate-bounce z-30">💭</div>
         )}
 
-        {/* Eating Overlay */}
+        {/* Eating overlay */}
         {isEating && eatingFood && eatingPhase !== 'done' && (
           <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
             <div className={cn(
@@ -190,189 +184,111 @@ export function FoxMascot({
               {eatingFood.emoji}
             </div>
             {eatingPhase === 'chew' && (
-              <div className="absolute top-1/3 left-1/2 -translate-x-1/2">
-                <span className="absolute text-2xl animate-ping" style={{ animationDuration: '0.3s' }}>✨</span>
-                <span className="absolute text-xl animate-ping -left-4" style={{ animationDuration: '0.4s', animationDelay: '0.1s' }}>⭐</span>
-                <span className="absolute text-xl animate-ping left-4" style={{ animationDuration: '0.35s', animationDelay: '0.2s' }}>💫</span>
-              </div>
-            )}
-            {eatingPhase === 'chew' && (
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-success text-white px-4 py-2 rounded-full font-bold text-lg animate-bounce shadow-lg">
-                יאמי! 😋
-              </div>
+              <>
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2">
+                  <span className="absolute text-2xl animate-ping" style={{ animationDuration: '0.3s' }}>✨</span>
+                  <span className="absolute text-xl animate-ping -left-4" style={{ animationDuration: '0.4s', animationDelay: '0.1s' }}>⭐</span>
+                </div>
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-success text-white px-4 py-2 rounded-full font-bold text-lg animate-bounce shadow-lg">
+                  יאמי! 😋
+                </div>
+              </>
             )}
           </div>
         )}
 
-        {/* Main Fox SVG - Procedural 2.5D */}
-        <div 
+        {/* Main Fox SVG */}
+        <div
           className={cn(sizeClasses[size], 'relative z-10', getAnimationClass())}
           style={{ transform: isBlink ? 'scaleY(0.98)' : 'none', transition: 'transform 0.2s ease' }}
         >
           <svg
             viewBox="0 0 240 280"
-            className={cn(
-              'w-full h-full object-contain',
-              eatingPhase === 'bite' || eatingPhase === 'chew' ? 'animate-munch' : ''
-            )}
+            className={cn('w-full h-full', eatingPhase === 'bite' || eatingPhase === 'chew' ? 'animate-munch' : '')}
             style={{ filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.18))' }}
           >
             <defs>
-              {/* Body gradient */}
               <radialGradient id="foxBodyGrad" cx="50%" cy="40%" r="60%">
                 <stop offset="0%" stopColor="#FFB060" />
                 <stop offset="60%" stopColor="#FF8C42" />
                 <stop offset="100%" stopColor="#E5722E" />
               </radialGradient>
-              {/* Belly gradient */}
               <radialGradient id="foxBellyGrad" cx="50%" cy="35%" r="60%">
                 <stop offset="0%" stopColor="#FFE4C8" />
                 <stop offset="70%" stopColor="#FFD4A8" />
                 <stop offset="100%" stopColor="#FFC088" />
               </radialGradient>
-              {/* Head gradient */}
               <radialGradient id="foxHeadGrad" cx="45%" cy="35%" r="55%">
                 <stop offset="0%" stopColor="#FFB868" />
                 <stop offset="50%" stopColor="#FF9A4A" />
                 <stop offset="100%" stopColor="#E57828" />
               </radialGradient>
-              {/* Inner ear */}
               <radialGradient id="earInnerGrad" cx="50%" cy="40%" r="50%">
                 <stop offset="0%" stopColor="#FFB8D8" />
                 <stop offset="100%" stopColor="#FF8CB8" />
               </radialGradient>
-              {/* Eye white */}
               <radialGradient id="eyeWhiteGrad" cx="45%" cy="40%" r="50%">
                 <stop offset="0%" stopColor="#FFFFFF" />
                 <stop offset="100%" stopColor="#F0F0F0" />
               </radialGradient>
-              {/* Pupil */}
               <radialGradient id="pupilGrad" cx="40%" cy="35%" r="50%">
                 <stop offset="0%" stopColor="#444" />
                 <stop offset="100%" stopColor="#111" />
               </radialGradient>
-              {/* Nose */}
               <radialGradient id="noseGrad" cx="45%" cy="35%" r="50%">
                 <stop offset="0%" stopColor="#FF80B0" />
                 <stop offset="100%" stopColor="#E04888" />
               </radialGradient>
-              {/* Tail gradient */}
               <linearGradient id="tailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#FFB060" />
                 <stop offset="50%" stopColor="#FF8C42" />
                 <stop offset="100%" stopColor="#E5722E" />
               </linearGradient>
-              {/* Tail tip */}
               <radialGradient id="tailTipGrad" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor="#FFF8F0" />
                 <stop offset="100%" stopColor="#FFD8B0" />
               </radialGradient>
-              {/* Paw gradient */}
               <radialGradient id="pawGrad" cx="50%" cy="30%" r="60%">
                 <stop offset="0%" stopColor="#FFD0A0" />
                 <stop offset="100%" stopColor="#FFB060" />
               </radialGradient>
-              {/* Specular highlight */}
               <linearGradient id="specHighlight" x1="30%" y1="0%" x2="70%" y2="100%">
                 <stop offset="0%" stopColor="white" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="white" stopOpacity="0" />
               </linearGradient>
-              {/* Hat gradients */}
-              <linearGradient id="partyHatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FF6B8A" />
-                <stop offset="30%" stopColor="#FF4570" />
-                <stop offset="70%" stopColor="#E03060" />
-                <stop offset="100%" stopColor="#C02050" />
-              </linearGradient>
-              <linearGradient id="hatHighlight" x1="20%" y1="0%" x2="80%" y2="100%">
-                <stop offset="0%" stopColor="white" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="white" stopOpacity="0" />
-              </linearGradient>
-              {/* Shadow filter */}
-              <filter id="innerShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-                <feOffset in="blur" dx="2" dy="3" result="offsetBlur" />
-                <feComposite in="SourceGraphic" in2="offsetBlur" operator="over" />
-              </filter>
             </defs>
 
-            {/* ===== TAIL (behind body) ===== */}
-            <g style={{ transform: `rotate(${tailSwing}deg)`, transformOrigin: '155px 195px', transition: 'transform 0.3s' }}>
+            {/* ===== TAIL ===== */}
+            <g id="tail" style={{ transform: `rotate(${tailSwing}deg)`, transformOrigin: '155px 195px', transition: 'transform 0.3s' }}>
               <ellipse cx="192" cy="185" rx="32" ry="48" fill="url(#tailGrad)" />
               <ellipse cx="192" cy="185" rx="32" ry="48" fill="url(#specHighlight)" />
-              {/* Tail tip - white */}
               <ellipse cx="198" cy="175" rx="18" ry="28" fill="url(#tailTipGrad)" />
             </g>
 
-            {/* ===== BACK LEGS ===== */}
-            <g style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -4 : 0) : 0}px)`, transition: 'transform 0.2s' }}>
-              <ellipse cx="155" cy="230" rx="18" ry="30" fill="url(#foxBodyGrad)" />
-              <ellipse cx="155" cy="255" rx="14" ry="10" fill="url(#pawGrad)" />
-              {/* Paw toes */}
-              <circle cx="148" cy="262" r="3.5" fill="url(#pawGrad)" />
-              <circle cx="155" cy="264" r="3.5" fill="url(#pawGrad)" />
-              <circle cx="162" cy="262" r="3.5" fill="url(#pawGrad)" />
-            </g>
-
-            {/* ===== BODY ===== */}
-            <g style={{ transform: `translateY(${walkBob}px)`, transition: 'transform 0.3s' }}>
-              {/* Main body */}
+            {/* ===== TORSO ===== */}
+            <g id="torso" style={{ transform: `translateY(${walkBob}px)`, transition: 'transform 0.3s' }}>
               <ellipse cx="120" cy="195" rx="58" ry="55" fill="url(#foxBodyGrad)" />
-              {/* Body specular */}
               <ellipse cx="105" cy="178" rx="30" ry="28" fill="url(#specHighlight)" />
-              {/* Belly */}
               <ellipse cx="120" cy="205" rx="38" ry="35" fill="url(#foxBellyGrad)" />
-              {/* Belly highlight */}
               <ellipse cx="112" cy="195" rx="20" ry="18" fill="white" opacity="0.12" />
 
-              {/* ===== SHIRT (on body) ===== */}
+              {/* Shirt wearable — snapped to torso center */}
               {equippedShirt && (
-                <g>
-                  <ellipse cx="120" cy="195" rx="52" ry="42" fill={equippedShirt.color || '#4488CC'} opacity="0.85" />
-                  <ellipse cx="120" cy="195" rx="52" ry="42" fill="url(#specHighlight)" />
-                  {/* Neckline */}
-                  <path d="M 105 158 Q 120 170 135 158" fill={equippedShirt.color2 || '#2266AA'} opacity="0.5" />
-                  {/* Sleeves */}
-                  <ellipse cx="72" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
-                  <ellipse cx="168" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
-                  {/* Stripe detail for stripe shirt */}
-                  {equippedShirt.id === 'shirt_stripe' && (
-                    <g opacity="0.4">
-                      <line x1="80" y1="180" x2="160" y2="180" stroke={equippedShirt.color2} strokeWidth="3" />
-                      <line x1="78" y1="190" x2="162" y2="190" stroke={equippedShirt.color2} strokeWidth="3" />
-                      <line x1="80" y1="200" x2="160" y2="200" stroke={equippedShirt.color2} strokeWidth="3" />
-                      <line x1="82" y1="210" x2="158" y2="210" stroke={equippedShirt.color2} strokeWidth="3" />
-                    </g>
-                  )}
-                  {/* Star for star shirt */}
-                  {equippedShirt.id === 'shirt_star' && (
-                    <polygon points="120,178 124,188 135,190 127,197 129,208 120,202 111,208 113,197 105,190 116,188" fill="white" opacity="0.4" />
-                  )}
-                  {/* Cape for superhero */}
-                  {equippedShirt.id === 'shirt_hero' && (
-                    <path d="M 75 170 Q 60 220 80 260 L 120 240 L 160 260 Q 180 220 165 170 Z" fill={equippedShirt.color} opacity="0.3" />
-                  )}
+                <g transform="translate(120, 195)">
+                  <WearableShirt item={equippedShirt} />
                 </g>
               )}
             </g>
 
-            {/* ===== BACK LEGS ===== */}
-            <g style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -4 : 0) : 0}px)`, transition: 'transform 0.2s' }}>
+            {/* ===== RIGHT LEG (back) ===== */}
+            <g id="right_leg" style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -4 : 0) : 0}px)`, transition: 'transform 0.2s' }}>
               <ellipse cx="155" cy="230" rx="18" ry="30" fill="url(#foxBodyGrad)" />
-              {/* Pants on back leg */}
-              {equippedPants && (
-                <ellipse cx="155" cy="228" rx="19" ry="25" fill={equippedPants.color || '#3366AA'} opacity="0.85" />
-              )}
-              <ellipse cx="155" cy="255" rx="14" ry="10" fill="url(#pawGrad)" />
-              {/* Shoes on back leg */}
+              {equippedPants && <g transform="translate(155, 230)"><WearablePantsLeg item={equippedPants} side="right" /></g>}
               {equippedShoes ? (
-                <g>
-                  <ellipse cx="155" cy="258" rx="16" ry="11" fill={equippedShoes.color || '#DD3333'} />
-                  <ellipse cx="155" cy="256" rx="14" ry="6" fill={equippedShoes.color2 || '#BB1111'} opacity="0.5" />
-                  <ellipse cx="152" cy="254" rx="5" ry="3" fill="white" opacity="0.2" />
-                </g>
+                <g transform="translate(155, 255)"><WearableShoe item={equippedShoes} side="right" /></g>
               ) : (
                 <g>
+                  <ellipse cx="155" cy="255" rx="14" ry="10" fill="url(#pawGrad)" />
                   <circle cx="148" cy="262" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="155" cy="264" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="162" cy="262" r="3.5" fill="url(#pawGrad)" />
@@ -380,43 +296,31 @@ export function FoxMascot({
               )}
             </g>
 
-            {/* ===== FRONT LEGS ===== */}
-            <g style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? 0 : -4) : 0}px)`, transition: 'transform 0.2s' }}>
+            {/* ===== LEFT LEG (front-left) ===== */}
+            <g id="left_leg" style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? 0 : -4) : 0}px)`, transition: 'transform 0.2s' }}>
               <ellipse cx="85" cy="235" rx="16" ry="28" fill="url(#foxBodyGrad)" />
-              {/* Pants on front leg */}
-              {equippedPants && (
-                <ellipse cx="85" cy="233" rx="17" ry="23" fill={equippedPants.color || '#3366AA'} opacity="0.85" />
-              )}
-              <ellipse cx="85" cy="258" rx="13" ry="9" fill="url(#pawGrad)" />
-              {/* Shoes */}
+              {equippedPants && <g transform="translate(85, 233)"><WearablePantsLeg item={equippedPants} side="left" /></g>}
               {equippedShoes ? (
-                <g>
-                  <ellipse cx="85" cy="261" rx="15" ry="10" fill={equippedShoes.color || '#DD3333'} />
-                  <ellipse cx="85" cy="259" rx="13" ry="5" fill={equippedShoes.color2 || '#BB1111'} opacity="0.5" />
-                  <ellipse cx="82" cy="257" rx="5" ry="3" fill="white" opacity="0.2" />
-                </g>
+                <g transform="translate(85, 258)"><WearableShoe item={equippedShoes} side="left" /></g>
               ) : (
                 <g>
+                  <ellipse cx="85" cy="258" rx="13" ry="9" fill="url(#pawGrad)" />
                   <circle cx="78" cy="264" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="85" cy="266" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="92" cy="264" r="3.5" fill="url(#pawGrad)" />
                 </g>
               )}
             </g>
+
+            {/* ===== SECOND FRONT LEG ===== */}
             <g style={{ transform: `translateY(${idleAnimation === 'walk' ? (walkCycle % 2 === 0 ? -4 : 0) : 0}px)`, transition: 'transform 0.2s' }}>
               <ellipse cx="110" cy="238" rx="16" ry="28" fill="url(#foxBodyGrad)" />
-              {equippedPants && (
-                <ellipse cx="110" cy="236" rx="17" ry="23" fill={equippedPants.color || '#3366AA'} opacity="0.85" />
-              )}
-              <ellipse cx="110" cy="261" rx="13" ry="9" fill="url(#pawGrad)" />
+              {equippedPants && <g transform="translate(110, 236)"><WearablePantsLeg item={equippedPants} side="right" /></g>}
               {equippedShoes ? (
-                <g>
-                  <ellipse cx="110" cy="264" rx="15" ry="10" fill={equippedShoes.color || '#DD3333'} />
-                  <ellipse cx="110" cy="262" rx="13" ry="5" fill={equippedShoes.color2 || '#BB1111'} opacity="0.5" />
-                  <ellipse cx="107" cy="260" rx="5" ry="3" fill="white" opacity="0.2" />
-                </g>
+                <g transform="translate(110, 261)"><WearableShoe item={equippedShoes} side="right" /></g>
               ) : (
                 <g>
+                  <ellipse cx="110" cy="261" rx="13" ry="9" fill="url(#pawGrad)" />
                   <circle cx="103" cy="267" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="110" cy="269" r="3.5" fill="url(#pawGrad)" />
                   <circle cx="117" cy="267" r="3.5" fill="url(#pawGrad)" />
@@ -425,31 +329,26 @@ export function FoxMascot({
             </g>
 
             {/* ===== HEAD GROUP (follows mouse) ===== */}
-            <g style={{
+            <g id="head" style={{
               transform: `rotate(${headRotation.x + walkRot}deg) translateY(${walkBob + headRotation.y}px)`,
               transformOrigin: '120px 100px',
               transition: 'transform 0.1s ease-out',
             }}>
-              {/* Head */}
+              {/* Head shape */}
               <ellipse cx="120" cy="100" rx="55" ry="60" fill="url(#foxHeadGrad)" />
-              {/* Head specular highlight */}
               <ellipse cx="105" cy="80" rx="28" ry="25" fill="url(#specHighlight)" />
 
               {/* Ears */}
-              <g>
-                {/* Left ear */}
-                <path d="M 78 70 Q 62 25 80 40 Q 72 18 92 50 Z" fill="url(#foxHeadGrad)" />
-                <path d="M 80 62 Q 70 35 82 42 Q 75 28 88 52 Z" fill="url(#earInnerGrad)" />
-                {/* Right ear */}
-                <path d="M 162 70 Q 178 25 160 40 Q 168 18 148 50 Z" fill="url(#foxHeadGrad)" />
-                <path d="M 160 62 Q 170 35 158 42 Q 165 28 152 52 Z" fill="url(#earInnerGrad)" />
-              </g>
+              <path d="M 78 70 Q 62 25 80 40 Q 72 18 92 50 Z" fill="url(#foxHeadGrad)" />
+              <path d="M 80 62 Q 70 35 82 42 Q 75 28 88 52 Z" fill="url(#earInnerGrad)" />
+              <path d="M 162 70 Q 178 25 160 40 Q 168 18 148 50 Z" fill="url(#foxHeadGrad)" />
+              <path d="M 160 62 Q 170 35 158 42 Q 165 28 152 52 Z" fill="url(#earInnerGrad)" />
 
-              {/* Face mask - white cheeks */}
+              {/* Face mask */}
               <ellipse cx="120" cy="115" rx="35" ry="28" fill="url(#foxBellyGrad)" opacity="0.8" />
 
-              {/* Eyes */}
-              <g style={{ transform: isBlink ? 'scaleY(0.08)' : 'none', transformOrigin: '120px 95px', transition: 'transform 0.15s' }}>
+              {/* ===== EYES GROUP ===== */}
+              <g id="eyes" style={{ transform: isBlink ? 'scaleY(0.08)' : 'none', transformOrigin: '120px 95px', transition: 'transform 0.15s' }}>
                 {/* Left eye */}
                 <ellipse cx="98" cy="95" rx="14" ry="16" fill="url(#eyeWhiteGrad)" />
                 <ellipse cx="98" cy="95" rx="14" ry="16" stroke="#E0D0C0" strokeWidth="0.5" fill="none" />
@@ -463,6 +362,13 @@ export function FoxMascot({
                 <circle cx={142 + headRotation.x * 0.3} cy={95 + headRotation.y * 0.2} r="9" fill="url(#pupilGrad)" />
                 <circle cx={140 + headRotation.x * 0.2} cy={92 + headRotation.y * 0.1} r="3.5" fill="white" />
                 <circle cx={145 + headRotation.x * 0.2} cy={98 + headRotation.y * 0.1} r="1.5" fill="white" opacity="0.6" />
+
+                {/* Sunglasses — snapped to eyes center */}
+                {equippedSunglasses && (
+                  <g transform="translate(120, 96)">
+                    <WearableSunglasses item={equippedSunglasses} />
+                  </g>
+                )}
               </g>
 
               {/* Nose */}
@@ -471,8 +377,8 @@ export function FoxMascot({
 
               {/* Mouth */}
               <path
-                d={isJumping || idleAnimation === 'walk' 
-                  ? "M 112 126 Q 120 134 128 126" 
+                d={isJumping || idleAnimation === 'walk'
+                  ? "M 112 126 Q 120 134 128 126"
                   : "M 114 125 Q 120 130 126 125"}
                 stroke="#8B4513"
                 strokeWidth="2"
@@ -480,109 +386,23 @@ export function FoxMascot({
                 strokeLinecap="round"
                 style={{ transition: 'all 0.3s' }}
               />
+
               {/* Whiskers */}
               <line x1="75" y1="108" x2="95" y2="112" stroke="#D0A070" strokeWidth="1" opacity="0.5" />
               <line x1="75" y1="118" x2="95" y2="116" stroke="#D0A070" strokeWidth="1" opacity="0.5" />
               <line x1="165" y1="108" x2="145" y2="112" stroke="#D0A070" strokeWidth="1" opacity="0.5" />
               <line x1="165" y1="118" x2="145" y2="116" stroke="#D0A070" strokeWidth="1" opacity="0.5" />
 
-              {/* ===== HAT (SVG, attached to head) ===== */}
+              {/* Hat — child of head, moves with it */}
               {equippedHat && (
-                <g>
-                  {equippedHat.id === 'hat_crown' && (
-                    <g transform="translate(120, 42)">
-                      <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="#FFD700" stroke="#DAA520" strokeWidth="1.5" />
-                      <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="url(#hatHighlight)" />
-                      <rect x="-28" y="10" width="56" height="8" rx="2" fill="#FFD700" stroke="#DAA520" strokeWidth="1" />
-                      <circle cx="-12" cy="14" r="3" fill="#FF2020" />
-                      <circle cx="0" cy="14" r="3" fill="#2060FF" />
-                      <circle cx="12" cy="14" r="3" fill="#20CC20" />
-                    </g>
-                  )}
-                  {equippedHat.id === 'hat_wizard' && (
-                    <g transform="translate(120, 45)">
-                      <path d="M 0 -55 Q 15 -20 32 10 L -32 10 Q -15 -20 0 -55 Z" fill="#3B2080" stroke="#2A1060" strokeWidth="1.5" />
-                      <path d="M 0 -55 Q 5 -25 10 10 L -10 10 Q -5 -25 0 -55 Z" fill="white" opacity="0.12" />
-                      <ellipse cx="0" cy="10" rx="36" ry="6" fill="#3B2080" stroke="#2A1060" strokeWidth="1" />
-                      <text x="-8" y="-20" fontSize="10" fill="#FFD700">⭐</text>
-                      <text x="5" y="-35" fontSize="8" fill="#FFD700">✨</text>
-                    </g>
-                  )}
-                  {equippedHat.id === 'hat_party' && (
-                    <g transform="translate(120, 45)">
-                      <path d="M 0 -50 L 25 12 L -25 12 Z" fill="url(#partyHatGrad)" stroke="#C02050" strokeWidth="1" />
-                      <path d="M 0 -50 L 8 12 L -8 12 Z" fill="url(#hatHighlight)" />
-                      <line x1="-8" y1="-10" x2="8" y2="-10" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
-                      <line x1="-15" y1="0" x2="15" y2="0" stroke="#40E0D0" strokeWidth="2" opacity="0.6" />
-                      <circle cx="0" cy="-52" r="6" fill="#FFD700" />
-                      <ellipse cx="0" cy="12" rx="28" ry="5" fill="url(#partyHatGrad)" opacity="0.7" />
-                    </g>
-                  )}
-                  {equippedHat.id === 'hat_cap' && (
-                    <g transform="translate(120, 52)">
-                      <ellipse cx="0" cy="5" rx="34" ry="10" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
-                      <path d="M -30 5 Q -30 -15 0 -18 Q 30 -15 30 5 Z" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
-                      <ellipse cx="18" cy="8" rx="22" ry="6" fill="#1A4488" />
-                    </g>
-                  )}
-                  {equippedHat.id === 'hat_cowboy' && (
-                    <g transform="translate(120, 50)">
-                      <ellipse cx="0" cy="8" rx="42" ry="8" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1.5" />
-                      <path d="M -24 8 Q -24 -18 0 -22 Q 24 -18 24 8 Z" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1" />
-                      <path d="M -20 8 Q -20 -12 0 -16 Q 8 -12 8 8 Z" fill="white" opacity="0.1" />
-                    </g>
-                  )}
-                  {equippedHat.id === 'hat_beanie' && (
-                    <g transform="translate(120, 48)">
-                      <path d="M -30 8 Q -32 -20 0 -25 Q 32 -20 30 8 Z" fill="#CC3333" stroke="#992222" strokeWidth="1" />
-                      <path d="M -28 8 Q -28 -4 0 -6 Q 28 -4 28 8 Z" fill="#992222" opacity="0.5" />
-                      <circle cx="0" cy="-27" r="5" fill="#CC3333" stroke="#992222" strokeWidth="0.5" />
-                    </g>
-                  )}
-                </g>
-              )}
-
-              {/* Sunglasses (SVG) */}
-              {equippedSunglasses && (
-                <g>
-                  {(equippedSunglasses.id === 'sun_classic' || equippedSunglasses.id === 'sun_nerd') && (
-                    <g>
-                      <rect x="80" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
-                      <rect x="132" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
-                      <rect x="82" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
-                      <rect x="134" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
-                    </g>
-                  )}
-                  {equippedSunglasses.id === 'sun_star' && (
-                    <g>
-                      <polygon points="98,82 102,92 112,94 105,101 107,112 98,106 89,112 91,101 84,94 94,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
-                      <polygon points="142,82 146,92 156,94 149,101 151,112 142,106 133,112 135,101 128,94 138,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
-                    </g>
-                  )}
-                  {equippedSunglasses.id === 'sun_heart' && (
-                    <g>
-                      <path d="M 98 92 C 88 82, 78 92, 98 108 C 118 92, 108 82, 98 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
-                      <path d="M 142 92 C 132 82, 122 92, 142 108 C 162 92, 152 82, 142 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
-                    </g>
-                  )}
-                  {equippedSunglasses.id === 'sun_round' && (
-                    <g>
-                      <circle cx="94" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
-                      <circle cx="146" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color} strokeWidth="2" />
-                      <circle cx="90" cy="92" r="4" fill="white" opacity="0.15" />
-                      <circle cx="142" cy="92" r="4" fill="white" opacity="0.15" />
-                    </g>
-                  )}
+                <g transform="translate(120, 94)">
+                  <WearableHat item={equippedHat} />
                 </g>
               )}
             </g>
           </svg>
         </div>
-        
+
         {/* Click hint */}
         {onClick && !isJumping && !isEating && (
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground animate-pulse">
