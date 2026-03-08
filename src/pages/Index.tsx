@@ -56,6 +56,9 @@ const Index = () => {
     depleteHungerWhilePlaying,
   } = usePetState(selectedPlayer?.id || null);
 
+  const { clothing } = useClothingState(selectedPlayer?.id || null);
+
+
   useEffect(() => {
     if (selectedPlayer) {
       setCurrentStats(getPlayerStats(selectedPlayer.id));
