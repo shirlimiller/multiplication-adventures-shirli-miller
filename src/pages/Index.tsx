@@ -355,6 +355,8 @@ const Index = () => {
             questionStartTime={gameState.questionStartTime}
             hintUsedInCurrentQuestion={gameState.hintUsedInCurrentQuestion}
             onHintUsed={handleHintUsed}
+            characterId={activeCharacter}
+            clothing={clothing}
           />
         </div>
       )}
