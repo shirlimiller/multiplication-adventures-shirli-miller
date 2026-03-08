@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { Crown, Zap, X, Trophy, Star, Flame } from 'lucide-react';
 import { WORLD_COLORS, WORLD_NAMES, generateAnswerOptions, MASTERY_CONFIG } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';

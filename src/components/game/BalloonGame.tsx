@@ -3,6 +3,8 @@ import { StarHUD } from './StarHUD';
 import { FlyingStars } from './FlyingStars';
 import { BackButton } from './BackButton';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { generateQuestionForOperation, getOperationSymbol, Operation, getEncouragingMessage } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 

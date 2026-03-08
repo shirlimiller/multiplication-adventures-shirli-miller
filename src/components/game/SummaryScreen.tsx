@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { AnsweredQuestion, MASTERY_CONFIG, checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Star, Trophy, RefreshCw, Clock, Zap } from 'lucide-react';

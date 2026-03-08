@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FoxMascot } from './FoxMascot';
+import { CharacterId } from '@/lib/characterTypes';
+import { PlayerClothing } from '@/lib/clothingTypes';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Gamepad2, GraduationCap, Plus, Minus, X, Divide } from 'lucide-react';

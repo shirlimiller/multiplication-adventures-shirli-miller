@@ -48,6 +48,8 @@ interface GameScreenProps {
   questionStartTime: number;
   hintUsedInCurrentQuestion: boolean;
   onHintUsed: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 export function GameScreen({
