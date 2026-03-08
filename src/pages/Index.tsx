@@ -70,8 +70,14 @@ const Index = () => {
   const handleSelectPlayer = (player: Player) => {
     setSelectedPlayer(player);
     setCurrentStats(getPlayerStats(player.id));
+    setActiveCharacter(getPlayerCharacter(player.id));
     setCurrentScreen('home');
   };
+
+  const handleCharacterChange = useCallback((id: CharacterId) => {
+    setActiveCharacter(id);
+    if (selectedPlayer) setPlayerCharacter(selectedPlayer.id, id);
+  }, [selectedPlayer]);
 
   const handleBackToProfiles = () => {
     setSelectedPlayer(null);
