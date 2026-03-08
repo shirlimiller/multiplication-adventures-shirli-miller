@@ -578,7 +578,7 @@ export function FoxMascot({
                     </g>
                   )}
                 </g>
-              )}
+            </g>
           </svg>
         </div>
         
