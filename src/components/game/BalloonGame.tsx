@@ -35,6 +35,7 @@ interface Balloon {
   speed: number;
   popped: boolean;
   shaking: boolean;
+  isGold: boolean;
 }
 
 interface Question {
