@@ -74,6 +74,8 @@ export function GameScreen({
   questionStartTime,
   hintUsedInCurrentQuestion,
   onHintUsed,
+  characterId,
+  clothing,
 }: GameScreenProps) {
   const [options, setOptions] = useState<number[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
