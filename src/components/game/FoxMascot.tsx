@@ -336,7 +336,7 @@ export function FoxMascot({
                   <ellipse cx="72" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
                   <ellipse cx="168" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
                   {/* Stripe detail for stripe shirt */}
-                  {equippedShirt.id === 'tshirt_stripe' && (
+                  {equippedShirt.id === 'shirt_stripe' && (
                     <g opacity="0.4">
                       <line x1="80" y1="180" x2="160" y2="180" stroke={equippedShirt.color2} strokeWidth="3" />
                       <line x1="78" y1="190" x2="162" y2="190" stroke={equippedShirt.color2} strokeWidth="3" />
