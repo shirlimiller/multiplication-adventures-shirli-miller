@@ -130,34 +130,32 @@ export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness, 
         </div>
         
         {/* Locations Grid */}
-        <div className="grid gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {WALK_LOCATIONS.map((location) => {
             const canAfford = totalStars >= location.price;
             return (
               <button
                 key={location.id}
                 onClick={() => handleSelectLocation(location)}
-                className={`bg-muted/50 rounded-3xl p-4 text-right transition-all duration-200 hover:scale-[1.02] hover:shadow-card cursor-pointer flex items-center gap-4 ${!canAfford ? 'opacity-60' : ''}`}
+                className={`bg-muted/50 rounded-3xl p-4 text-center transition-all duration-200 hover:scale-105 hover:shadow-card cursor-pointer flex flex-col items-center gap-2 ${!canAfford ? 'opacity-60' : ''}`}
               >
-                {/* Location emoji */}
-                <span className="text-5xl">{location.emoji}</span>
+                {/* Location emoji - large */}
+                <span className="text-6xl md:text-7xl">{location.emoji}</span>
                 
-                <div className="flex-1">
-                  {/* Location name */}
-                  <h3 className="font-bold text-foreground text-lg">{location.name}</h3>
-                  
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground">{location.description}</p>
-                  
-                  {/* Price and happiness info */}
-                  <div className="mt-1 flex items-center gap-3">
-                    <span className={`text-sm font-bold ${canAfford ? 'text-accent' : 'text-red-500'}`}>
-                      ⭐ {location.price}
-                    </span>
-                    <span className="text-sm text-amber-600 font-bold">
-                      +{location.happinessRestore}% שמחה 😊
-                    </span>
-                  </div>
+                {/* Location name */}
+                <h3 className="font-extrabold text-foreground text-base">{location.name}</h3>
+                
+                {/* Description */}
+                <p className="text-xs text-muted-foreground leading-tight">{location.description}</p>
+                
+                {/* Price and happiness info */}
+                <div className="flex flex-col items-center gap-0.5 mt-1">
+                  <span className={`text-sm font-bold ${canAfford ? 'text-accent' : 'text-red-500'}`}>
+                    ⭐ {location.price}
+                  </span>
+                  <span className="text-xs text-amber-600 font-bold">
+                    +{location.happinessRestore}% 😊
+                  </span>
                 </div>
               </button>
             );
