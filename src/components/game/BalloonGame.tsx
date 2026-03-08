@@ -490,8 +490,10 @@ export function BalloonGame({
           <div className="text-[10px] md:text-xs text-muted-foreground">כוכבים ⭐</div>
         </div>
         <div className="text-center">
-          <div className="text-base md:text-lg font-bold">{maxBalloons}</div>
-          <div className="text-[10px] md:text-xs text-muted-foreground">בלונים 🎈</div>
+          <div className={`text-base md:text-lg font-bold ${correctCount > highScore ? 'text-accent' : ''}`}>
+            {Math.max(highScore, correctCount)}
+          </div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">שיא 🏆</div>
         </div>
       </div>
 
