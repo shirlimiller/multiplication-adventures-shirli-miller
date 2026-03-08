@@ -35,6 +35,7 @@ interface Balloon {
   speed: number;
   popped: boolean;
   shaking: boolean;
+  isGold: boolean;
 }
 
 interface Question {
@@ -128,6 +129,11 @@ export function BalloonGame({
   const spawnBalloons = useCallback(() => {
     const q = generateQuestion(selectedNumbers, operation, rangeMin, rangeMax);
     setQuestion(q);
+    
+    // Check if this should be a gold balloon question (every 10 questions on hard mode)
+    const currentQuestionNum = questionNum + 1;
+    const isGoldQuestion = difficulty === 'hard' && currentQuestionNum > 0 && currentQuestionNum % 10 === 0;
+    
     setQuestionNum(prev => prev + 1);
 
     const wrongCount = maxBalloons - 1;
@@ -137,21 +143,23 @@ export function BalloonGame({
     const newBalloons: Balloon[] = values.map((val, i) => {
       const spacing = 80 / values.length;
       const x = 10 + spacing * i + Math.random() * (spacing * 0.5);
+      const isCorrectBalloon = val === q.answer;
       return {
         id: nextBalloonId.current++,
         value: val,
-        isCorrect: val === q.answer,
+        isCorrect: isCorrectBalloon,
         x,
         y: 110 + Math.random() * 20,
-        color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+        color: (isGoldQuestion && isCorrectBalloon) ? 'hsl(45 100% 50%)' : BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         speed: speed + Math.random() * 0.05,
         popped: false,
         shaking: false,
+        isGold: isGoldQuestion && isCorrectBalloon,
       };
     });
 
     setBalloons(newBalloons);
-  }, [selectedNumbers, operation, rangeMin, rangeMax, maxBalloons, speed]);
+  }, [selectedNumbers, operation, rangeMin, rangeMax, maxBalloons, speed, questionNum, difficulty]);
 
   // Initial spawn
   useEffect(() => {
@@ -222,9 +230,8 @@ export function BalloonGame({
       playCorrectFast();
       setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, popped: true } : b));
       
-      const baseEarned = isDoubleStarsActive ? 4 : 2;
-      const earned = baseEarned * DIFFICULTY_CONFIG[difficulty].starMultiplier;
-      setScore(s => s + 10 * DIFFICULTY_CONFIG[difficulty].starMultiplier);
+      const earned = balloon.isGold ? 2 : 1;
+      setScore(s => s + (balloon.isGold ? 20 : 10));
       setStars(s => s + earned);
       setCorrectCount(c => c + 1);
       setShowStarAnimation(true);
@@ -361,7 +368,12 @@ export function BalloonGame({
 
       {/* Header */}
       <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
-        <BackButton onClick={onBack} />
+        <BackButton onClick={() => onGameEnd({
+          totalScore: score,
+          totalStars: stars,
+          correctAnswers: correctCount,
+          totalQuestions: questionNum,
+        })} />
         
         {/* Question display - center of header */}
         <div className="relative pointer-events-none">
@@ -466,11 +478,23 @@ export function BalloonGame({
             }}
           >
             <div className="relative">
-              <svg width="64" height="80" viewBox="0 0 80 100" className="drop-shadow-lg md:w-[80px] md:h-[100px]">
-                <path d="M40 80 Q42 90 38 100" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
+              {balloon.isGold && (
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-sm animate-pulse z-10">⭐⭐</div>
+              )}
+              <svg width="64" height="80" viewBox="0 0 80 100" className={`drop-shadow-lg md:w-[80px] md:h-[100px] ${balloon.isGold ? 'drop-shadow-[0_0_8px_gold]' : ''}`}>
+                <path d="M40 80 Q42 90 38 100" stroke={balloon.isGold ? 'hsl(45 80% 40%)' : 'hsl(var(--muted-foreground))'} strokeWidth="1.5" fill="none" />
                 <ellipse cx="40" cy="42" rx="32" ry="38" fill={balloon.color} />
-                <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity="0.3" transform="rotate(-20 28 30)" />
+                {balloon.isGold && <ellipse cx="40" cy="42" rx="32" ry="38" fill="url(#goldShine)" opacity="0.4" />}
+                <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity={balloon.isGold ? '0.5' : '0.3'} transform="rotate(-20 28 30)" />
                 <polygon points="36,78 40,82 44,78 40,74" fill={balloon.color} />
+                {balloon.isGold && (
+                  <defs>
+                    <radialGradient id="goldShine" cx="40%" cy="35%">
+                      <stop offset="0%" stopColor="white" />
+                      <stop offset="100%" stopColor="transparent" />
+                    </radialGradient>
+                  </defs>
+                )}
               </svg>
               <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '16px' }}>
                 <span className="text-xl md:text-3xl font-extrabold text-white drop-shadow-md">
