@@ -99,7 +99,8 @@ export function BalloonGame({
   const [maxBalloons, setMaxBalloons] = useState(2);
   const [lives, setLives] = useState(3);
   const [confetti, setConfetti] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [showStarAnimation, setShowStarAnimation] = useState(false);
+   const [showStarAnimation, setShowStarAnimation] = useState(false);
+  const [flyingGoldStars, setFlyingGoldStars] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
