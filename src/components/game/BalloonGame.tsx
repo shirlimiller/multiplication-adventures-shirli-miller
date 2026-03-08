@@ -429,18 +429,18 @@ export function BalloonGame({
       </div>
 
       {/* Score bar at bottom */}
-      <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-3 flex justify-around items-center">
+      <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-2 md:p-3 flex justify-around items-center safe-area-bottom">
         <div className="text-center">
-          <div className="text-lg font-bold">{correctCount}</div>
-          <div className="text-xs text-muted-foreground">נכונות 🎯</div>
+          <div className="text-base md:text-lg font-bold">{correctCount}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">נכונות 🎯</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-bold">{stars}</div>
-          <div className="text-xs text-muted-foreground">כוכבים ⭐</div>
+          <div className="text-base md:text-lg font-bold">{stars}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">כוכבים ⭐</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-bold">{maxBalloons}</div>
-          <div className="text-xs text-muted-foreground">בלונים 🎈</div>
+          <div className="text-base md:text-lg font-bold">{maxBalloons}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">בלונים 🎈</div>
         </div>
       </div>
 
