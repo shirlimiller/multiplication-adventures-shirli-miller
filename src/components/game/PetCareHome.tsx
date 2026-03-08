@@ -114,6 +114,8 @@ export function PetCareHome({
   onFeedPet,
   onWalkPet,
   onPetInteract,
+  activeCharacter,
+  onCharacterChange,
 }: PetCareHomeProps) {
   const mulCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkTableMastery(stats, t).isMastered).length;
   const divCertCount = Array.from({ length: 10 }, (_, i) => i + 1).filter((t) => checkDivisionTableMastery(stats, t).isMastered).length;
@@ -121,7 +123,6 @@ export function PetCareHome({
   const [isClothingShopOpen, setIsClothingShopOpen] = useState(false);
   const [isWalkSelectorOpen, setIsWalkSelectorOpen] = useState(false);
   const [isCharacterSwitcherOpen, setIsCharacterSwitcherOpen] = useState(false);
-  const [activeCharacter, setActiveCharacter] = useState<CharacterId>(() => getPlayerCharacter(player.id));
   const [foxMessage, setFoxMessage] = useState(getPetMessage(getPetMood(currentHunger), player.name));
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
