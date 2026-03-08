@@ -374,16 +374,15 @@ const Index = () => {
           totalStars={currentStats.totalStars}
           highScore={currentStats.balloonHighScore ?? 0}
           isDoubleStarsActive={isDoubleStarsActive}
+          characterId={activeCharacter}
+          clothing={clothing}
           onGameEnd={(results) => {
-            // Award stars and update high score
             if (results.totalStars > 0 || results.correctAnswers > (currentStats.balloonHighScore ?? 0)) {
               const stats = getPlayerStats(selectedPlayer.id);
               const newHighScore = Math.max(stats.balloonHighScore ?? 0, results.correctAnswers);
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
-              // Save high score directly
               const updatedStats = getPlayerStats(selectedPlayer.id);
               updatedStats.balloonHighScore = newHighScore;
-              // Persist via localStorage
               const storageKey = `math_game_stats_${selectedPlayer.id}`;
               localStorage.setItem(storageKey, JSON.stringify(updatedStats));
               setCurrentStats({ ...updatedStats });
