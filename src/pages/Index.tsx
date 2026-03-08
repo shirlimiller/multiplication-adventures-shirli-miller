@@ -20,6 +20,8 @@ import { Player, PlayerStats } from '@/lib/playerTypes';
 import { ShopItem, WalkLocation } from '@/lib/petTypes';
 import { usePlayerStorage } from '@/hooks/usePlayerStorage';
 import { usePetState } from '@/hooks/usePetState';
+import { useClothingState } from '@/hooks/useClothingState';
+import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 
 type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
 
