@@ -14,7 +14,7 @@ import { ShopItem, WalkLocation, getPetMessage, getPetMood, getWalkMessage } fro
 import { ClothingItem } from '@/lib/clothingTypes';
 import { useClothingState } from '@/hooks/useClothingState';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
-import { Star, Play, Award, Users, X, Divide, Check } from 'lucide-react';
+import { Star, Play, Award, Users, X, Divide, Check, Plus, Minus } from 'lucide-react';
 
 interface PetCareHomeProps {
   player: Player;
@@ -57,9 +57,30 @@ export function PetCareHome({
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
   const [isWalking, setIsWalking] = useState(false);
   const [showBalloonConfig, setShowBalloonConfig] = useState(false);
-  const [balloonOp, setBalloonOp] = useState<'multiply' | 'divide' | 'multiply_divide'>('multiply');
+  const [balloonOps, setBalloonOps] = useState<Set<string>>(new Set(['multiply']));
   const [balloonNumbers, setBalloonNumbers] = useState<number[]>([]);
   const [balloonAllNumbers, setBalloonAllNumbers] = useState(true);
+
+  const toggleBalloonOp = (op: string) => {
+    setBalloonOps(prev => {
+      const next = new Set(prev);
+      if (next.has(op)) {
+        if (next.size > 1) next.delete(op); // must keep at least one
+      } else {
+        next.add(op);
+      }
+      return next;
+    });
+  };
+
+  const getResolvedOperation = (): Operation => {
+    const ops = Array.from(balloonOps);
+    if (ops.length === 1) return ops[0] as Operation;
+    if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
+    // For mixed including add/subtract, we'll use the first one for now
+    // The balloon game handles mixed via the operation prop
+    return ops[0] as Operation;
+  };
   
   const {
     clothing,
@@ -154,24 +175,22 @@ export function PetCareHome({
       </div>
       
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between p-4">
-        {/* Switch Player Button */}
+      <header className="relative z-10 flex items-center justify-between p-3 md:p-4">
         <Button
           variant="ghost"
           onClick={onSwitchPlayer}
-          className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft hover:shadow-card transition-all"
+          className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all text-sm"
         >
-          <Users className="w-5 h-5" />
+          <Users className="w-4 h-4" />
           <span className="font-bold">{player.name}</span>
-          <span className="text-2xl">{player.avatar}</span>
+          <span className="text-xl">{player.avatar}</span>
         </Button>
         
-        {/* Star Counter */}
-        <div className="flex items-center gap-2 bg-gradient-gold rounded-full px-5 py-2 shadow-gold">
-          <Star className="w-7 h-7 text-white fill-white drop-shadow" />
-          <span className="text-2xl font-extrabold text-white drop-shadow">{stats.totalStars}</span>
+        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold">
+          <Star className="w-5 h-5 text-white fill-white drop-shadow" />
+          <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
           {isDoubleStarsActive && (
-            <span className="bg-candy text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+            <span className="bg-candy text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
               x2
             </span>
           )}
@@ -179,13 +198,9 @@ export function PetCareHome({
       </header>
 
       {/* Main Content - Pet Area */}
-      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 py-8">
-        {/* Living Room / Garden Setting */}
+      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-3 py-4 md:py-8 min-h-0">
         <div className="relative w-full max-w-lg">
-          {/* Ground/Platform */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 h-16 bg-primary/20 rounded-full blur-lg" />
-          
-          {/* Fox with message and clothing */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-60 md:w-80 h-12 md:h-16 bg-primary/20 rounded-full blur-lg" />
           <FoxMascot
             message={foxMessage}
             size="hero"
@@ -199,63 +214,71 @@ export function PetCareHome({
         </div>
 
         {/* Hunger and Happiness Bars */}
-        <div className="mt-8 w-full max-w-xs space-y-3">
+        <div className="mt-4 md:mt-8 w-full max-w-xs space-y-2">
           <HungerBar hunger={currentHunger} />
           <HappinessBar happiness={currentHappiness} />
         </div>
 
         {/* Balloon Game Launcher */}
-        <div className="mt-6">
+        <div className="mt-4 md:mt-6">
           <button
             onClick={() => setShowBalloonConfig(true)}
-            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-8 py-4 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
           >
-            <span className="absolute -top-2 -right-1 text-xl animate-float">🎈</span>
-            <span className="absolute -top-1 -left-2 text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
-            <span className="absolute -bottom-1 right-1 text-lg animate-float" style={{ animationDelay: '1s' }}>🎈</span>
-            <div className="text-3xl mb-1">🎈</div>
-            <span className="text-sm font-extrabold text-white drop-shadow">משחק בלונים!</span>
+            <span className="absolute -top-2 -right-1 text-lg animate-float">🎈</span>
+            <span className="absolute -top-1 -left-2 text-base animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
+            <span className="absolute -bottom-1 right-1 text-base animate-float" style={{ animationDelay: '1s' }}>🎈</span>
+            <div className="text-2xl mb-1">🎈</div>
+            <span className="text-xs font-extrabold text-white drop-shadow">משחק בלונים!</span>
           </button>
         </div>
 
         {/* Balloon Config Modal */}
         {showBalloonConfig && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowBalloonConfig(false)}>
-            <div className="bg-card rounded-3xl p-6 shadow-card max-w-md w-full space-y-5 animate-fade-in" onClick={e => e.stopPropagation()}>
-              <h2 className="text-2xl font-extrabold text-center">🎈 משחק בלונים</h2>
+            <div className="bg-card rounded-3xl p-5 shadow-card max-w-sm w-full space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="text-xl font-extrabold text-center">🎈 משחק בלונים</h2>
               
-              {/* Operation selection */}
+              {/* Operation selection - multi-toggle */}
               <div className="space-y-2">
-                <p className="text-sm font-bold text-center">בחר פעולה:</p>
-                <div className="flex gap-3 justify-center">
+                <p className="text-sm font-bold text-center">סמן פעולות:</p>
+                <div className="grid grid-cols-4 gap-2">
                   {([
-                    { op: 'multiply' as const, label: 'כפל', icon: <X className="w-5 h-5" /> },
-                    { op: 'divide' as const, label: 'חילוק', icon: <Divide className="w-5 h-5" /> },
-                    { op: 'multiply_divide' as const, label: 'שניהם', icon: <span className="text-sm font-bold">×÷</span> },
-                  ]).map(({ op, label, icon }) => (
-                    <button
-                      key={op}
-                      onClick={() => setBalloonOp(op)}
-                      className={`flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border-2 transition-all ${
-                        balloonOp === op 
-                          ? 'border-primary bg-primary/10 scale-105' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      {icon}
-                      <span className="text-xs font-bold">{label}</span>
-                    </button>
-                  ))}
+                    { op: 'multiply', label: 'כפל', emoji: '✖️', color: 'hsl(145 60% 55%)' },
+                    { op: 'divide', label: 'חילוק', emoji: '➗', color: 'hsl(200 80% 60%)' },
+                    { op: 'add', label: 'חיבור', emoji: '➕', color: 'hsl(45 90% 60%)' },
+                    { op: 'subtract', label: 'חיסור', emoji: '➖', color: 'hsl(340 80% 65%)' },
+                  ]).map(({ op, label, emoji, color }) => {
+                    const selected = balloonOps.has(op);
+                    return (
+                      <button
+                        key={op}
+                        onClick={() => toggleBalloonOp(op)}
+                        style={{ borderColor: selected ? color : undefined, backgroundColor: selected ? `${color.replace(')', ' / 0.15)')}` : undefined }}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all relative ${
+                          selected ? 'scale-105 shadow-md' : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        {selected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        )}
+                        <span className="text-xl">{emoji}</span>
+                        <span className="text-[11px] font-bold">{label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* All numbers or pick */}
               <div className="space-y-2">
                 <p className="text-sm font-bold text-center">מספרים:</p>
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-2 justify-center">
                   <button
                     onClick={() => { setBalloonAllNumbers(true); setBalloonNumbers([]); }}
-                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
                       balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
                     }`}
                   >
@@ -263,7 +286,7 @@ export function PetCareHome({
                   </button>
                   <button
                     onClick={() => setBalloonAllNumbers(false)}
-                    className={`px-5 py-2 rounded-full border-2 font-bold transition-all ${
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
                       !balloonAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
                     }`}
                   >
@@ -272,7 +295,7 @@ export function PetCareHome({
                 </div>
 
                 {!balloonAllNumbers && (
-                  <div className="grid grid-cols-6 gap-2 mt-3">
+                  <div className="grid grid-cols-6 gap-2 mt-2">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(n => {
                       const selected = balloonNumbers.includes(n);
                       const iceColors = [
@@ -288,7 +311,7 @@ export function PetCareHome({
                             prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]
                           )}
                           style={{ backgroundColor: selected ? iceColors[n - 1] : undefined }}
-                          className={`w-10 h-10 rounded-full border-2 font-extrabold text-lg transition-all ${
+                          className={`w-9 h-9 rounded-full border-2 font-extrabold text-base transition-all ${
                             selected ? 'text-white border-transparent scale-110 shadow-lg' : 'border-border'
                           }`}
                         >
@@ -308,10 +331,10 @@ export function PetCareHome({
                     : balloonNumbers;
                   if (nums.length === 0) return;
                   setShowBalloonConfig(false);
-                  onStartBalloonGame({ operation: balloonOp, selectedNumbers: nums });
+                  onStartBalloonGame({ operation: getResolvedOperation(), selectedNumbers: nums });
                 }}
                 disabled={!balloonAllNumbers && balloonNumbers.length === 0}
-                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-xl py-4 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-lg py-3 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
               >
                 🎈 יאללה, בואו נשחק!
               </button>
@@ -321,45 +344,38 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-between items-end">
-        {/* Right side - Shop icons */}
-        <div className="flex gap-3 items-end">
-          {/* Food */}
+      <footer className="relative z-10 p-3 md:p-6 flex justify-between items-end safe-area-bottom">
+        <div className="flex gap-2 items-end">
           <button
             onClick={() => setIsShopOpen(true)}
-            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
           >
-            <span className="text-3xl">🍕</span>
-            <span className="text-[10px] font-bold text-muted-foreground">אוכל</span>
+            <span className="text-2xl">🍕</span>
+            <span className="text-[9px] font-bold text-muted-foreground">אוכל</span>
           </button>
-
-          {/* Clothing */}
           <button
             onClick={() => setIsClothingShopOpen(true)}
-            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
           >
-            <span className="text-3xl">👕</span>
-            <span className="text-[10px] font-bold text-muted-foreground">בגדים</span>
+            <span className="text-2xl">👕</span>
+            <span className="text-[9px] font-bold text-muted-foreground">בגדים</span>
           </button>
-
-          {/* Walk */}
           <button
             onClick={() => setIsWalkSelectorOpen(true)}
-            className={`flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 ${
+            className={`flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 ${
               currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
             }`}
           >
-            <span className="text-3xl">🌳</span>
-            <span className="text-[10px] font-bold text-muted-foreground">טיול</span>
+            <span className="text-2xl">🌳</span>
+            <span className="text-[9px] font-bold text-muted-foreground">טיול</span>
           </button>
         </div>
 
-        {/* Play Button - Large and prominent */}
         <Button
           onClick={onStartGame}
-          className="h-20 px-10 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-xl hover:scale-105 transition-all"
+          className="h-16 md:h-20 px-8 md:px-10 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-lg md:text-xl hover:scale-105 transition-all"
         >
-          <Play className="w-8 h-8 ml-2 fill-white" />
+          <Play className="w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
           בוא נשחק!
         </Button>
       </footer>

@@ -299,9 +299,9 @@ export function BalloonGame({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-sky flex flex-col relative overflow-hidden select-none">
+    <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col relative overflow-hidden select-none">
       {/* Header */}
-      <div className="relative z-20 flex items-center justify-between p-4">
+      <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
         <BackButton onClick={onBack} />
         <StarHUD totalStars={totalStars} sessionStars={stars} />
         
@@ -309,15 +309,15 @@ export function BalloonGame({
         <div className="relative">
           <button
             onClick={() => setShowDifficultyPicker(p => !p)}
-            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-full px-3 py-2 shadow-card border-2 border-border hover:scale-105 transition-transform"
+            className="flex items-center gap-1 bg-card/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
             title="שנה מהירות"
           >
-            <Gauge className="w-5 h-5 text-muted-foreground" />
-            <span className="text-sm font-bold">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+            <Gauge className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs font-bold">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
           </button>
           
           {showDifficultyPicker && (
-            <div className="absolute top-full mt-2 right-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[120px]">
+            <div className="absolute top-full mt-2 right-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[100px]">
               {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
                 <button
                   key={key}
@@ -326,7 +326,7 @@ export function BalloonGame({
                     setSpeed(cfg.baseSpeed);
                     setShowDifficultyPicker(false);
                   }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
                     difficulty === key ? 'bg-primary/20 scale-105' : 'hover:bg-muted'
                   }`}
                 >
@@ -339,9 +339,9 @@ export function BalloonGame({
         </div>
         
         {/* Lives */}
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           {Array.from({ length: 3 }, (_, i) => (
-            <span key={i} className={`text-2xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
+            <span key={i} className={`text-xl md:text-2xl transition-all ${i < lives ? 'scale-100' : 'scale-75 opacity-30 grayscale'}`}>
               ❤️
             </span>
           ))}
@@ -349,28 +349,25 @@ export function BalloonGame({
       </div>
 
       {/* Question display - ellipse with balloon decorations */}
-      <div className="relative z-20 flex justify-center mb-4">
+      <div className="relative z-20 flex justify-center mb-2 md:mb-4">
         <div className="relative">
-          {/* Decorative mini balloons around the ellipse */}
-          <div className="absolute -top-3 -left-4 text-2xl animate-float" style={{ animationDelay: '0s' }}>🎈</div>
-          <div className="absolute -top-2 -right-4 text-2xl animate-float" style={{ animationDelay: '0.5s' }}>🎈</div>
-          <div className="absolute -bottom-2 left-2 text-xl animate-float" style={{ animationDelay: '1s' }}>🎈</div>
-          <div className="absolute -bottom-1 right-2 text-xl animate-float" style={{ animationDelay: '1.5s' }}>🎈</div>
+          <div className="absolute -top-2 -left-3 text-lg md:text-2xl animate-float">🎈</div>
+          <div className="absolute -top-1 -right-3 text-lg md:text-2xl animate-float" style={{ animationDelay: '0.5s' }}>🎈</div>
           
           <div 
-            className="bg-card border-[4px] border-accent shadow-gold px-10 py-5 text-center"
+            className="bg-card border-[3px] md:border-[4px] border-accent shadow-gold px-6 py-3 md:px-10 md:py-5 text-center"
             style={{ borderRadius: '50%' }}
           >
-            <div className="text-4xl md:text-5xl font-extrabold text-foreground" dir="ltr">
+            <div className="text-3xl md:text-5xl font-extrabold text-foreground" dir="ltr">
               {question.text} = ?
             </div>
           </div>
         </div>
       </div>
 
-      {/* Fox */}
-      <div className="relative z-20 flex justify-center mb-2">
-        <FoxMascot message={foxMessage} className="scale-75" />
+      {/* Fox - smaller on mobile */}
+      <div className="relative z-20 flex justify-center mb-1 md:mb-2">
+        <FoxMascot message={foxMessage} className="scale-[0.6] md:scale-75" />
       </div>
 
       {/* Balloon area */}
@@ -392,19 +389,14 @@ export function BalloonGame({
           >
             {/* Balloon SVG */}
             <div className="relative">
-              <svg width="80" height="100" viewBox="0 0 80 100" className="drop-shadow-lg">
-                {/* String */}
+              <svg width="64" height="80" viewBox="0 0 80 100" className="drop-shadow-lg md:w-[80px] md:h-[100px]">
                 <path d="M40 80 Q42 90 38 100" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" fill="none" />
-                {/* Balloon body */}
                 <ellipse cx="40" cy="42" rx="32" ry="38" fill={balloon.color} />
-                {/* Shine */}
                 <ellipse cx="28" cy="30" rx="8" ry="12" fill="white" opacity="0.3" transform="rotate(-20 28 30)" />
-                {/* Knot */}
                 <polygon points="36,78 40,82 44,78 40,74" fill={balloon.color} />
               </svg>
-              {/* Number on balloon */}
-              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '20px' }}>
-                <span className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-md">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingBottom: '16px' }}>
+                <span className="text-xl md:text-3xl font-extrabold text-white drop-shadow-md">
                   {balloon.value}
                 </span>
               </div>
@@ -437,18 +429,18 @@ export function BalloonGame({
       </div>
 
       {/* Score bar at bottom */}
-      <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-3 flex justify-around items-center">
+      <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-2 md:p-3 flex justify-around items-center safe-area-bottom">
         <div className="text-center">
-          <div className="text-lg font-bold">{correctCount}</div>
-          <div className="text-xs text-muted-foreground">נכונות 🎯</div>
+          <div className="text-base md:text-lg font-bold">{correctCount}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">נכונות 🎯</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-bold">{stars}</div>
-          <div className="text-xs text-muted-foreground">כוכבים ⭐</div>
+          <div className="text-base md:text-lg font-bold">{stars}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">כוכבים ⭐</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-bold">{maxBalloons}</div>
-          <div className="text-xs text-muted-foreground">בלונים 🎈</div>
+          <div className="text-base md:text-lg font-bold">{maxBalloons}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">בלונים 🎈</div>
         </div>
       </div>
 

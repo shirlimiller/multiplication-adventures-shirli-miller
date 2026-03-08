@@ -501,3 +501,13 @@
 .animate-walk {
   animation: walk 0.8s ease-in-out infinite;
 }
+
+/* Safe area for mobile notch/home indicator */
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* Use dvh for mobile viewport */
+.min-h-screen {
+  min-height: 100dvh;
+}
