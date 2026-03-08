@@ -159,15 +159,12 @@ export function PetCareHome({
   }, [stats.totalStars, onSpendStars, purchaseItem, ownsItem]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-village-map overflow-hidden relative">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-village-map overflow-hidden relative" dir="rtl">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Clouds */}
         <div className="absolute top-10 left-10 text-6xl opacity-30 animate-float">☁️</div>
         <div className="absolute top-20 right-20 text-5xl opacity-20 animate-float" style={{ animationDelay: '1s' }}>☁️</div>
         <div className="absolute top-5 left-1/3 text-4xl opacity-25 animate-float" style={{ animationDelay: '2s' }}>☁️</div>
-        
-        {/* Decorative elements */}
         <div className="absolute bottom-0 left-0 text-6xl">🌳</div>
         <div className="absolute bottom-0 right-0 text-6xl">🌳</div>
         <div className="absolute bottom-10 left-20 text-4xl">🌷</div>
@@ -182,11 +179,11 @@ export function PetCareHome({
           className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-soft hover:shadow-card transition-all text-sm"
         >
           <Users className="w-4 h-4" />
-          <span className="font-bold">{player.name}</span>
+          <span className="font-bold" dir="auto">{player.name}</span>
           <span className="text-xl">{player.avatar}</span>
         </Button>
         
-        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold">
+        <div className="flex items-center gap-1.5 bg-gradient-gold rounded-full px-4 py-1.5 shadow-gold" dir="ltr">
           <Star className="w-5 h-5 text-white fill-white drop-shadow" />
           <span className="text-lg font-extrabold text-white drop-shadow">{stats.totalStars}</span>
           {isDoubleStarsActive && (
@@ -197,49 +194,89 @@ export function PetCareHome({
         </div>
       </header>
 
-      {/* Main Content - Pet Area */}
-      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-3 py-4 md:py-8 min-h-0">
-        <div className="relative w-full max-w-lg">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-60 md:w-80 h-12 md:h-16 bg-primary/20 rounded-full blur-lg" />
-          <FoxMascot
-            message={foxMessage}
-            size="hero"
-            hunger={currentHunger}
-            onClick={handlePetClick}
-            isEating={isEating}
-            eatingFood={eatingFood}
-            clothing={clothing}
-            animate
-          />
-        </div>
+      {/* Main Content - Pet Area with side icons */}
+      <main className="flex-1 flex items-center justify-center relative z-10 px-3 py-4 md:py-8 min-h-0">
+        <div className="flex items-center gap-2 md:gap-4 w-full max-w-lg justify-center">
+          
+          {/* Right side - Action icons (vertically stacked) */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setIsShopOpen(true)}
+              className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl p-2.5 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            >
+              <span className="text-2xl md:text-3xl">🍕</span>
+              <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">אוכל</span>
+            </button>
+            <button
+              onClick={() => setIsClothingShopOpen(true)}
+              className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl p-2.5 shadow-soft hover:scale-110 transition-all border-2 border-border"
+            >
+              <span className="text-2xl md:text-3xl">👕</span>
+              <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">בגדים</span>
+            </button>
+            <button
+              onClick={() => setIsWalkSelectorOpen(true)}
+              className={`flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl p-2.5 shadow-soft hover:scale-110 transition-all border-2 ${
+                currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
+              }`}
+            >
+              <span className="text-2xl md:text-3xl">🌳</span>
+              <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">טיול</span>
+            </button>
+          </div>
 
-        {/* Hunger and Happiness Bars */}
-        <div className="mt-4 md:mt-8 w-full max-w-xs space-y-2">
-          <HungerBar hunger={currentHunger} />
-          <HappinessBar happiness={currentHappiness} />
-        </div>
+          {/* Center - Fox + bars + buttons below */}
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <div className="relative w-full">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 md:w-64 h-10 md:h-14 bg-primary/20 rounded-full blur-lg" />
+              <FoxMascot
+                message={foxMessage}
+                size="hero"
+                hunger={currentHunger}
+                onClick={handlePetClick}
+                isEating={isEating}
+                eatingFood={eatingFood}
+                clothing={clothing}
+                animate
+              />
+            </div>
 
-        {/* Balloon Game Launcher */}
-        <div className="mt-4 md:mt-6">
-          <button
-            onClick={() => setShowBalloonConfig(true)}
-            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
-          >
-            <span className="absolute -top-2 -right-1 text-lg animate-float">🎈</span>
-            <span className="absolute -top-1 -left-2 text-base animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
-            <span className="absolute -bottom-1 right-1 text-base animate-float" style={{ animationDelay: '1s' }}>🎈</span>
-            <div className="text-2xl mb-1">🎈</div>
-            <span className="text-xs font-extrabold text-white drop-shadow">משחק בלונים!</span>
-          </button>
+            {/* Hunger and Happiness Bars */}
+            <div className="mt-3 md:mt-6 w-full max-w-xs space-y-2">
+              <HungerBar hunger={currentHunger} />
+              <HappinessBar happiness={currentHappiness} />
+            </div>
+
+            {/* Play button + Balloon game below fox */}
+            <div className="mt-3 md:mt-5 flex items-center gap-3">
+              <Button
+                onClick={onStartGame}
+                className="h-14 md:h-16 px-6 md:px-8 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-base md:text-lg hover:scale-105 transition-all"
+              >
+                <Play className="w-5 h-5 md:w-6 md:h-6 ml-2 fill-white" />
+                בוא נשחק!
+              </Button>
+
+              <button
+                onClick={() => setShowBalloonConfig(true)}
+                className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-4 py-2.5 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+              >
+                <span className="absolute -top-2 -right-1 text-sm animate-float">🎈</span>
+                <span className="absolute -top-1 -left-2 text-xs animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
+                <div className="text-xl mb-0.5">🎈</div>
+                <span className="text-[10px] font-extrabold text-white drop-shadow">בלונים!</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Balloon Config Modal */}
         {showBalloonConfig && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowBalloonConfig(false)}>
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" dir="rtl" onClick={() => setShowBalloonConfig(false)}>
             <div className="bg-card rounded-3xl p-5 shadow-card max-w-sm w-full space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <h2 className="text-xl font-extrabold text-center">🎈 משחק בלונים</h2>
               
-              {/* Operation selection - multi-toggle */}
+              {/* Operation selection */}
               <div className="space-y-2">
                 <p className="text-sm font-bold text-center">סמן פעולות:</p>
                 <div className="grid grid-cols-4 gap-2">
@@ -272,7 +309,7 @@ export function PetCareHome({
                 </div>
               </div>
 
-              {/* All numbers or pick */}
+              {/* Number selection */}
               <div className="space-y-2">
                 <p className="text-sm font-bold text-center">מספרים:</p>
                 <div className="flex gap-2 justify-center">
@@ -323,7 +360,6 @@ export function PetCareHome({
                 )}
               </div>
 
-              {/* Start button */}
               <button
                 onClick={() => {
                   const nums = balloonAllNumbers 
@@ -343,44 +379,6 @@ export function PetCareHome({
         )}
       </main>
 
-      {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-3 md:p-6 flex justify-between items-end safe-area-bottom">
-        <div className="flex gap-2 items-end">
-          <button
-            onClick={() => setIsShopOpen(true)}
-            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
-          >
-            <span className="text-2xl">🍕</span>
-            <span className="text-[9px] font-bold text-muted-foreground">אוכל</span>
-          </button>
-          <button
-            onClick={() => setIsClothingShopOpen(true)}
-            className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 border-border"
-          >
-            <span className="text-2xl">👕</span>
-            <span className="text-[9px] font-bold text-muted-foreground">בגדים</span>
-          </button>
-          <button
-            onClick={() => setIsWalkSelectorOpen(true)}
-            className={`flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-xl p-2 shadow-soft hover:scale-110 transition-all border-2 ${
-              currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
-            }`}
-          >
-            <span className="text-2xl">🌳</span>
-            <span className="text-[9px] font-bold text-muted-foreground">טיול</span>
-          </button>
-        </div>
-
-        <Button
-          onClick={onStartGame}
-          className="h-16 md:h-20 px-8 md:px-10 rounded-full bg-gradient-success shadow-lg text-white font-extrabold text-lg md:text-xl hover:scale-105 transition-all"
-        >
-          <Play className="w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
-          בוא נשחק!
-        </Button>
-      </footer>
-
-      {/* Candy Shop Modal */}
       <CandyShop
         isOpen={isShopOpen}
         onClose={() => setIsShopOpen(false)}
