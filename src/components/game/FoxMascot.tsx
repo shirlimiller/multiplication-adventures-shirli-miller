@@ -138,9 +138,7 @@ export function FoxMascot({
     return CLOTHING_ITEMS.find(item => item.id === clothing.equippedItems[type]);
   };
   const equippedHat = getEquippedItem('hat');
-  const equippedGlasses = getEquippedItem('glasses');
-  const equippedScarf = getEquippedItem('scarf');
-  const equippedBow = getEquippedItem('bow');
+  const equippedSunglasses = getEquippedItem('sunglasses');
   const equippedShirt = getEquippedItem('shirt');
   const equippedPants = getEquippedItem('pants');
   const equippedShoes = getEquippedItem('shoes');
@@ -338,7 +336,7 @@ export function FoxMascot({
                   <ellipse cx="72" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
                   <ellipse cx="168" cy="190" rx="15" ry="12" fill={equippedShirt.color || '#4488CC'} opacity="0.8" />
                   {/* Stripe detail for stripe shirt */}
-                  {equippedShirt.id === 'tshirt_stripe' && (
+                  {equippedShirt.id === 'shirt_stripe' && (
                     <g opacity="0.4">
                       <line x1="80" y1="180" x2="160" y2="180" stroke={equippedShirt.color2} strokeWidth="3" />
                       <line x1="78" y1="190" x2="162" y2="190" stroke={equippedShirt.color2} strokeWidth="3" />
@@ -347,11 +345,11 @@ export function FoxMascot({
                     </g>
                   )}
                   {/* Star for star shirt */}
-                  {equippedShirt.id === 'tshirt_star' && (
+                  {equippedShirt.id === 'shirt_star' && (
                     <polygon points="120,178 124,188 135,190 127,197 129,208 120,202 111,208 113,197 105,190 116,188" fill="white" opacity="0.4" />
                   )}
                   {/* Cape for superhero */}
-                  {equippedShirt.id === 'superhero' && (
+                  {equippedShirt.id === 'shirt_hero' && (
                     <path d="M 75 170 Q 60 220 80 260 L 120 240 L 160 260 Q 180 220 165 170 Z" fill={equippedShirt.color} opacity="0.3" />
                   )}
                 </g>
@@ -491,90 +489,90 @@ export function FoxMascot({
               {/* ===== HAT (SVG, attached to head) ===== */}
               {equippedHat && (
                 <g>
-                  {equippedHat.id === 'crown' && (
+                  {equippedHat.id === 'hat_crown' && (
                     <g transform="translate(120, 42)">
-                      {/* Crown base */}
                       <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="#FFD700" stroke="#DAA520" strokeWidth="1.5" />
                       <path d="M -28 10 L -22 -15 L -10 0 L 0 -22 L 10 0 L 22 -15 L 28 10 Z" fill="url(#hatHighlight)" />
                       <rect x="-28" y="10" width="56" height="8" rx="2" fill="#FFD700" stroke="#DAA520" strokeWidth="1" />
-                      <rect x="-28" y="10" width="56" height="8" rx="2" fill="url(#hatHighlight)" />
-                      {/* Jewels */}
                       <circle cx="-12" cy="14" r="3" fill="#FF2020" />
                       <circle cx="0" cy="14" r="3" fill="#2060FF" />
                       <circle cx="12" cy="14" r="3" fill="#20CC20" />
-                      <circle cx="-12" cy="14" r="1" fill="white" opacity="0.6" />
-                      <circle cx="0" cy="14" r="1" fill="white" opacity="0.6" />
-                      <circle cx="12" cy="14" r="1" fill="white" opacity="0.6" />
                     </g>
                   )}
-                  {equippedHat.id === 'wizard_hat' && (
+                  {equippedHat.id === 'hat_wizard' && (
                     <g transform="translate(120, 45)">
                       <path d="M 0 -55 Q 15 -20 32 10 L -32 10 Q -15 -20 0 -55 Z" fill="#3B2080" stroke="#2A1060" strokeWidth="1.5" />
                       <path d="M 0 -55 Q 5 -25 10 10 L -10 10 Q -5 -25 0 -55 Z" fill="white" opacity="0.12" />
                       <ellipse cx="0" cy="10" rx="36" ry="6" fill="#3B2080" stroke="#2A1060" strokeWidth="1" />
-                      <ellipse cx="0" cy="10" rx="36" ry="6" fill="url(#hatHighlight)" />
-                      {/* Stars on hat */}
                       <text x="-8" y="-20" fontSize="10" fill="#FFD700">⭐</text>
                       <text x="5" y="-35" fontSize="8" fill="#FFD700">✨</text>
                     </g>
                   )}
-                  {equippedHat.id === 'party_hat' && (
+                  {equippedHat.id === 'hat_party' && (
                     <g transform="translate(120, 45)">
                       <path d="M 0 -50 L 25 12 L -25 12 Z" fill="url(#partyHatGrad)" stroke="#C02050" strokeWidth="1" />
                       <path d="M 0 -50 L 8 12 L -8 12 Z" fill="url(#hatHighlight)" />
-                      {/* Stripes */}
                       <line x1="-8" y1="-10" x2="8" y2="-10" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
                       <line x1="-15" y1="0" x2="15" y2="0" stroke="#40E0D0" strokeWidth="2" opacity="0.6" />
-                      {/* Pom-pom */}
                       <circle cx="0" cy="-52" r="6" fill="#FFD700" />
-                      <circle cx="-2" cy="-54" r="2" fill="white" opacity="0.5" />
                       <ellipse cx="0" cy="12" rx="28" ry="5" fill="url(#partyHatGrad)" opacity="0.7" />
                     </g>
                   )}
-                  {equippedHat.id === 'cap' && (
+                  {equippedHat.id === 'hat_cap' && (
                     <g transform="translate(120, 52)">
                       <ellipse cx="0" cy="5" rx="34" ry="10" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
                       <path d="M -30 5 Q -30 -15 0 -18 Q 30 -15 30 5 Z" fill="#2266CC" stroke="#1A4488" strokeWidth="1" />
-                      <path d="M -30 5 Q -30 -15 0 -18 Q 10 -15 10 5 Z" fill="url(#hatHighlight)" />
-                      {/* Visor */}
                       <ellipse cx="18" cy="8" rx="22" ry="6" fill="#1A4488" />
-                      <ellipse cx="18" cy="7" rx="20" ry="4" fill="#2266CC" opacity="0.5" />
+                    </g>
+                  )}
+                  {equippedHat.id === 'hat_cowboy' && (
+                    <g transform="translate(120, 50)">
+                      <ellipse cx="0" cy="8" rx="42" ry="8" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1.5" />
+                      <path d="M -24 8 Q -24 -18 0 -22 Q 24 -18 24 8 Z" fill="#8B6914" stroke="#6B4E0A" strokeWidth="1" />
+                      <path d="M -20 8 Q -20 -12 0 -16 Q 8 -12 8 8 Z" fill="white" opacity="0.1" />
+                    </g>
+                  )}
+                  {equippedHat.id === 'hat_beanie' && (
+                    <g transform="translate(120, 48)">
+                      <path d="M -30 8 Q -32 -20 0 -25 Q 32 -20 30 8 Z" fill="#CC3333" stroke="#992222" strokeWidth="1" />
+                      <path d="M -28 8 Q -28 -4 0 -6 Q 28 -4 28 8 Z" fill="#992222" opacity="0.5" />
+                      <circle cx="0" cy="-27" r="5" fill="#CC3333" stroke="#992222" strokeWidth="0.5" />
                     </g>
                   )}
                 </g>
               )}
 
-              {/* Glasses (SVG) - generic renderer */}
-              {equippedGlasses && (
+              {/* Sunglasses (SVG) */}
+              {equippedSunglasses && (
                 <g>
-                  {(equippedGlasses.id === 'sunglasses' || equippedGlasses.id === 'nerd_glasses') && (
+                  {(equippedSunglasses.id === 'sun_classic' || equippedSunglasses.id === 'sun_nerd') && (
                     <g>
-                      <rect x="80" y="88" width="28" height="20" rx="8" fill={equippedGlasses.color} opacity="0.85" stroke={equippedGlasses.color2} strokeWidth="1.5" />
-                      <rect x="132" y="88" width="28" height="20" rx="8" fill={equippedGlasses.color} opacity="0.85" stroke={equippedGlasses.color2} strokeWidth="1.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <rect x="80" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
+                      <rect x="132" y="88" width="28" height="20" rx="8" fill={equippedSunglasses.color} opacity="0.85" stroke={equippedSunglasses.color2} strokeWidth="1.5" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                       <rect x="82" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
                       <rect x="134" y="89" width="12" height="6" rx="3" fill="white" opacity="0.15" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'star_glasses' && (
+                  {equippedSunglasses.id === 'sun_star' && (
                     <g>
-                      <polygon points="98,82 102,92 112,94 105,101 107,112 98,106 89,112 91,101 84,94 94,92" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <polygon points="142,82 146,92 156,94 149,101 151,112 142,106 133,112 135,101 128,94 138,92" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <polygon points="98,82 102,92 112,94 105,101 107,112 98,106 89,112 91,101 84,94 94,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <polygon points="142,82 146,92 156,94 149,101 151,112 142,106 133,112 135,101 128,94 138,92" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'heart_glasses' && (
+                  {equippedSunglasses.id === 'sun_heart' && (
                     <g>
-                      <path d="M 98 92 C 88 82, 78 92, 98 108 C 118 92, 108 82, 98 92 Z" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <path d="M 142 92 C 132 82, 122 92, 142 108 C 162 92, 152 82, 142 92 Z" fill={equippedGlasses.color} stroke={equippedGlasses.color2} strokeWidth="1" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color2} strokeWidth="2" />
+                      <path d="M 98 92 C 88 82, 78 92, 98 108 C 118 92, 108 82, 98 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <path d="M 142 92 C 132 82, 122 92, 142 108 C 162 92, 152 82, 142 92 Z" fill={equippedSunglasses.color} stroke={equippedSunglasses.color2} strokeWidth="1" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color2} strokeWidth="2" />
                     </g>
                   )}
-                  {equippedGlasses.id === 'round_glasses' && (
+                  {equippedSunglasses.id === 'sun_round' && (
                     <g>
-                      <circle cx="94" cy="96" r="14" fill="none" stroke={equippedGlasses.color} strokeWidth="2.5" />
-                      <circle cx="146" cy="96" r="14" fill="none" stroke={equippedGlasses.color} strokeWidth="2.5" />
-                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedGlasses.color} strokeWidth="2" />
+                      <circle cx="94" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
+                      <circle cx="146" cy="96" r="14" fill="none" stroke={equippedSunglasses.color} strokeWidth="2.5" />
+                      <line x1="108" y1="96" x2="132" y2="96" stroke={equippedSunglasses.color} strokeWidth="2" />
                       <circle cx="90" cy="92" r="4" fill="white" opacity="0.15" />
                       <circle cx="142" cy="92" r="4" fill="white" opacity="0.15" />
                     </g>
@@ -582,26 +580,6 @@ export function FoxMascot({
                 </g>
               )}
             </g>
-
-            {/* Scarf */}
-            {equippedScarf && (
-              <g>
-                <path d="M 75 152 Q 120 165 165 152 Q 168 160 165 168 Q 120 180 75 168 Q 72 160 75 152 Z" fill={equippedScarf.color || '#CC2020'} stroke={equippedScarf.color2 || '#AA1818'} strokeWidth="1" />
-                <path d="M 75 152 Q 100 162 120 158 Q 100 165 75 160 Z" fill="white" opacity="0.15" />
-                <path d="M 130 168 Q 135 185 128 195 Q 132 195 136 185 Q 140 175 135 168 Z" fill={equippedScarf.color || '#CC2020'} stroke={equippedScarf.color2 || '#AA1818'} strokeWidth="0.5" />
-              </g>
-            )}
-
-            {/* Bow */}
-            {equippedBow && (
-              <g transform="translate(160, 165)">
-                <ellipse cx="-12" cy="0" rx="12" ry="8" fill={equippedBow.color || '#FF69B4'} stroke={equippedBow.color2 || '#E05090'} strokeWidth="1" />
-                <ellipse cx="12" cy="0" rx="12" ry="8" fill={equippedBow.color || '#FF69B4'} stroke={equippedBow.color2 || '#E05090'} strokeWidth="1" />
-                <circle cx="0" cy="0" r="4" fill={equippedBow.color2 || '#E05090'} />
-                <ellipse cx="-8" cy="-3" rx="4" ry="2" fill="white" opacity="0.3" />
-                <ellipse cx="8" cy="-3" rx="4" ry="2" fill="white" opacity="0.3" />
-              </g>
-            )}
           </svg>
         </div>
         
