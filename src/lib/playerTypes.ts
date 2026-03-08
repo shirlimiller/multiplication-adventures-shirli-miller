@@ -30,6 +30,7 @@ export interface PlayerStats {
   // Legacy table stats for backward compatibility
   tableStats: Record<number, TableStat>;
   gameHistory: GameHistoryEntry[];
+  balloonHighScore: number;
 }
 
 export interface TableStat {
@@ -81,6 +82,7 @@ export const DEFAULT_PLAYER_STATS: Omit<PlayerStats, 'playerId'> = {
   divisionStats: {},
   tableStats: {},
   gameHistory: [],
+  balloonHighScore: 0,
 };
 
 export function createPlayer(name: string, avatar: string): Player {

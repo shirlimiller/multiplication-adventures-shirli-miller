@@ -352,12 +352,21 @@ const Index = () => {
           rangeMin={gameState.rangeMin}
           rangeMax={gameState.rangeMax}
           totalStars={currentStats.totalStars}
+          highScore={currentStats.balloonHighScore ?? 0}
           isDoubleStarsActive={isDoubleStarsActive}
           onGameEnd={(results) => {
-            // Award stars to player
-            if (results.totalStars > 0) {
+            // Award stars and update high score
+            if (results.totalStars > 0 || results.correctAnswers > (currentStats.balloonHighScore ?? 0)) {
+              const stats = getPlayerStats(selectedPlayer.id);
+              const newHighScore = Math.max(stats.balloonHighScore ?? 0, results.correctAnswers);
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
-              setCurrentStats(getPlayerStats(selectedPlayer.id));
+              // Save high score directly
+              const updatedStats = getPlayerStats(selectedPlayer.id);
+              updatedStats.balloonHighScore = newHighScore;
+              // Persist via localStorage
+              const storageKey = `math_game_stats_${selectedPlayer.id}`;
+              localStorage.setItem(storageKey, JSON.stringify(updatedStats));
+              setCurrentStats({ ...updatedStats });
             }
             setCurrentScreen('home');
           }}

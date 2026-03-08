@@ -19,6 +19,7 @@ interface BalloonGameProps {
   rangeMin: number;
   rangeMax: number;
   totalStars: number;
+  highScore: number;
   isDoubleStarsActive: boolean;
   onGameEnd: (results: { totalScore: number; totalStars: number; correctAnswers: number; totalQuestions: number }) => void;
   onBack: () => void;
@@ -83,6 +84,7 @@ export function BalloonGame({
   rangeMin,
   rangeMax,
   totalStars,
+  highScore,
   isDoubleStarsActive,
   onGameEnd,
   onBack,
@@ -263,25 +265,40 @@ export function BalloonGame({
     }
   }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty]);
 
+  const isNewHighScore = correctCount > highScore;
+
   if (gameOver) {
     return (
       <div className="min-h-screen min-h-[100dvh] bg-gradient-sky flex flex-col items-center justify-center p-6 gap-6">
-        <FoxMascot message={`סיימת עם ${correctCount} תשובות נכונות ו-${stars} כוכבים! 🎉`} />
-        <div className="grid grid-cols-3 gap-4 max-w-md w-full">
-          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
-            <div className="text-3xl mb-1">🎯</div>
-            <div className="text-2xl font-extrabold">{correctCount}</div>
-            <div className="text-xs text-muted-foreground">נכונות</div>
+        <FoxMascot message={isNewHighScore 
+          ? `שיא חדש! 🎉 ${correctCount} תשובות נכונות!` 
+          : `סיימת עם ${correctCount} תשובות נכונות ו-${stars} כוכבים! 🎉`
+        } />
+        
+        {isNewHighScore && (
+          <div className="text-2xl font-extrabold text-accent animate-bounce">🏆 שיא חדש! 🏆</div>
+        )}
+
+        <div className="grid grid-cols-4 gap-3 max-w-md w-full">
+          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
+            <div className="text-2xl mb-1">🎯</div>
+            <div className="text-xl font-extrabold">{correctCount}</div>
+            <div className="text-[10px] text-muted-foreground">נכונות</div>
           </div>
-          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
-            <div className="text-3xl mb-1">⭐</div>
-            <div className="text-2xl font-extrabold">{stars}</div>
-            <div className="text-xs text-muted-foreground">כוכבים</div>
+          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
+            <div className="text-2xl mb-1">⭐</div>
+            <div className="text-xl font-extrabold">{stars}</div>
+            <div className="text-[10px] text-muted-foreground">כוכבים</div>
           </div>
-          <div className="bg-card rounded-3xl p-4 shadow-card text-center">
-            <div className="text-3xl mb-1">🏆</div>
-            <div className="text-2xl font-extrabold">{score}</div>
-            <div className="text-xs text-muted-foreground">ניקוד</div>
+          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
+            <div className="text-2xl mb-1">🏆</div>
+            <div className="text-xl font-extrabold">{Math.max(highScore, correctCount)}</div>
+            <div className="text-[10px] text-muted-foreground">שיא</div>
+          </div>
+          <div className="bg-card rounded-3xl p-3 shadow-card text-center">
+            <div className="text-2xl mb-1">🎮</div>
+            <div className="text-xl font-extrabold">{score}</div>
+            <div className="text-[10px] text-muted-foreground">ניקוד</div>
           </div>
         </div>
         <div className="flex gap-4">
@@ -488,8 +505,10 @@ export function BalloonGame({
           <div className="text-[10px] md:text-xs text-muted-foreground">כוכבים ⭐</div>
         </div>
         <div className="text-center">
-          <div className="text-base md:text-lg font-bold">{maxBalloons}</div>
-          <div className="text-[10px] md:text-xs text-muted-foreground">בלונים 🎈</div>
+          <div className={`text-base md:text-lg font-bold ${correctCount > highScore ? 'text-accent' : ''}`}>
+            {Math.max(highScore, correctCount)}
+          </div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">שיא 🏆</div>
         </div>
       </div>
 
