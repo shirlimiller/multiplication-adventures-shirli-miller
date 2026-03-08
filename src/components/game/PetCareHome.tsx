@@ -56,6 +56,10 @@ export function PetCareHome({
   const [isEating, setIsEating] = useState(false);
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
   const [isWalking, setIsWalking] = useState(false);
+  const [showBalloonConfig, setShowBalloonConfig] = useState(false);
+  const [balloonOp, setBalloonOp] = useState<'multiply' | 'divide' | 'multiply_divide'>('multiply');
+  const [balloonNumbers, setBalloonNumbers] = useState<number[]>([]);
+  const [balloonAllNumbers, setBalloonAllNumbers] = useState(true);
   
   const {
     clothing,
