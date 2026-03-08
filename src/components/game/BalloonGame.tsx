@@ -478,6 +478,7 @@ export function BalloonGame({
         {balloons.map(balloon => (
           <button
             key={balloon.id}
+            data-balloon-id={balloon.id}
             onClick={() => handleBalloonClick(balloon)}
             disabled={balloon.popped}
             className={`absolute transition-transform cursor-pointer focus:outline-none ${
