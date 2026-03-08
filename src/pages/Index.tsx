@@ -5,7 +5,7 @@ import { PetCareHome } from '@/components/game/PetCareHome';
 import { SetupScreen, GameMode } from '@/components/game/SetupScreen';
 import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
-import { BossChallenge } from '@/components/game/BossChallenge';
+import { BalloonGame } from '@/components/game/BalloonGame';
 import { BackButton } from '@/components/game/BackButton';
 import { 
   GameState, 
