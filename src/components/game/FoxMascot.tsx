@@ -141,6 +141,9 @@ export function FoxMascot({
   const equippedGlasses = getEquippedItem('glasses');
   const equippedScarf = getEquippedItem('scarf');
   const equippedBow = getEquippedItem('bow');
+  const equippedShirt = getEquippedItem('shirt');
+  const equippedPants = getEquippedItem('pants');
+  const equippedShoes = getEquippedItem('shoes');
 
   // Blink transform
   const isBlink = idleAnimation === 'blink';
