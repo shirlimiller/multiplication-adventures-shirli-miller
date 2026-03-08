@@ -5,6 +5,14 @@ import { FlyingStars } from './FlyingStars';
 import { BackButton } from './BackButton';
 import { generateQuestionForOperation, getOperationSymbol, Operation, getEncouragingMessage } from '@/lib/gameUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { Gauge } from 'lucide-react';
+
+type Difficulty = 'easy' | 'medium' | 'hard';
+const DIFFICULTY_CONFIG: Record<Difficulty, { baseSpeed: number; label: string; emoji: string; color: string }> = {
+  easy:   { baseSpeed: 0.12, label: 'קל', emoji: '🐢', color: 'hsl(145 60% 55%)' },
+  medium: { baseSpeed: 0.22, label: 'בינוני', emoji: '🐇', color: 'hsl(45 90% 60%)' },
+  hard:   { baseSpeed: 0.35, label: 'קשה', emoji: '🚀', color: 'hsl(340 80% 65%)' },
+};
 
 interface BalloonGameProps {
   selectedNumbers: number[];
@@ -92,7 +100,9 @@ export function BalloonGame({
   const [foxMessage, setFoxMessage] = useState('לחץ על הבלון עם התשובה הנכונה! 🎈');
   const [showStarAnimation, setShowStarAnimation] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [speed, setSpeed] = useState(0.15);
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
+  const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
 
   const nextBalloonId = useRef(0);
   const animFrameRef = useRef<number>();
@@ -211,7 +221,7 @@ export function BalloonGame({
         const next = prev + 1;
         if (next % 3 === 0 && maxBalloons < 8) {
           setMaxBalloons(m => Math.min(8, m + 1));
-          setSpeed(s => Math.min(0.35, s + 0.02));
+          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 2.5, s + 0.02));
         }
         return next;
       });
@@ -270,8 +280,7 @@ export function BalloonGame({
               setStars(0);
               setCorrectCount(0);
               setQuestionNum(0);
-              setMaxBalloons(2);
-              setSpeed(0.15);
+              setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
               spawnBalloons();
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
@@ -295,6 +304,40 @@ export function BalloonGame({
       <div className="relative z-20 flex items-center justify-between p-4">
         <BackButton onClick={onBack} />
         <StarHUD totalStars={totalStars} sessionStars={stars} />
+        
+        {/* Difficulty toggle */}
+        <div className="relative">
+          <button
+            onClick={() => setShowDifficultyPicker(p => !p)}
+            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-full px-3 py-2 shadow-card border-2 border-border hover:scale-105 transition-transform"
+            title="שנה מהירות"
+          >
+            <Gauge className="w-5 h-5 text-muted-foreground" />
+            <span className="text-sm font-bold">{DIFFICULTY_CONFIG[difficulty].emoji}</span>
+          </button>
+          
+          {showDifficultyPicker && (
+            <div className="absolute top-full mt-2 right-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[120px]">
+              {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setDifficulty(key);
+                    setSpeed(cfg.baseSpeed);
+                    setShowDifficultyPicker(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
+                    difficulty === key ? 'bg-primary/20 scale-105' : 'hover:bg-muted'
+                  }`}
+                >
+                  <span>{cfg.emoji}</span>
+                  <span>{cfg.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
         {/* Lives */}
         <div className="flex gap-1">
           {Array.from({ length: 3 }, (_, i) => (
