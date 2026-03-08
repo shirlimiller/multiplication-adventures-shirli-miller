@@ -140,7 +140,7 @@ export function WalkSelector({ isOpen, onClose, onSelectWalk, currentHappiness, 
                 className={`bg-muted/50 rounded-3xl p-4 text-center transition-all duration-200 hover:scale-105 hover:shadow-card cursor-pointer flex flex-col items-center gap-2 ${!canAfford ? 'opacity-60' : ''}`}
               >
                 {/* Location emoji - large */}
-                <span className="text-6xl md:text-7xl">{location.emoji}</span>
+                <span className="text-7xl md:text-8xl">{location.emoji}</span>
                 
                 {/* Location name */}
                 <h3 className="font-extrabold text-foreground text-base">{location.name}</h3>

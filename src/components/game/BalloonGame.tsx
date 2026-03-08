@@ -99,7 +99,8 @@ export function BalloonGame({
   const [maxBalloons, setMaxBalloons] = useState(2);
   const [lives, setLives] = useState(3);
   const [confetti, setConfetti] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [showStarAnimation, setShowStarAnimation] = useState(false);
+   const [showStarAnimation, setShowStarAnimation] = useState(false);
+  const [flyingGoldStars, setFlyingGoldStars] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
@@ -235,6 +236,19 @@ export function BalloonGame({
       setStars(s => s + earned);
       setCorrectCount(c => c + 1);
       setShowStarAnimation(true);
+
+      // Flying gold stars animation for gold balloons
+      if (balloon.isGold) {
+        const balloonEl = document.querySelector(`[data-balloon-id="${balloon.id}"]`);
+        const rect = balloonEl?.getBoundingClientRect();
+        const startX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+        const startY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+        setFlyingGoldStars([
+          { id: Date.now(), startX, startY },
+          { id: Date.now() + 1, startX: startX + 20, startY: startY - 10 },
+        ]);
+        setTimeout(() => setFlyingGoldStars([]), 1500);
+      }
 
       // Confetti burst
       const newConfetti = Array.from({ length: 12 }, (_, i) => ({
@@ -464,6 +478,7 @@ export function BalloonGame({
         {balloons.map(balloon => (
           <button
             key={balloon.id}
+            data-balloon-id={balloon.id}
             onClick={() => handleBalloonClick(balloon)}
             disabled={balloon.popped}
             className={`absolute transition-transform cursor-pointer focus:outline-none ${
@@ -546,6 +561,43 @@ export function BalloonGame({
           <div className="text-[10px] md:text-xs text-muted-foreground">שיא 🏆</div>
         </div>
       </div>
+
+      {/* Flying gold stars to HUD */}
+      {flyingGoldStars.map((star, i) => {
+        // Target: StarHUD is at top-right
+        const targetX = window.innerWidth - 60;
+        const targetY = 24;
+        return (
+          <div
+            key={star.id}
+            className="fixed z-50 pointer-events-none"
+            style={{
+              left: star.startX,
+              top: star.startY,
+              transform: 'scale(1.5)',
+              animation: 'none',
+              transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+              ...((() => {
+                // Use requestAnimationFrame trick via CSS
+                return {};
+              })()),
+            }}
+            ref={(el) => {
+              if (el) {
+                // Trigger fly animation after mount
+                setTimeout(() => {
+                  el.style.left = `${targetX}px`;
+                  el.style.top = `${targetY}px`;
+                  el.style.transform = 'scale(0.3)';
+                  el.style.opacity = '0';
+                }, 50 + i * 150);
+              }
+            }}
+          >
+            <span className="text-3xl drop-shadow-[0_0_8px_gold]">⭐</span>
+          </div>
+        );
+      })}
 
       {/* Confetti burst CSS */}
       <style>{`
