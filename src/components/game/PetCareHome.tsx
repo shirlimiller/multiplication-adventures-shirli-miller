@@ -34,6 +34,70 @@ interface PetCareHomeProps {
   onPetInteract: () => void;
 }
 
+// Tiny head-only preview for the character switcher button
+function CharacterHeadPreview({ characterId }: { characterId: CharacterId }) {
+  if (characterId === 'cat') {
+    return (
+      <g transform="translate(0, 20)">
+        <ellipse cx="120" cy="88" rx="54" ry="56" fill="#B0B0C0" />
+        <ellipse cx="120" cy="102" rx="30" ry="24" fill="#E8E6F0" opacity="0.75" />
+        <path d="M 76 58 L 58 8 L 98 42 Z" fill="#B0B0C0" />
+        <path d="M 80 52 L 65 16 L 94 42 Z" fill="#F0B0C8" />
+        <path d="M 164 58 L 182 8 L 142 42 Z" fill="#B0B0C0" />
+        <path d="M 160 52 L 175 16 L 146 42 Z" fill="#F0B0C8" />
+        <ellipse cx="98" cy="86" rx="14" ry="16" fill="white" />
+        <circle cx="98" cy="86" r="9" fill="#40A060" />
+        <ellipse cx="98" cy="86" rx="2.5" ry="7" fill="#0A2018" />
+        <circle cx="95" cy="82" r="3" fill="white" />
+        <ellipse cx="142" cy="86" rx="14" ry="16" fill="white" />
+        <circle cx="142" cy="86" r="9" fill="#40A060" />
+        <ellipse cx="142" cy="86" rx="2.5" ry="7" fill="#0A2018" />
+        <circle cx="139" cy="82" r="3" fill="white" />
+        <path d="M 116 106 L 120 101 L 124 106 Z" fill="#F0A0B0" />
+        <path d="M 112 110 Q 116 114 120 110 Q 124 114 128 110" stroke="#808098" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      </g>
+    );
+  }
+  if (characterId === 'dog') {
+    return (
+      <g transform="translate(0, 20)">
+        <ellipse cx="120" cy="88" rx="50" ry="52" fill="#D8B060" />
+        <ellipse cx="72" cy="75" rx="18" ry="35" fill="#C09838" transform="rotate(15, 72, 75)" />
+        <ellipse cx="168" cy="75" rx="18" ry="35" fill="#C09838" transform="rotate(-15, 168, 75)" />
+        <ellipse cx="120" cy="108" rx="28" ry="22" fill="#FFF0D0" opacity="0.8" />
+        <ellipse cx="100" cy="85" rx="12" ry="14" fill="white" />
+        <circle cx="100" cy="85" r="7" fill="#553322" />
+        <circle cx="98" cy="82" r="3" fill="white" />
+        <ellipse cx="140" cy="85" rx="12" ry="14" fill="white" />
+        <circle cx="140" cy="85" r="7" fill="#553322" />
+        <circle cx="138" cy="82" r="3" fill="white" />
+        <ellipse cx="120" cy="103" rx="10" ry="7" fill="#444" />
+        <path d="M 112 112 Q 120 118 128 112" stroke="#8B6040" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        <ellipse cx="120" cy="119" rx="5" ry="4" fill="#FF8888" opacity="0.7" />
+      </g>
+    );
+  }
+  // Fox default
+  return (
+    <g transform="translate(0, 15)">
+      <ellipse cx="120" cy="100" rx="55" ry="60" fill="#FF9A4A" />
+      <ellipse cx="120" cy="115" rx="35" ry="28" fill="#FFD4A8" opacity="0.8" />
+      <path d="M 78 70 Q 62 25 80 40 Q 72 18 92 50 Z" fill="#FF9A4A" />
+      <path d="M 80 62 Q 70 35 82 42 Q 75 28 88 52 Z" fill="#FFB8D8" />
+      <path d="M 162 70 Q 178 25 160 40 Q 168 18 148 50 Z" fill="#FF9A4A" />
+      <path d="M 160 62 Q 170 35 158 42 Q 165 28 152 52 Z" fill="#FFB8D8" />
+      <ellipse cx="98" cy="95" rx="14" ry="16" fill="white" />
+      <circle cx="98" cy="95" r="8" fill="#222" />
+      <circle cx="96" cy="92" r="3" fill="white" />
+      <ellipse cx="142" cy="95" rx="14" ry="16" fill="white" />
+      <circle cx="142" cy="95" r="8" fill="#222" />
+      <circle cx="140" cy="92" r="3" fill="white" />
+      <ellipse cx="120" cy="118" rx="8" ry="6" fill="#E04888" />
+      <path d="M 114 125 Q 120 130 126 125" stroke="#8B4513" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
 export function PetCareHome({
   player,
   stats,
