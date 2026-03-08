@@ -563,20 +563,41 @@ export function BalloonGame({
       </div>
 
       {/* Flying gold stars to HUD */}
-      {flyingGoldStars.map((star, i) => (
-        <div
-          key={star.id}
-          className="fixed z-50 pointer-events-none"
-          style={{
-            left: star.startX,
-            top: star.startY,
-            animation: `fly-to-hud 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards`,
-            animationDelay: `${i * 150}ms`,
-          }}
-        >
-          <span className="text-3xl drop-shadow-[0_0_8px_gold]">⭐</span>
-        </div>
-      ))}
+      {flyingGoldStars.map((star, i) => {
+        // Target: StarHUD is at top-right
+        const targetX = window.innerWidth - 60;
+        const targetY = 24;
+        return (
+          <div
+            key={star.id}
+            className="fixed z-50 pointer-events-none"
+            style={{
+              left: star.startX,
+              top: star.startY,
+              transform: 'scale(1.5)',
+              animation: 'none',
+              transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+              ...((() => {
+                // Use requestAnimationFrame trick via CSS
+                return {};
+              })()),
+            }}
+            ref={(el) => {
+              if (el) {
+                // Trigger fly animation after mount
+                setTimeout(() => {
+                  el.style.left = `${targetX}px`;
+                  el.style.top = `${targetY}px`;
+                  el.style.transform = 'scale(0.3)';
+                  el.style.opacity = '0';
+                }, 50 + i * 150);
+              }
+            }}
+          >
+            <span className="text-3xl drop-shadow-[0_0_8px_gold]">⭐</span>
+          </div>
+        );
+      })}
 
       {/* Confetti burst CSS */}
       <style>{`
@@ -584,12 +605,9 @@ export function BalloonGame({
           0% { transform: scale(0) translate(0, 0); opacity: 1; }
           100% { transform: scale(1) translate(var(--tx, 30px), var(--ty, -50px)); opacity: 0; }
         }
-        @keyframes fly-to-hud {
-          0% { transform: scale(1.5); opacity: 1; }
-          80% { transform: scale(0.8) translate(calc(100vw - 80px - var(--start-x, 0px)), -80vh); opacity: 1; }
-          100% { transform: scale(0.3) translate(calc(100vw - 80px - var(--start-x, 0px)), -80vh); opacity: 0; }
-        }
       `}</style>
     </div>
+  );
+}
   );
 }
