@@ -30,6 +30,7 @@ export interface PlayerStats {
   // Legacy table stats for backward compatibility
   tableStats: Record<number, TableStat>;
   gameHistory: GameHistoryEntry[];
+  balloonHighScore: number;
 }
 
 export interface TableStat {
