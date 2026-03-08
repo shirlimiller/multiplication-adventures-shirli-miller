@@ -131,9 +131,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     emoji: '🧁',
     price: 50,
     hungerRestore: 25,
-    effect: 'double_stars',
-    effectDuration: 5 * 60 * 1000, // 5 minutes
-    description: 'כוכבים כפולים ל-5 דקות!',
+    description: 'טעים וקסום!',
   },
 ];
 
