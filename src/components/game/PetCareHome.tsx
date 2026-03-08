@@ -204,14 +204,37 @@ export function PetCareHome({
               onClick={() => setIsShopOpen(true)}
               className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl p-2.5 shadow-soft hover:scale-110 transition-all border-2 border-border"
             >
-              <span className="text-2xl md:text-3xl">🍕</span>
+              <svg width="32" height="32" viewBox="0 0 48 48" className="md:w-[36px] md:h-[36px]">
+                <defs>
+                  <radialGradient id="pizzaGrad" cx="45%" cy="40%" r="50%">
+                    <stop offset="0%" stopColor="#FFD060" />
+                    <stop offset="100%" stopColor="#E8A020" />
+                  </radialGradient>
+                </defs>
+                <path d="M24 6 L42 40 Q24 44 6 40 Z" fill="url(#pizzaGrad)" stroke="#C08018" strokeWidth="1.2" />
+                <path d="M24 6 L30 28 L18 28 Z" fill="white" opacity="0.15" />
+                <circle cx="20" cy="24" r="3.5" fill="#CC3030" /><circle cx="29" cy="28" r="3" fill="#CC3030" /><circle cx="24" cy="34" r="3" fill="#CC3030" />
+                <circle cx="19" cy="23" r="1.2" fill="white" opacity="0.4" /><circle cx="28" cy="27" r="1" fill="white" opacity="0.4" />
+                <path d="M6 40 Q24 44 42 40" fill="none" stroke="#B87818" strokeWidth="3" strokeLinecap="round" />
+              </svg>
               <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">אוכל</span>
             </button>
             <button
               onClick={() => setIsClothingShopOpen(true)}
               className="flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl p-2.5 shadow-soft hover:scale-110 transition-all border-2 border-border"
             >
-              <span className="text-2xl md:text-3xl">👕</span>
+              <svg width="32" height="32" viewBox="0 0 48 48" className="md:w-[36px] md:h-[36px]">
+                <defs>
+                  <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#60B0FF" />
+                    <stop offset="100%" stopColor="#3080D0" />
+                  </linearGradient>
+                </defs>
+                <path d="M14 14 L8 20 L14 24 L14 40 L34 40 L34 24 L40 20 L34 14 L28 18 Q24 22 20 18 Z" fill="url(#shirtGrad)" stroke="#2060A0" strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M14 14 L8 20 L14 24 Z" fill="white" opacity="0.2" />
+                <path d="M20 18 Q24 22 28 18" fill="none" stroke="#2060A0" strokeWidth="1" />
+                <path d="M18 16 L15 14 L20 18" fill="white" opacity="0.15" />
+              </svg>
               <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">בגדים</span>
             </button>
             <button
@@ -220,7 +243,23 @@ export function PetCareHome({
                 currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
               }`}
             >
-              <span className="text-2xl md:text-3xl">🌳</span>
+              <svg width="32" height="32" viewBox="0 0 48 48" className="md:w-[36px] md:h-[36px]">
+                <defs>
+                  <radialGradient id="treeTopGrad" cx="45%" cy="35%" r="55%">
+                    <stop offset="0%" stopColor="#60D060" />
+                    <stop offset="100%" stopColor="#208830" />
+                  </radialGradient>
+                  <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#A06830" />
+                    <stop offset="50%" stopColor="#885020" />
+                    <stop offset="100%" stopColor="#704018" />
+                  </linearGradient>
+                </defs>
+                <rect x="21" y="28" width="6" height="14" rx="1" fill="url(#trunkGrad)" />
+                <ellipse cx="24" cy="20" rx="16" ry="18" fill="url(#treeTopGrad)" />
+                <ellipse cx="18" cy="14" rx="6" ry="7" fill="white" opacity="0.18" />
+                <ellipse cx="24" cy="28" rx="12" ry="5" fill="#188828" opacity="0.5" />
+              </svg>
               <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground">טיול</span>
             </button>
           </div>
