@@ -410,6 +410,8 @@ const Index = () => {
             onPlayAgain={handlePlayAgain}
             onChangeSettings={handleReturnToMenu}
             playerStats={getPlayerStats(selectedPlayer.id)}
+            characterId={activeCharacter}
+            clothing={clothing}
           />
         </div>
       )}
