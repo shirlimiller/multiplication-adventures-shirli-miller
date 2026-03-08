@@ -361,7 +361,12 @@ export function BalloonGame({
 
       {/* Header */}
       <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
-        <BackButton onClick={onBack} />
+        <BackButton onClick={() => onGameEnd({
+          totalScore: score,
+          totalStars: stars,
+          correctAnswers: correctCount,
+          totalQuestions: questionNum,
+        })} />
         
         {/* Question display - center of header */}
         <div className="relative pointer-events-none">
