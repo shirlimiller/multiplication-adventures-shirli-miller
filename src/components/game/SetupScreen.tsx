@@ -4,6 +4,7 @@ import { FoxMascot } from './FoxMascot';
 import { checkDivisionTableMastery, checkTableMastery, Operation } from '@/lib/gameUtils';
 import { PlayerStats } from '@/lib/playerTypes';
 import { Award, Gamepad2, GraduationCap, Plus, Minus, X, Divide } from 'lucide-react';
+import { PartyPopper } from 'lucide-react';
 
 export type GameMode = 'training' | 'test' | 'balloon';
 
