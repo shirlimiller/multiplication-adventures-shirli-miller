@@ -166,11 +166,13 @@ export function BalloonGame({
           return { ...b, y: newY };
         });
 
-        // Recycle: wrong balloons that escaped are gone, correct balloon respawns from bottom
+        // Recycle: wrong balloons that escaped are gone, correct balloon respawns from bottom but loses a life
+        let correctEscaped = false;
         const recycled = updated.map(b => {
           if (b.popped) return b;
           if (b.y < -15) {
             if (b.isCorrect) {
+              correctEscaped = true;
               // Correct balloon reappears from bottom with new x position
               return {
                 ...b,
@@ -184,6 +186,16 @@ export function BalloonGame({
           }
           return b;
         });
+
+        if (correctEscaped) {
+          setLives(l => {
+            const newLives = l - 1;
+            if (newLives <= 0) {
+              setGameOver(true);
+            }
+            return newLives;
+          });
+        }
 
         return recycled;
       });
