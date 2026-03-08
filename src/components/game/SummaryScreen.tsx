@@ -28,6 +28,8 @@ export function SummaryScreen({
   playerStats,
   onPlayAgain,
   onChangeSettings,
+  characterId,
+  clothing,
 }: SummaryScreenProps) {
   const totalQuestions = answeredQuestions.length;
   const correctAnswers = answeredQuestions.filter(q => q.isCorrect).length;

@@ -257,7 +257,7 @@ export function GameScreen({
 
         {/* Game Content */}
         <div className="flex-1 flex flex-col items-center justify-center gap-6">
-          <FoxMascot message={getMessage()} animate={!showFeedback} />
+          <FoxMascot message={getMessage()} animate={!showFeedback} characterId={characterId} clothing={clothing} />
 
           {/* Question - displayed left to right, NO TIMER during question */}
           <div className="flex flex-col items-center gap-3">

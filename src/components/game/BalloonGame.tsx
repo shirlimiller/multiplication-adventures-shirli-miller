@@ -93,6 +93,8 @@ export function BalloonGame({
   isDoubleStarsActive,
   onGameEnd,
   onBack,
+  characterId,
+  clothing,
 }: BalloonGameProps) {
   const [question, setQuestion] = useState<Question>(() => generateQuestion(selectedNumbers, operation, rangeMin, rangeMax));
   const [balloons, setBalloons] = useState<Balloon[]>([]);

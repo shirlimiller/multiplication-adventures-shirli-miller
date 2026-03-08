@@ -22,7 +22,7 @@ interface BossQuestion {
   correct: boolean;
 }
 
-export function BossChallenge({ table, onComplete, onExit }: BossChallengeProps) {
+export function BossChallenge({ table, onComplete, onExit, characterId, clothing }: BossChallengeProps) {
   const [questions, setQuestions] = useState<BossQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [streak, setStreak] = useState(0);

@@ -22,9 +22,11 @@ export interface GameSetupConfig {
 interface SetupScreenProps {
   onStartGame: (config: GameSetupConfig) => void;
   playerStats: PlayerStats;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
-export function SetupScreen({ onStartGame, playerStats }: SetupScreenProps) {
+export function SetupScreen({ onStartGame, playerStats, characterId, clothing }: SetupScreenProps) {
   const [operation, setOperation] = useState<Operation>('multiply');
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [rangeMin, setRangeMin] = useState(1);
