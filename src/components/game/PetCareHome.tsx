@@ -261,15 +261,18 @@ export function PetCareHome({
           {/* Character Switcher — large button with pet head preview */}
           <button
             onClick={() => setIsCharacterSwitcherOpen(true)}
-            className="relative flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20"
+            className="relative flex flex-col items-center gap-0.5 bg-card/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-soft hover:shadow-card transition-all hover:scale-110 border-2 border-primary/20"
             title="החלף דמות"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20">
-              <svg viewBox="0 0 240 280" className="w-full h-full" style={{ marginTop: '-2px' }}>
+            <div className="w-20 h-20 md:w-24 md:h-24">
+              <svg viewBox="60 20 120 140" className="w-full h-full">
                 <CharacterHeadPreview characterId={activeCharacter} />
               </svg>
             </div>
-            <RefreshCw className="w-3.5 h-3.5 text-muted-foreground absolute -bottom-1 -left-1 bg-card rounded-full p-0.5 shadow-sm" />
+            <span className="text-[10px] md:text-xs font-bold text-primary flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" />
+              החלף דמות
+            </span>
           </button>
         </div>
 
