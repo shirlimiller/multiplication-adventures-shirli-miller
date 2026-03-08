@@ -204,18 +204,11 @@ export function PetCareHome({
           <HappinessBar happiness={currentHappiness} />
         </div>
 
-        {/* Balloon Game Launcher + Quick Stats */}
-        <div className="mt-6 flex gap-4 items-stretch">
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <Award className="w-6 h-6 text-yellow-500 mx-auto" />
-            <span className="text-sm font-bold">× {mulCertCount}/10</span>
-            <p className="text-xs text-muted-foreground">תעודות כפל</p>
-          </div>
-          
-          {/* Balloon Game Button */}
+        {/* Balloon Game Launcher */}
+        <div className="mt-6">
           <button
             onClick={() => setShowBalloonConfig(true)}
-            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-6 py-3 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
+            className="relative bg-gradient-to-br from-candy to-secondary rounded-2xl px-8 py-4 shadow-candy text-center hover:scale-105 transition-all group overflow-visible"
           >
             <span className="absolute -top-2 -right-1 text-xl animate-float">🎈</span>
             <span className="absolute -top-1 -left-2 text-lg animate-float" style={{ animationDelay: '0.5s' }}>🎈</span>
@@ -223,12 +216,6 @@ export function PetCareHome({
             <div className="text-3xl mb-1">🎈</div>
             <span className="text-sm font-extrabold text-white drop-shadow">משחק בלונים!</span>
           </button>
-          
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-soft text-center">
-            <Award className="w-6 h-6 text-sky-500 mx-auto" />
-            <span className="text-sm font-bold block">÷ {divCertCount}/10</span>
-            <p className="text-xs text-muted-foreground">תעודות חילוק</p>
-          </div>
         </div>
 
         {/* Balloon Config Modal */}
@@ -334,19 +321,38 @@ export function PetCareHome({
       </main>
 
       {/* Bottom Action Buttons */}
-      <footer className="relative z-10 p-6 flex justify-center items-end gap-3">
-        {/* Clothing Shop Button */}
-        <ClothingShopIcon 
-          onClick={() => setIsClothingShopOpen(true)} 
-          size="medium"
-        />
+      <footer className="relative z-10 p-6 flex justify-between items-end">
+        {/* Right side - Shop icons */}
+        <div className="flex gap-3 items-end">
+          {/* Food */}
+          <button
+            onClick={() => setIsShopOpen(true)}
+            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+          >
+            <span className="text-3xl">🍕</span>
+            <span className="text-[10px] font-bold text-muted-foreground">אוכל</span>
+          </button>
 
-        {/* Walk Button */}
-        <WalkIcon 
-          onClick={() => setIsWalkSelectorOpen(true)} 
-          size="medium"
-          needsWalk={currentHappiness < 40}
-        />
+          {/* Clothing */}
+          <button
+            onClick={() => setIsClothingShopOpen(true)}
+            className="flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 border-border"
+          >
+            <span className="text-3xl">👕</span>
+            <span className="text-[10px] font-bold text-muted-foreground">בגדים</span>
+          </button>
+
+          {/* Walk */}
+          <button
+            onClick={() => setIsWalkSelectorOpen(true)}
+            className={`flex flex-col items-center gap-1 bg-card/90 backdrop-blur-sm rounded-2xl p-3 shadow-soft hover:scale-110 transition-all border-2 ${
+              currentHappiness < 40 ? 'border-accent animate-pulse' : 'border-border'
+            }`}
+          >
+            <span className="text-3xl">🌳</span>
+            <span className="text-[10px] font-bold text-muted-foreground">טיול</span>
+          </button>
+        </div>
 
         {/* Play Button - Large and prominent */}
         <Button
@@ -356,12 +362,6 @@ export function PetCareHome({
           <Play className="w-8 h-8 ml-2 fill-white" />
           בוא נשחק!
         </Button>
-
-        {/* Candy Shop Button */}
-        <ShopIcon 
-          onClick={() => setIsShopOpen(true)} 
-          size="medium"
-        />
       </footer>
 
       {/* Candy Shop Modal */}
