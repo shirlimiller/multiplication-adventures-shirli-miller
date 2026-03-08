@@ -25,6 +25,8 @@ interface BalloonGameProps {
   isDoubleStarsActive: boolean;
   onGameEnd: (results: { totalScore: number; totalStars: number; correctAnswers: number; totalQuestions: number }) => void;
   onBack: () => void;
+  characterId?: CharacterId;
+  clothing?: PlayerClothing;
 }
 
 interface Balloon {
