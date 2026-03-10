@@ -25,7 +25,7 @@ export function CatBody({
   headRotation, isBlink, walkBob, walkRot, tailSwing,
   walkCycle, idleAnimation,
   equippedHat, equippedSunglasses, equippedShirt,
-  equippedPants, equippedShoes, uniqueId,
+  equippedPants, equippedShoes, equippedDress, uniqueId,
 }: CatBodyProps) {
   const legAnim = idleAnimation === 'walk';
   return (
