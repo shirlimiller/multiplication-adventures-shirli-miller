@@ -25,7 +25,7 @@ export function DogBody({
   headRotation, isBlink, walkBob, walkRot, tailSwing,
   walkCycle, idleAnimation,
   equippedHat, equippedSunglasses, equippedShirt,
-  equippedPants, equippedShoes, eatingPhase, uniqueId,
+  equippedPants, equippedShoes, equippedDress, eatingPhase, uniqueId,
 }: DogBodyProps) {
   const legAnim = idleAnimation === 'walk';
   return (
