@@ -1,6 +1,6 @@
 // Dog character SVG body — procedural, golden retriever style
 import { ClothingItem } from '@/lib/clothingTypes';
-import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from '../WearableItems';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe, WearableDress } from '../WearableItems';
 
 interface DogBodyProps {
   headRotation: { x: number; y: number };
