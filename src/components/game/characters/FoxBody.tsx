@@ -95,6 +95,7 @@ export function FoxBody({
         <ellipse cx="120" cy="205" rx="38" ry="35" fill={`url(#${uniqueId}foxBellyGrad)`} />
         <ellipse cx="112" cy="195" rx="20" ry="18" fill="white" opacity="0.12" />
         {equippedShirt && <g transform="translate(120, 195)"><WearableShirt item={equippedShirt} /></g>}
+        {equippedDress && <g transform="translate(120, 195)"><WearableDress item={equippedDress} /></g>}
       </g>
 
       {/* RIGHT LEG */}

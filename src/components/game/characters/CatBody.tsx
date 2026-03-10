@@ -93,6 +93,7 @@ export function CatBody({
         <path d="M 90 178 Q 120 172 150 178" fill="none" stroke="#70708A" strokeWidth="2" opacity="0.2" strokeLinecap="round" />
         <path d="M 92 188 Q 120 183 148 188" fill="none" stroke="#70708A" strokeWidth="2" opacity="0.15" strokeLinecap="round" />
         {equippedShirt && <g transform="translate(120, 188)"><WearableShirt item={equippedShirt} /></g>}
+        {equippedDress && <g transform="translate(120, 188)"><WearableDress item={equippedDress} /></g>}
       </g>
 
       {/* ===== LEGS — short, stubby kitten legs ===== */}

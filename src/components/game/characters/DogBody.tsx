@@ -87,6 +87,7 @@ export function DogBody({
         <ellipse cx="120" cy="165" rx="18" ry="12" fill="#FFE8C0" opacity="0.6" />
 
         {equippedShirt && <g transform="translate(120, 190)"><WearableShirt item={equippedShirt} /></g>}
+        {equippedDress && <g transform="translate(120, 190)"><WearableDress item={equippedDress} /></g>}
       </g>
 
       {/* ===== LEGS ===== */}
