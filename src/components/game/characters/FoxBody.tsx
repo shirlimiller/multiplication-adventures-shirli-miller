@@ -1,6 +1,6 @@
 // Fox character SVG body — extracted from FoxMascot for multi-character architecture
 import { ClothingItem } from '@/lib/clothingTypes';
-import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from '../WearableItems';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe, WearableDress } from '../WearableItems';
 
 interface FoxBodyProps {
   headRotation: { x: number; y: number };
