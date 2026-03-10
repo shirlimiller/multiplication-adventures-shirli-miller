@@ -387,7 +387,7 @@ export function BalloonGame({
       )}
 
       {/* Header */}
-      <div className="relative z-20 flex items-center justify-between p-2 md:p-4">
+      <div className="relative z-20 flex items-center justify-between p-2 md:p-4 pointer-events-none [&>*]:pointer-events-auto">
         <BackButton onClick={() => onGameEnd({
           totalScore: score,
           totalStars: stars,
@@ -413,7 +413,7 @@ export function BalloonGame({
       </div>
 
       {/* Lives + Difficulty - left side */}
-      <div className="absolute top-14 md:top-16 left-2 md:left-4 z-20 flex flex-col items-center gap-2">
+      <div className="absolute top-14 md:top-16 left-2 md:left-4 z-20 flex flex-col items-center gap-2 pointer-events-none [&>*]:pointer-events-auto">
         {/* Lives */}
         <div className="flex flex-col gap-0.5">
           {Array.from({ length: 3 }, (_, i) => (
