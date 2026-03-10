@@ -25,7 +25,7 @@ export function FoxBody({
   headRotation, isBlink, walkBob, walkRot, tailSwing,
   walkCycle, idleAnimation,
   equippedHat, equippedSunglasses, equippedShirt,
-  equippedPants, equippedShoes, isJumping, uniqueId,
+  equippedPants, equippedShoes, equippedDress, isJumping, uniqueId,
 }: FoxBodyProps) {
   const legAnim = idleAnimation === 'walk';
   return (
