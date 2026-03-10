@@ -15,6 +15,7 @@ interface FoxBodyProps {
   equippedShirt: ClothingItem | null;
   equippedPants: ClothingItem | null;
   equippedShoes: ClothingItem | null;
+  equippedDress: ClothingItem | null;
   eatingPhase: string;
   isJumping: boolean;
   uniqueId: string;
