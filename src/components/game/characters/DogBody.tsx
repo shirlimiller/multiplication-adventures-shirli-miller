@@ -1,6 +1,6 @@
 // Dog character SVG body — procedural, golden retriever style
 import { ClothingItem } from '@/lib/clothingTypes';
-import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from '../WearableItems';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe, WearableDress } from '../WearableItems';
 
 interface DogBodyProps {
   headRotation: { x: number; y: number };
@@ -15,6 +15,7 @@ interface DogBodyProps {
   equippedShirt: ClothingItem | null;
   equippedPants: ClothingItem | null;
   equippedShoes: ClothingItem | null;
+  equippedDress: ClothingItem | null;
   eatingPhase: string;
   isJumping: boolean;
   uniqueId: string;
@@ -24,7 +25,7 @@ export function DogBody({
   headRotation, isBlink, walkBob, walkRot, tailSwing,
   walkCycle, idleAnimation,
   equippedHat, equippedSunglasses, equippedShirt,
-  equippedPants, equippedShoes, eatingPhase, uniqueId,
+  equippedPants, equippedShoes, equippedDress, eatingPhase, uniqueId,
 }: DogBodyProps) {
   const legAnim = idleAnimation === 'walk';
   return (
@@ -86,6 +87,7 @@ export function DogBody({
         <ellipse cx="120" cy="165" rx="18" ry="12" fill="#FFE8C0" opacity="0.6" />
 
         {equippedShirt && <g transform="translate(120, 190)"><WearableShirt item={equippedShirt} /></g>}
+        {equippedDress && <g transform="translate(120, 190)"><WearableDress item={equippedDress} /></g>}
       </g>
 
       {/* ===== LEGS ===== */}

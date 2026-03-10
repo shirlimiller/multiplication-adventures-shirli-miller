@@ -1,6 +1,6 @@
-// Clothing shop types and data — 5 categories, 5+ items each
+// Clothing shop types and data — 6 categories with varied styles
 
-export type ClothingCategory = 'shirt' | 'pants' | 'shoes' | 'hat' | 'sunglasses';
+export type ClothingCategory = 'shirt' | 'pants' | 'shoes' | 'hat' | 'sunglasses' | 'dress';
 
 export interface ClothingItem {
   id: string;
@@ -11,6 +11,7 @@ export interface ClothingItem {
   color: string;
   color2: string;
   preview: string; // emoji for grid preview
+  style?: string; // sub-style for varied shapes (e.g. 'tank', 'hoodie', 'shorts')
 }
 
 export interface PlayerClothing {
@@ -21,6 +22,7 @@ export interface PlayerClothing {
     shirt?: string;
     pants?: string;
     shoes?: string;
+    dress?: string;
   };
 }
 
@@ -30,28 +32,43 @@ export const DEFAULT_PLAYER_CLOTHING: PlayerClothing = {
 };
 
 export const CLOTHING_CATEGORIES: { type: ClothingCategory; label: string; emoji: string }[] = [
+  { type: 'dress', label: 'שמלות', emoji: '👗' },
   { type: 'shirt', label: 'חולצות', emoji: '👕' },
   { type: 'pants', label: 'מכנסיים', emoji: '👖' },
   { type: 'shoes', label: 'נעליים', emoji: '👟' },
   { type: 'hat', label: 'כובעים', emoji: '🎩' },
-  { type: 'sunglasses', label: 'משקפי שמש', emoji: '🕶️' },
+  { type: 'sunglasses', label: 'משקפיים', emoji: '🕶️' },
 ];
 
 export const CLOTHING_ITEMS: ClothingItem[] = [
-  // ===== SHIRTS (6) =====
-  { id: 'shirt_blue', name: 'חולצה כחולה', price: 20, type: 'shirt', description: 'קלאסית ויפה!', color: '#4488CC', color2: '#2266AA', preview: '👕' },
-  { id: 'shirt_red', name: 'חולצה אדומה', price: 22, type: 'shirt', description: 'אש!', color: '#DD4444', color2: '#BB2222', preview: '👕' },
-  { id: 'shirt_green', name: 'חולצה ירוקה', price: 20, type: 'shirt', description: 'ירוק טבע!', color: '#44AA44', color2: '#228822', preview: '👕' },
-  { id: 'shirt_pink', name: 'חולצה ורודה', price: 22, type: 'shirt', description: 'ורוד מתוק!', color: '#FF88AA', color2: '#DD6688', preview: '👚' },
-  { id: 'shirt_star', name: 'חולצת כוכבים', price: 35, type: 'shirt', description: 'זורח כמו כוכב!', color: '#FFD700', color2: '#E8B800', preview: '⭐' },
-  { id: 'shirt_hero', name: 'גלימת גיבור', price: 60, type: 'shirt', description: 'גיבור על!', color: '#CC2020', color2: '#991010', preview: '🦸' },
+  // ===== DRESSES (6) =====
+  { id: 'dress_princess', name: 'שמלת נסיכה', price: 55, type: 'dress', description: 'שמלה מלכותית!', color: '#FF88CC', color2: '#DD66AA', preview: '👗', style: 'ballgown' },
+  { id: 'dress_summer', name: 'שמלת קיץ', price: 30, type: 'dress', description: 'קלילה ונוחה!', color: '#FFD700', color2: '#E8B800', preview: '👗', style: 'aline' },
+  { id: 'dress_party', name: 'שמלת מסיבה', price: 45, type: 'dress', description: 'נוצצת!', color: '#8844DD', color2: '#6622BB', preview: '👗', style: 'ballgown' },
+  { id: 'dress_sailor', name: 'שמלת מלחים', price: 35, type: 'dress', description: 'סגנון ימי!', color: '#2255BB', color2: '#113388', preview: '👗', style: 'aline' },
+  { id: 'dress_flower', name: 'שמלת פרחים', price: 40, type: 'dress', description: 'פרחונית ויפה!', color: '#44BB88', color2: '#228866', preview: '🌸', style: 'aline' },
+  { id: 'dress_tutu', name: 'חצאית טוטו', price: 50, type: 'dress', description: 'כמו רקדנית!', color: '#FF66AA', color2: '#DD4488', preview: '🩰', style: 'tutu' },
 
-  // ===== PANTS (5) =====
-  { id: 'pants_jeans', name: "ג'ינס כחול", price: 30, type: 'pants', description: "ג'ינס קלאסי!", color: '#3366AA', color2: '#224488', preview: '👖' },
-  { id: 'pants_red', name: 'מכנסיים אדומים', price: 25, type: 'pants', description: 'צבע חם!', color: '#DD4444', color2: '#BB2222', preview: '👖' },
-  { id: 'pants_green', name: 'מכנסיים ירוקים', price: 25, type: 'pants', description: 'סטייל צבאי!', color: '#4A7A3A', color2: '#3A5A2A', preview: '👖' },
-  { id: 'pants_purple', name: 'מכנסיים סגולים', price: 28, type: 'pants', description: 'צבע מיוחד!', color: '#8844CC', color2: '#6622AA', preview: '👖' },
-  { id: 'pants_yellow', name: 'מכנסיים צהובים', price: 22, type: 'pants', description: 'שמש ושמחה!', color: '#DDBB22', color2: '#BB9900', preview: '👖' },
+  // ===== SHIRTS (9) — with varied styles =====
+  { id: 'shirt_blue', name: 'חולצה כחולה', price: 20, type: 'shirt', description: 'קלאסית ויפה!', color: '#4488CC', color2: '#2266AA', preview: '👕', style: 'tshirt' },
+  { id: 'shirt_red', name: 'חולצה אדומה', price: 22, type: 'shirt', description: 'אש!', color: '#DD4444', color2: '#BB2222', preview: '👕', style: 'tshirt' },
+  { id: 'shirt_green', name: 'חולצה ירוקה', price: 20, type: 'shirt', description: 'ירוק טבע!', color: '#44AA44', color2: '#228822', preview: '👕', style: 'tshirt' },
+  { id: 'shirt_pink', name: 'חולצה ורודה', price: 22, type: 'shirt', description: 'ורוד מתוק!', color: '#FF88AA', color2: '#DD6688', preview: '👚', style: 'tshirt' },
+  { id: 'shirt_star', name: 'חולצת כוכבים', price: 35, type: 'shirt', description: 'זורח כמו כוכב!', color: '#FFD700', color2: '#E8B800', preview: '⭐', style: 'tshirt' },
+  { id: 'shirt_hero', name: 'גלימת גיבור', price: 60, type: 'shirt', description: 'גיבור על!', color: '#CC2020', color2: '#991010', preview: '🦸', style: 'tshirt' },
+  { id: 'shirt_tank', name: 'גופייה ספורטיבית', price: 18, type: 'shirt', description: 'נוח לספורט!', color: '#FF6644', color2: '#DD4422', preview: '🏃', style: 'tank' },
+  { id: 'shirt_hoodie', name: 'קפוצ׳ון', price: 40, type: 'shirt', description: 'חמים ומגניב!', color: '#5566CC', color2: '#3344AA', preview: '🧥', style: 'hoodie' },
+  { id: 'shirt_polo', name: 'חולצת פולו', price: 28, type: 'shirt', description: 'אלגנטי!', color: '#228855', color2: '#116633', preview: '👔', style: 'polo' },
+
+  // ===== PANTS (8) — with varied cuts =====
+  { id: 'pants_jeans', name: "ג'ינס כחול", price: 30, type: 'pants', description: "ג'ינס קלאסי!", color: '#3366AA', color2: '#224488', preview: '👖', style: 'long' },
+  { id: 'pants_red', name: 'מכנסיים אדומים', price: 25, type: 'pants', description: 'צבע חם!', color: '#DD4444', color2: '#BB2222', preview: '👖', style: 'long' },
+  { id: 'pants_green', name: 'מכנסיים ירוקים', price: 25, type: 'pants', description: 'סטייל צבאי!', color: '#4A7A3A', color2: '#3A5A2A', preview: '👖', style: 'long' },
+  { id: 'pants_purple', name: 'מכנסיים סגולים', price: 28, type: 'pants', description: 'צבע מיוחד!', color: '#8844CC', color2: '#6622AA', preview: '👖', style: 'long' },
+  { id: 'pants_yellow', name: 'מכנסיים צהובים', price: 22, type: 'pants', description: 'שמש ושמחה!', color: '#DDBB22', color2: '#BB9900', preview: '👖', style: 'long' },
+  { id: 'pants_shorts_blue', name: 'מכנסיים קצרים', price: 18, type: 'pants', description: 'נוח לקיץ!', color: '#4488BB', color2: '#226699', preview: '🩳', style: 'shorts' },
+  { id: 'pants_shorts_sport', name: 'מכנסי ספורט', price: 20, type: 'pants', description: 'לריצה!', color: '#222222', color2: '#111111', preview: '🩳', style: 'shorts' },
+  { id: 'pants_overalls', name: 'אוברול', price: 45, type: 'pants', description: 'סטייל מיוחד!', color: '#3366AA', color2: '#224488', preview: '👖', style: 'overalls' },
 
   // ===== SHOES (5) =====
   { id: 'shoes_red', name: 'נעלי ספורט אדומות', price: 35, type: 'shoes', description: 'מהירות!', color: '#DD3333', color2: '#BB1111', preview: '👟' },

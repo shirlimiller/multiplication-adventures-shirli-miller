@@ -1,6 +1,6 @@
 // Fox character SVG body — extracted from FoxMascot for multi-character architecture
 import { ClothingItem } from '@/lib/clothingTypes';
-import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from '../WearableItems';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe, WearableDress } from '../WearableItems';
 
 interface FoxBodyProps {
   headRotation: { x: number; y: number };
@@ -15,6 +15,7 @@ interface FoxBodyProps {
   equippedShirt: ClothingItem | null;
   equippedPants: ClothingItem | null;
   equippedShoes: ClothingItem | null;
+  equippedDress: ClothingItem | null;
   eatingPhase: string;
   isJumping: boolean;
   uniqueId: string;
@@ -24,7 +25,7 @@ export function FoxBody({
   headRotation, isBlink, walkBob, walkRot, tailSwing,
   walkCycle, idleAnimation,
   equippedHat, equippedSunglasses, equippedShirt,
-  equippedPants, equippedShoes, isJumping, uniqueId,
+  equippedPants, equippedShoes, equippedDress, isJumping, uniqueId,
 }: FoxBodyProps) {
   const legAnim = idleAnimation === 'walk';
   return (
@@ -94,6 +95,7 @@ export function FoxBody({
         <ellipse cx="120" cy="205" rx="38" ry="35" fill={`url(#${uniqueId}foxBellyGrad)`} />
         <ellipse cx="112" cy="195" rx="20" ry="18" fill="white" opacity="0.12" />
         {equippedShirt && <g transform="translate(120, 195)"><WearableShirt item={equippedShirt} /></g>}
+        {equippedDress && <g transform="translate(120, 195)"><WearableDress item={equippedDress} /></g>}
       </g>
 
       {/* RIGHT LEG */}

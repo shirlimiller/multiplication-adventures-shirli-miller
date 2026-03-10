@@ -146,8 +146,10 @@ export function FoxMascot({
   };
   const equippedHat = getEquippedItem('hat');
   const equippedSunglasses = getEquippedItem('sunglasses');
-  const equippedShirt = getEquippedItem('shirt');
-  const equippedPants = getEquippedItem('pants');
+  const equippedDress = getEquippedItem('dress');
+  // When wearing a dress, hide shirt and pants
+  const equippedShirt = equippedDress ? null : getEquippedItem('shirt');
+  const equippedPants = equippedDress ? null : getEquippedItem('pants');
   const equippedShoes = getEquippedItem('shoes');
 
   const isBlink = idleAnimation === 'blink';
@@ -159,7 +161,7 @@ export function FoxMascot({
     headRotation, isBlink, walkBob, walkRot, tailSwing,
     walkCycle, idleAnimation,
     equippedHat, equippedSunglasses, equippedShirt,
-    equippedPants, equippedShoes, eatingPhase, isJumping, uniqueId,
+    equippedPants, equippedShoes, equippedDress, eatingPhase, isJumping, uniqueId,
   };
 
   const renderBody = () => {
