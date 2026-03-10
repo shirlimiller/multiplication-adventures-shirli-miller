@@ -113,9 +113,59 @@ export function WearableSunglasses({ item }: { item: ClothingItem }) {
 
 // ===== SHIRTS — rendered inside #torso group =====
 export function WearableShirt({ item }: { item: ClothingItem }) {
+  const style = item.style || 'tshirt';
+  
+  if (style === 'tank') {
+    return (
+      <g id="wearable_shirt">
+        <ellipse cx="0" cy="0" rx="42" ry="40" fill={item.color} opacity="0.88" />
+        <ellipse cx="-6" cy="-8" rx="20" ry="16" fill="white" opacity="0.08" />
+        {/* Wide neckline */}
+        <path d="M -20 -35 Q 0 -22 20 -35" fill={item.color2} opacity="0.5" />
+        {/* No sleeves — exposed shoulders */}
+      </g>
+    );
+  }
+  
+  if (style === 'hoodie') {
+    return (
+      <g id="wearable_shirt">
+        <ellipse cx="0" cy="0" rx="54" ry="44" fill={item.color} opacity="0.9" />
+        <ellipse cx="-8" cy="-8" rx="24" ry="18" fill="white" opacity="0.06" />
+        {/* Hood behind head */}
+        <path d="M -25 -38 Q 0 -48 25 -38 Q 28 -30 25 -25 L -25 -25 Q -28 -30 -25 -38 Z" fill={item.color2} opacity="0.6" />
+        {/* Pocket */}
+        <path d="M -16 8 L 16 8 Q 18 10 18 14 L -18 14 Q -18 10 -16 8 Z" fill={item.color2} opacity="0.3" />
+        {/* Sleeves */}
+        <ellipse cx="-50" cy="-5" rx="16" ry="14" fill={item.color} opacity="0.85" />
+        <ellipse cx="50" cy="-5" rx="16" ry="14" fill={item.color} opacity="0.85" />
+        {/* Drawstrings */}
+        <line x1="-5" y1="-28" x2="-5" y2="-18" stroke={item.color2} strokeWidth="1" opacity="0.4" />
+        <line x1="5" y1="-28" x2="5" y2="-18" stroke={item.color2} strokeWidth="1" opacity="0.4" />
+      </g>
+    );
+  }
+  
+  if (style === 'polo') {
+    return (
+      <g id="wearable_shirt">
+        <ellipse cx="0" cy="0" rx="52" ry="42" fill={item.color} opacity="0.88" />
+        <ellipse cx="-8" cy="-8" rx="24" ry="18" fill="white" opacity="0.08" />
+        {/* Collar */}
+        <path d="M -18 -36 L -8 -28 L 0 -34 L 8 -28 L 18 -36" fill="none" stroke={item.color2} strokeWidth="2.5" strokeLinecap="round" />
+        {/* Buttons */}
+        <circle cx="0" cy="-24" r="2" fill={item.color2} opacity="0.5" />
+        <circle cx="0" cy="-16" r="2" fill={item.color2} opacity="0.5" />
+        {/* Sleeves */}
+        <ellipse cx="-48" cy="-5" rx="15" ry="12" fill={item.color} opacity="0.82" />
+        <ellipse cx="48" cy="-5" rx="15" ry="12" fill={item.color} opacity="0.82" />
+      </g>
+    );
+  }
+
+  // Default t-shirt style
   return (
     <g id="wearable_shirt">
-      {/* Main torso cover */}
       <ellipse cx="0" cy="0" rx="52" ry="42" fill={item.color} opacity="0.88" />
       <ellipse cx="-8" cy="-8" rx="24" ry="18" fill="white" opacity="0.08" />
       {/* Neckline */}
@@ -136,11 +186,106 @@ export function WearableShirt({ item }: { item: ClothingItem }) {
 
 // ===== PANTS — rendered on each leg group =====
 export function WearablePantsLeg({ item, side }: { item: ClothingItem; side: 'left' | 'right' }) {
-  const xOffset = side === 'left' ? 0 : 0;
+  const style = item.style || 'long';
+  
+  if (style === 'shorts') {
+    return (
+      <g id={`wearable_pants_${side}`}>
+        <ellipse cx={0} cy="-6" rx="19" ry="16" fill={item.color} opacity="0.88" />
+        <ellipse cx={-4} cy="-10" rx="8" ry="8" fill="white" opacity="0.06" />
+      </g>
+    );
+  }
+  
+  if (style === 'overalls') {
+    return (
+      <g id={`wearable_pants_${side}`}>
+        <ellipse cx={0} cy="-2" rx="19" ry="24" fill={item.color} opacity="0.88" />
+        <ellipse cx={-4} cy="-8" rx="8" ry="10" fill="white" opacity="0.06" />
+        {/* Strap */}
+        <line x1={side === 'left' ? -8 : 8} y1="-24" x2={side === 'left' ? -4 : 4} y2="-40" stroke={item.color2} strokeWidth="3" strokeLinecap="round" />
+        {/* Button on strap */}
+        <circle cx={side === 'left' ? -4 : 4} cy="-40" r="2.5" fill={item.color2} />
+      </g>
+    );
+  }
+  
+  // Default long pants
   return (
     <g id={`wearable_pants_${side}`}>
-      <ellipse cx={xOffset} cy="-2" rx="19" ry="24" fill={item.color} opacity="0.88" />
-      <ellipse cx={xOffset - 4} cy="-8" rx="8" ry="10" fill="white" opacity="0.06" />
+      <ellipse cx={0} cy="-2" rx="19" ry="24" fill={item.color} opacity="0.88" />
+      <ellipse cx={-4} cy="-8" rx="8" ry="10" fill="white" opacity="0.06" />
+    </g>
+  );
+}
+
+// ===== DRESS — covers torso and legs =====
+export function WearableDress({ item }: { item: ClothingItem }) {
+  const style = item.style || 'aline';
+  
+  if (style === 'ballgown') {
+    return (
+      <g id="wearable_dress">
+        {/* Bodice */}
+        <path d="M -35 -30 Q -40 0 -30 10 L 30 10 Q 40 0 35 -30 Q 20 -38 0 -40 Q -20 -38 -35 -30 Z" fill={item.color} opacity="0.9" />
+        <ellipse cx="-10" cy="-20" rx="14" ry="10" fill="white" opacity="0.1" />
+        {/* Neckline */}
+        <path d="M -18 -32 Q 0 -22 18 -32" fill={item.color2} opacity="0.4" />
+        {/* Sleeves */}
+        <ellipse cx="-38" cy="-18" rx="12" ry="10" fill={item.color} opacity="0.82" />
+        <ellipse cx="38" cy="-18" rx="12" ry="10" fill={item.color} opacity="0.82" />
+        {/* Wide skirt */}
+        <path d="M -30 10 Q -55 40 -60 70 Q -40 78 0 80 Q 40 78 60 70 Q 55 40 30 10 Z" fill={item.color} opacity="0.85" />
+        <path d="M -20 10 Q -30 40 -35 70 Q -10 75 0 76 Q 10 75 35 70 Q 30 40 20 10 Z" fill={item.color2} opacity="0.12" />
+        {/* Sparkles for princess/party */}
+        <circle cx="-15" cy="35" r="2" fill="white" opacity="0.4" />
+        <circle cx="10" cy="50" r="1.5" fill="white" opacity="0.3" />
+        <circle cx="-8" cy="60" r="2" fill="white" opacity="0.35" />
+        <circle cx="20" cy="30" r="1.5" fill="white" opacity="0.25" />
+      </g>
+    );
+  }
+  
+  if (style === 'tutu') {
+    return (
+      <g id="wearable_dress">
+        {/* Bodice */}
+        <path d="M -32 -28 Q -36 0 -26 8 L 26 8 Q 36 0 32 -28 Q 18 -36 0 -38 Q -18 -36 -32 -28 Z" fill={item.color} opacity="0.9" />
+        <path d="M -16 -30 Q 0 -20 16 -30" fill={item.color2} opacity="0.4" />
+        {/* Sleeves */}
+        <ellipse cx="-36" cy="-16" rx="10" ry="8" fill={item.color} opacity="0.82" />
+        <ellipse cx="36" cy="-16" rx="10" ry="8" fill={item.color} opacity="0.82" />
+        {/* Puffy tutu layers */}
+        <path d="M -28 8 Q -50 20 -52 35 Q -30 40 0 42 Q 30 40 52 35 Q 50 20 28 8 Z" fill={item.color} opacity="0.7" />
+        <path d="M -30 12 Q -48 25 -48 38 Q -25 44 0 46 Q 25 44 48 38 Q 48 25 30 12 Z" fill={item.color2} opacity="0.25" />
+        <path d="M -26 16 Q -44 28 -44 40 Q -20 47 0 48 Q 20 47 44 40 Q 44 28 26 16 Z" fill={item.color} opacity="0.5" />
+      </g>
+    );
+  }
+
+  // Default A-line dress
+  return (
+    <g id="wearable_dress">
+      {/* Bodice */}
+      <path d="M -34 -30 Q -38 0 -28 10 L 28 10 Q 38 0 34 -30 Q 18 -38 0 -40 Q -18 -38 -34 -30 Z" fill={item.color} opacity="0.9" />
+      <ellipse cx="-8" cy="-18" rx="14" ry="10" fill="white" opacity="0.08" />
+      {/* Neckline */}
+      <path d="M -16 -32 Q 0 -22 16 -32" fill={item.color2} opacity="0.4" />
+      {/* Sleeves */}
+      <ellipse cx="-36" cy="-18" rx="12" ry="10" fill={item.color} opacity="0.82" />
+      <ellipse cx="36" cy="-18" rx="12" ry="10" fill={item.color} opacity="0.82" />
+      {/* A-line skirt */}
+      <path d="M -28 10 Q -42 40 -45 68 Q -20 74 0 75 Q 20 74 45 68 Q 42 40 28 10 Z" fill={item.color} opacity="0.85" />
+      <path d="M -18 10 Q -25 40 -28 65 Q -5 70 0 70 Q 5 70 28 65 Q 25 40 18 10 Z" fill="white" opacity="0.06" />
+      {/* Flower pattern for flower dress */}
+      {item.id === 'dress_flower' && (
+        <>
+          <circle cx="-12" cy="30" r="3" fill="white" opacity="0.3" />
+          <circle cx="8" cy="45" r="2.5" fill="white" opacity="0.25" />
+          <circle cx="-5" cy="55" r="3" fill="white" opacity="0.2" />
+          <circle cx="15" cy="35" r="2" fill="white" opacity="0.2" />
+        </>
+      )}
     </g>
   );
 }
@@ -275,9 +420,30 @@ export function ShopPreviewSVG({ item, size = 40 }: { item: ClothingItem; size?:
       return (
         <svg width={s} height={s} viewBox="0 0 48 48">
           <g transform="translate(24, 24)">
-            <path d="M -10 -14 L -18 -8 L -10 -2 L -10 14 L 10 14 L 10 -2 L 18 -8 L 10 -14 L 6 -10 Q 0 -6 -6 -10 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
-            <path d="M -6 -10 Q 0 -6 6 -10" fill="none" stroke={item.color2} strokeWidth="0.8" />
-            {item.id === 'shirt_star' && <polygon points="0,-4 2,1 7,2 3,5 4,10 0,7 -4,10 -3,5 -7,2 -2,1" fill="white" opacity="0.35" />}
+            {(item.style === 'tank') ? (
+              <>
+                <path d="M -10 -14 L -10 14 L 10 14 L 10 -14 L 6 -10 Q 0 -6 -6 -10 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M -6 -10 Q 0 -6 6 -10" fill="none" stroke={item.color2} strokeWidth="0.8" />
+              </>
+            ) : (item.style === 'hoodie') ? (
+              <>
+                <path d="M -12 -16 L -18 -10 L -12 -2 L -12 14 L 12 14 L 12 -2 L 18 -10 L 12 -16 L 6 -12 Q 0 -8 -6 -12 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M -8 -16 Q 0 -20 8 -16" fill={item.color2} opacity="0.4" stroke={item.color2} strokeWidth="0.5" />
+                <rect x="-6" y="4" width="12" height="4" rx="1" fill={item.color2} opacity="0.3" />
+              </>
+            ) : (item.style === 'polo') ? (
+              <>
+                <path d="M -10 -14 L -18 -8 L -10 -2 L -10 14 L 10 14 L 10 -2 L 18 -8 L 10 -14 L 6 -10 Q 0 -6 -6 -10 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M -6 -10 L -3 -6 L 0 -9 L 3 -6 L 6 -10" fill="none" stroke={item.color2} strokeWidth="1" />
+                <circle cx="0" cy="-4" r="1" fill={item.color2} />
+              </>
+            ) : (
+              <>
+                <path d="M -10 -14 L -18 -8 L -10 -2 L -10 14 L 10 14 L 10 -2 L 18 -8 L 10 -14 L 6 -10 Q 0 -6 -6 -10 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M -6 -10 Q 0 -6 6 -10" fill="none" stroke={item.color2} strokeWidth="0.8" />
+                {item.id === 'shirt_star' && <polygon points="0,-4 2,1 7,2 3,5 4,10 0,7 -4,10 -3,5 -7,2 -2,1" fill="white" opacity="0.35" />}
+              </>
+            )}
           </g>
         </svg>
       );
@@ -285,8 +451,51 @@ export function ShopPreviewSVG({ item, size = 40 }: { item: ClothingItem; size?:
       return (
         <svg width={s} height={s} viewBox="0 0 48 48">
           <g transform="translate(24, 22)">
-            <path d="M -14 -8 L -14 16 Q -14 20 -8 20 L -2 20 L -2 -2 L 2 -2 L 2 20 L 8 20 Q 14 20 14 16 L 14 -8 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
-            <rect x="-14" y="-8" width="28" height="5" rx="1" fill={item.color2} opacity="0.3" />
+            {(item.style === 'shorts') ? (
+              <>
+                <path d="M -14 -8 L -14 8 Q -14 12 -8 12 L -2 12 L -2 -2 L 2 -2 L 2 12 L 8 12 Q 14 12 14 8 L 14 -8 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <rect x="-14" y="-8" width="28" height="5" rx="1" fill={item.color2} opacity="0.3" />
+              </>
+            ) : (item.style === 'overalls') ? (
+              <>
+                <path d="M -14 -8 L -14 16 Q -14 20 -8 20 L -2 20 L -2 -2 L 2 -2 L 2 20 L 8 20 Q 14 20 14 16 L 14 -8 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <line x1="-8" y1="-8" x2="-6" y2="-16" stroke={item.color2} strokeWidth="2" strokeLinecap="round" />
+                <line x1="8" y1="-8" x2="6" y2="-16" stroke={item.color2} strokeWidth="2" strokeLinecap="round" />
+                <circle cx="-6" cy="-16" r="1.5" fill={item.color2} />
+                <circle cx="6" cy="-16" r="1.5" fill={item.color2} />
+              </>
+            ) : (
+              <>
+                <path d="M -14 -8 L -14 16 Q -14 20 -8 20 L -2 20 L -2 -2 L 2 -2 L 2 20 L 8 20 Q 14 20 14 16 L 14 -8 Z" fill={item.color} stroke={item.color2} strokeWidth="1.2" strokeLinejoin="round" />
+                <rect x="-14" y="-8" width="28" height="5" rx="1" fill={item.color2} opacity="0.3" />
+              </>
+            )}
+          </g>
+        </svg>
+      );
+    case 'dress':
+      return (
+        <svg width={s} height={s} viewBox="0 0 48 48">
+          <g transform="translate(24, 24)">
+            {(item.style === 'ballgown') ? (
+              <>
+                <path d="M -6 -14 Q -10 -6 -8 0 L 8 0 Q 10 -6 6 -14 Q 0 -16 -6 -14 Z" fill={item.color} stroke={item.color2} strokeWidth="1" />
+                <path d="M -8 0 Q -18 10 -20 18 Q 0 22 20 18 Q 18 10 8 0 Z" fill={item.color} stroke={item.color2} strokeWidth="1" />
+                <circle cx="-4" cy="10" r="1" fill="white" opacity="0.4" />
+                <circle cx="5" cy="14" r="0.8" fill="white" opacity="0.3" />
+              </>
+            ) : (item.style === 'tutu') ? (
+              <>
+                <path d="M -6 -14 Q -10 -6 -8 0 L 8 0 Q 10 -6 6 -14 Q 0 -16 -6 -14 Z" fill={item.color} stroke={item.color2} strokeWidth="1" />
+                <path d="M -8 0 Q -16 6 -18 12 Q 0 16 18 12 Q 16 6 8 0 Z" fill={item.color} opacity="0.7" stroke={item.color2} strokeWidth="0.8" />
+                <path d="M -6 2 Q -14 8 -15 14 Q 0 18 15 14 Q 14 8 6 2 Z" fill={item.color2} opacity="0.25" />
+              </>
+            ) : (
+              <>
+                <path d="M -6 -14 Q -10 -6 -8 0 L 8 0 Q 10 -6 6 -14 Q 0 -16 -6 -14 Z" fill={item.color} stroke={item.color2} strokeWidth="1" />
+                <path d="M -8 0 Q -14 10 -16 18 Q 0 22 16 18 Q 14 10 8 0 Z" fill={item.color} stroke={item.color2} strokeWidth="1" />
+              </>
+            )}
           </g>
         </svg>
       );
