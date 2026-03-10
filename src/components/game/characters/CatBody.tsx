@@ -1,6 +1,6 @@
 // Cat character SVG body — gray kitten, cute and distinct from fox
 import { ClothingItem } from '@/lib/clothingTypes';
-import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe } from '../WearableItems';
+import { WearableHat, WearableSunglasses, WearableShirt, WearablePantsLeg, WearableShoe, WearableDress } from '../WearableItems';
 
 interface CatBodyProps {
   headRotation: { x: number; y: number };
