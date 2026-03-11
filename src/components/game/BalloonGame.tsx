@@ -555,6 +555,28 @@ export function BalloonGame({
         ))}
       </div>
 
+      {/* Slow down button at bottom */}
+      {!speedLocked && correctCount >= 3 && (
+        <div className="relative z-20 flex justify-center py-2 pointer-events-none">
+          <button
+            onClick={() => {
+              setSpeedLocked(true);
+              playClick();
+            }}
+            className="pointer-events-auto bg-accent/90 hover:bg-accent text-accent-foreground font-extrabold text-base md:text-lg px-6 py-2.5 rounded-full shadow-card border-2 border-accent hover:scale-105 transition-all animate-pulse"
+          >
+            🐢 הקטן מהירות
+          </button>
+        </div>
+      )}
+      {speedLocked && (
+        <div className="relative z-20 flex justify-center py-1">
+          <div className="text-xs font-bold text-muted-foreground bg-muted/60 px-3 py-1 rounded-full">
+            🔒 מהירות קבועה
+          </div>
+        </div>
+      )}
+
       {/* Score bar at bottom */}
       <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-2 md:p-3 flex justify-around items-center safe-area-bottom">
         <div className="text-center">
