@@ -347,7 +347,8 @@ export function BalloonGame({
               setCorrectCount(0);
               setQuestionNum(0);
               setMaxBalloons(2);
-              setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
+               setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
+              setSpeedLocked(false);
               spawnBalloons();
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
