@@ -266,12 +266,15 @@ export function BalloonGame({
       setConfetti(newConfetti);
       setTimeout(() => setConfetti([]), 1000);
 
-      // Increase difficulty every 3 correct answers
+      // Increase difficulty every correct answer (gradual speed increase)
       setCorrectCount(prev => {
         const next = prev + 1;
         if (next % 3 === 0 && maxBalloons < 8) {
           setMaxBalloons(m => Math.min(8, m + 1));
-          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 2.5, s + 0.02));
+        }
+        // Gradually increase speed with every correct answer, unless locked
+        if (!speedLocked) {
+          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 3, s + 0.008));
         }
         return next;
       });
