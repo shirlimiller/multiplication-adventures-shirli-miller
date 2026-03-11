@@ -110,6 +110,7 @@ export function BalloonGame({
   const [gameOver, setGameOver] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
+  const [speedLocked, setSpeedLocked] = useState(false);
   const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [startTime] = useState(() => Date.now());
