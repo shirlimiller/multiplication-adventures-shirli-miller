@@ -110,6 +110,7 @@ export function BalloonGame({
   const [gameOver, setGameOver] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [speed, setSpeed] = useState(DIFFICULTY_CONFIG.medium.baseSpeed);
+  const [speedLocked, setSpeedLocked] = useState(false);
   const [showDifficultyPicker, setShowDifficultyPicker] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [startTime] = useState(() => Date.now());
@@ -265,12 +266,15 @@ export function BalloonGame({
       setConfetti(newConfetti);
       setTimeout(() => setConfetti([]), 1000);
 
-      // Increase difficulty every 3 correct answers
+      // Increase difficulty every correct answer (gradual speed increase)
       setCorrectCount(prev => {
         const next = prev + 1;
         if (next % 3 === 0 && maxBalloons < 8) {
           setMaxBalloons(m => Math.min(8, m + 1));
-          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 2.5, s + 0.02));
+        }
+        // Gradually increase speed with every correct answer, unless locked
+        if (!speedLocked) {
+          setSpeed(s => Math.min(DIFFICULTY_CONFIG[difficulty].baseSpeed * 3, s + 0.008));
         }
         return next;
       });
@@ -295,7 +299,7 @@ export function BalloonGame({
         setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, shaking: false } : b));
       }, 500);
     }
-  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty]);
+  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty, speedLocked]);
 
   const isNewHighScore = correctCount > highScore;
 
@@ -343,7 +347,8 @@ export function BalloonGame({
               setCorrectCount(0);
               setQuestionNum(0);
               setMaxBalloons(2);
-              setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
+               setSpeed(DIFFICULTY_CONFIG[difficulty].baseSpeed);
+              setSpeedLocked(false);
               spawnBalloons();
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
@@ -549,6 +554,28 @@ export function BalloonGame({
           </div>
         ))}
       </div>
+
+      {/* Slow down button at bottom */}
+      {!speedLocked && correctCount >= 3 && (
+        <div className="relative z-20 flex justify-center py-2 pointer-events-none">
+          <button
+            onClick={() => {
+              setSpeedLocked(true);
+              playClick();
+            }}
+            className="pointer-events-auto bg-accent/90 hover:bg-accent text-accent-foreground font-extrabold text-base md:text-lg px-6 py-2.5 rounded-full shadow-card border-2 border-accent hover:scale-105 transition-all animate-pulse"
+          >
+            🐢 הקטן מהירות
+          </button>
+        </div>
+      )}
+      {speedLocked && (
+        <div className="relative z-20 flex justify-center py-1">
+          <div className="text-xs font-bold text-muted-foreground bg-muted/60 px-3 py-1 rounded-full">
+            🔒 מהירות קבועה
+          </div>
+        </div>
+      )}
 
       {/* Score bar at bottom */}
       <div className="relative z-20 bg-card/90 backdrop-blur-sm border-t-2 border-border p-2 md:p-3 flex justify-around items-center safe-area-bottom">
