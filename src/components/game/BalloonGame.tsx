@@ -417,7 +417,7 @@ export function BalloonGame({
         <StarHUD totalStars={totalStars} sessionStars={stars} />
       </div>
 
-      {/* Lives + Difficulty - left side */}
+      {/* Left side - Lives + Stats */}
       <div className="absolute top-14 md:top-16 left-2 md:left-4 z-20 flex flex-col items-center gap-2 pointer-events-none [&>*]:pointer-events-auto">
         {/* Lives */}
         <div className="flex flex-col gap-0.5">
@@ -428,60 +428,89 @@ export function BalloonGame({
           ))}
         </div>
 
-        {/* Difficulty gauge */}
-        <div className="relative">
-          <button
-            onClick={() => setShowDifficultyPicker(p => !p)}
-            className="flex flex-col items-center bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border-2 border-border hover:scale-105 transition-transform"
-          >
-            {/* Speedometer SVG gauge */}
-            <svg width="52" height="34" viewBox="0 0 100 60" className="md:w-[64px] md:h-[40px]">
-              {/* Green arc (easy) */}
-              <path d="M 10 55 A 45 45 0 0 1 36.7 13.5" fill="none" stroke="hsl(145 70% 45%)" strokeWidth="10" strokeLinecap="round" />
-              {/* Orange arc (medium) */}
-              <path d="M 36.7 13.5 A 45 45 0 0 1 63.3 13.5" fill="none" stroke="hsl(35 90% 55%)" strokeWidth="10" strokeLinecap="round" />
-              {/* Red arc (hard) */}
-              <path d="M 63.3 13.5 A 45 45 0 0 1 90 55" fill="none" stroke="hsl(0 75% 55%)" strokeWidth="10" strokeLinecap="round" />
-              {/* Needle */}
-              {(() => {
-                const angles: Record<Difficulty, number> = { easy: -70, medium: 0, hard: 70 };
-                const angle = angles[difficulty];
-                const rad = (angle - 90) * Math.PI / 180;
-                const nx = 50 + 30 * Math.cos(rad);
-                const ny = 55 + 30 * Math.sin(rad);
-                return (
-                  <>
-                    <line x1="50" y1="55" x2={nx} y2={ny} stroke="hsl(var(--foreground))" strokeWidth="3" strokeLinecap="round" />
-                    <circle cx="50" cy="55" r="5" fill="hsl(var(--foreground))" />
-                  </>
-                );
-              })()}
-            </svg>
-            <span className="text-[8px] text-muted-foreground font-medium">רמת קושי</span>
-            <span className="text-[10px] font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
-          </button>
-          
-          {showDifficultyPicker && (
-            <div className="absolute top-full mt-2 left-0 bg-card rounded-2xl shadow-card border-2 border-border p-2 flex flex-col gap-1 animate-fade-in z-30 min-w-[120px]">
-              {(Object.entries(DIFFICULTY_CONFIG) as [Difficulty, typeof DIFFICULTY_CONFIG.easy][]).map(([key, cfg]) => (
-                <button
-                  key={key}
-                  onClick={() => {
-                    setDifficulty(key);
-                    setSpeed(cfg.baseSpeed);
-                    setShowDifficultyPicker(false);
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
-                    difficulty === key ? 'bg-primary/20 scale-105 ring-2 ring-primary' : 'hover:bg-muted'
-                  }`}
-                >
-                  <span className="text-lg">{cfg.emoji}</span>
-                  <span>{cfg.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
+        {/* Stats under lives */}
+        <div className="flex flex-col items-center gap-1 bg-card/80 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border border-border">
+          <div className="flex items-center gap-1">
+            <span className="text-sm">⭐</span>
+            <span className="text-sm font-extrabold">{stars}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-sm">🎯</span>
+            <span className="text-sm font-extrabold">{correctCount}</span>
+          </div>
+          <div className="w-full h-px bg-border" />
+          <div className="flex items-center gap-1">
+            <span className="text-[10px]">🏆</span>
+            <span className={`text-xs font-bold ${correctCount > highScore ? 'text-accent' : 'text-muted-foreground'}`}>
+              {Math.max(highScore, correctCount)}
+            </span>
+          </div>
         </div>
+      </div>
+
+      {/* Right side - Speed controls */}
+      <div className="absolute top-14 md:top-16 right-2 md:right-4 z-20 flex flex-col items-center gap-1 pointer-events-none [&>*]:pointer-events-auto">
+        {/* Increase speed button */}
+        <button
+          onClick={() => {
+            playClick();
+            const keys: Difficulty[] = ['easy', 'medium', 'hard'];
+            const idx = keys.indexOf(difficulty);
+            if (idx < keys.length - 1) {
+              const next = keys[idx + 1];
+              setDifficulty(next);
+              setSpeed(DIFFICULTY_CONFIG[next].baseSpeed);
+              setSpeedLocked(false);
+            }
+          }}
+          disabled={difficulty === 'hard'}
+          className="bg-card/90 backdrop-blur-sm rounded-xl px-2 py-1 shadow-card border border-border hover:scale-105 transition-transform disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <span className="text-lg">🐇</span>
+        </button>
+
+        {/* Speedometer gauge */}
+        <div className="flex flex-col items-center bg-card/90 backdrop-blur-sm rounded-2xl px-2 py-1.5 shadow-card border-2 border-border">
+          <svg width="52" height="34" viewBox="0 0 100 60" className="md:w-[64px] md:h-[40px]">
+            <path d="M 10 55 A 45 45 0 0 1 36.7 13.5" fill="none" stroke="hsl(145 70% 45%)" strokeWidth="10" strokeLinecap="round" />
+            <path d="M 36.7 13.5 A 45 45 0 0 1 63.3 13.5" fill="none" stroke="hsl(35 90% 55%)" strokeWidth="10" strokeLinecap="round" />
+            <path d="M 63.3 13.5 A 45 45 0 0 1 90 55" fill="none" stroke="hsl(0 75% 55%)" strokeWidth="10" strokeLinecap="round" />
+            {(() => {
+              const angles: Record<Difficulty, number> = { easy: -70, medium: 0, hard: 70 };
+              const angle = angles[difficulty];
+              const rad = (angle - 90) * Math.PI / 180;
+              const nx = 50 + 30 * Math.cos(rad);
+              const ny = 55 + 30 * Math.sin(rad);
+              return (
+                <>
+                  <line x1="50" y1="55" x2={nx} y2={ny} stroke="hsl(var(--foreground))" strokeWidth="3" strokeLinecap="round" />
+                  <circle cx="50" cy="55" r="5" fill="hsl(var(--foreground))" />
+                </>
+              );
+            })()}
+          </svg>
+          <span className="text-[10px] font-extrabold">{DIFFICULTY_CONFIG[difficulty].label}</span>
+          {speedLocked && <span className="text-[8px] text-muted-foreground">🔒 קבוע</span>}
+        </div>
+
+        {/* Decrease speed button */}
+        <button
+          onClick={() => {
+            playClick();
+            const keys: Difficulty[] = ['easy', 'medium', 'hard'];
+            const idx = keys.indexOf(difficulty);
+            if (idx > 0) {
+              const prev = keys[idx - 1];
+              setDifficulty(prev);
+              setSpeed(DIFFICULTY_CONFIG[prev].baseSpeed);
+              setSpeedLocked(true);
+            }
+          }}
+          disabled={difficulty === 'easy'}
+          className="bg-card/90 backdrop-blur-sm rounded-xl px-2 py-1 shadow-card border border-border hover:scale-105 transition-transform disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <span className="text-lg">🐢</span>
+        </button>
       </div>
 
       {/* Balloon area - takes all remaining space */}
