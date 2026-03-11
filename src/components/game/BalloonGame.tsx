@@ -299,7 +299,7 @@ export function BalloonGame({
         setBalloons(prev => prev.map(b => b.id === balloon.id ? { ...b, shaking: false } : b));
       }, 500);
     }
-  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty]);
+  }, [gameOver, isDoubleStarsActive, maxBalloons, playClick, playCorrectFast, playIncorrect, question.answer, spawnBalloons, difficulty, speedLocked]);
 
   const isNewHighScore = correctCount > highScore;
 
