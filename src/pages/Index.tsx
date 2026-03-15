@@ -7,6 +7,7 @@ import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { BossChallenge } from '@/components/game/BossChallenge';
 import { BalloonGame } from '@/components/game/BalloonGame';
+import { SnakeGame } from '@/components/game/SnakeGame';
 import { BackButton } from '@/components/game/BackButton';
 import { 
   GameState, 

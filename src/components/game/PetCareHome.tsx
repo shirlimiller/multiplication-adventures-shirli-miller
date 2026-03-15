@@ -109,6 +109,7 @@ export function PetCareHome({
   isDoubleStarsActive,
   onStartGame,
   onStartBalloonGame,
+  onStartSnakeGame,
   onSwitchPlayer,
   onPurchase,
   onSpendStars,
