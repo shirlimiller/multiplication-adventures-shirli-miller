@@ -27,6 +27,7 @@ interface FoodItem {
   pos: Position;
   value: number;
   isCorrect: boolean;
+  icon: string;
   id: number;
 }
 
@@ -35,14 +36,15 @@ interface Question {
   answer: number;
 }
 
-// Denser grid — smaller cells, more room to maneuver
-const GRID_W = 32;
-const GRID_H = 24;
+const GRID_W = 20;
+const GRID_H = 14;
+const TICK_MS = 180;
 
-// Speed: ~3x slower (Nokia-style), then progressive difficulty
-const BASE_TICK_MS = 780;
-const MIN_TICK_MS = 270;
-const MAX_TICK_MS = 960;
+const FOOD_ICONS = ['🍎', '🌰', '🧁', '⭐', '🍪', '🍓', '🍊', '🍬'];
+
+function randomIcon() {
+  return FOOD_ICONS[Math.floor(Math.random() * FOOD_ICONS.length)];
+}
 
 function generateQuestion(selectedNumbers: number[], operation: Operation, rangeMin: number, rangeMax: number): Question {
   const result = generateQuestionForOperation({ operation, selectedNumbers, rangeMin, rangeMax });
@@ -76,6 +78,20 @@ function getRandomFreePos(occupied: Set<string>): Position {
   return pos;
 }
 
+// Decorative tiles for the meadow
+const MEADOW_DECORATIONS: { x: number; y: number; emoji: string }[] = (() => {
+  const decs: { x: number; y: number; emoji: string }[] = [];
+  const flowers = ['🌸', '🌼', '🌷', '🌻', '🌺'];
+  for (let i = 0; i < 12; i++) {
+    decs.push({
+      x: Math.floor(Math.random() * GRID_W),
+      y: Math.floor(Math.random() * GRID_H),
+      emoji: flowers[Math.floor(Math.random() * flowers.length)],
+    });
+  }
+  return decs;
+})();
+
 export function SnakeGame({
   selectedNumbers,
   operation,
@@ -89,7 +105,7 @@ export function SnakeGame({
   clothing,
 }: SnakeGameProps) {
   const [snake, setSnake] = useState<Position[]>([
-    { x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 },
+    { x: 10, y: 7 }, { x: 9, y: 7 }, { x: 8, y: 7 },
   ]);
   const [direction, setDirection] = useState<Direction>('right');
   const [question, setQuestion] = useState<Question>(() => generateQuestion(selectedNumbers, operation, rangeMin, rangeMax));
@@ -101,29 +117,16 @@ export function SnakeGame({
   const [gameOver, setGameOver] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [paused, setPaused] = useState(true);
-  const [tickMs, setTickMs] = useState(BASE_TICK_MS);
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; pos: Position } | null>(null);
   const [wrongExplanation, setWrongExplanation] = useState<{ question: string; answer: number } | null>(null);
 
   const dirRef = useRef(direction);
-  const directionQueueRef = useRef<Direction[]>([]);
   const snakeRef = useRef(snake);
   const foodsRef = useRef(foods);
   const gameOverRef = useRef(gameOver);
   const pausedRef = useRef(paused);
   const nextFoodId = useRef(0);
   const questionRef = useRef(question);
-
-  const MAX_QUEUE = 3;
-  const pushDirection = useCallback((dir: Direction) => {
-    const opposites: Record<Direction, Direction> = { up: 'down', down: 'up', left: 'right', right: 'left' };
-    const current = dirRef.current;
-    if (dir === opposites[current]) return;
-    const q = directionQueueRef.current;
-    if (q.length >= MAX_QUEUE) return;
-    if (q.length > 0 && q[q.length - 1] === dir) return;
-    q.push(dir);
-  }, []);
 
   const { playCorrect, playCorrectFast, playIncorrect, playClick } = useSoundEffects();
 
@@ -135,11 +138,11 @@ export function SnakeGame({
   useEffect(() => { pausedRef.current = paused; }, [paused]);
   useEffect(() => { questionRef.current = question; }, [question]);
 
-  // Generate food items for current question — exactly 3: 1 correct + 2 wrong
+  // Generate food items for current question
   const spawnFoods = useCallback((q: Question, currentSnake: Position[]) => {
     const occupied = new Set(currentSnake.map(s => `${s.x},${s.y}`));
     const wrongs = generateWrongAnswers(q.answer, 2);
-    const values = [q.answer, ...wrongs].sort(() => Math.random() - 0.5);
+    const values = [q.answer, q.answer, ...wrongs].sort(() => Math.random() - 0.5);
     const newFoods: FoodItem[] = values.map(val => {
       const pos = getRandomFreePos(occupied);
       occupied.add(`${pos.x},${pos.y}`);
@@ -147,6 +150,7 @@ export function SnakeGame({
         pos,
         value: val,
         isCorrect: val === q.answer,
+        icon: randomIcon(),
         id: nextFoodId.current++,
       };
     });
@@ -166,28 +170,25 @@ export function SnakeGame({
     }
   }, [showIntro]);
 
-  // Keyboard: push to queue for instant response (order preserved at high speed)
+  // Keyboard controls
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (showIntro) { setShowIntro(false); setPaused(false); return; }
       const map: Record<string, Direction> = {
-        ArrowUp: 'up', ArrowDown: 'down',
-        ArrowLeft: 'left', ArrowRight: 'right',
+        ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
         w: 'up', s: 'down', a: 'left', d: 'right',
       };
       const dir = map[e.key];
       if (!dir) return;
       e.preventDefault();
-      pushDirection(dir);
-      const q = directionQueueRef.current;
-      if (q.length > 0) {
-        dirRef.current = q[0];
-        setDirection(q[0]);
+      const opposites: Record<Direction, Direction> = { up: 'down', down: 'up', left: 'right', right: 'left' };
+      if (dir !== opposites[dirRef.current]) {
+        setDirection(dir);
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [showIntro, pushDirection]);
+  }, [showIntro]);
 
   // Touch/swipe controls
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -212,26 +213,17 @@ export function SnakeGame({
     } else {
       dir = dy > 0 ? 'down' : 'up';
     }
-    pushDirection(dir);
-    const q = directionQueueRef.current;
-    if (q.length > 0) {
-      dirRef.current = q[0];
-      setDirection(q[0]);
+    if (dir !== opposites[dirRef.current]) {
+      setDirection(dir);
     }
     touchStart.current = null;
-  }, [pushDirection]);
+  }, []);
 
   // Game loop
   useEffect(() => {
     if (gameOver) return;
     const interval = setInterval(() => {
       if (pausedRef.current || gameOverRef.current) return;
-
-      const q = directionQueueRef.current;
-      if (q.length > 0) {
-        dirRef.current = q.shift()!;
-      }
-      setDirection(dirRef.current);
 
       const currentSnake = [...snakeRef.current];
       const head = { ...currentSnake[0] };
@@ -265,7 +257,6 @@ export function SnakeGame({
       if (eatenFood) {
         if (eatenFood.isCorrect) {
           playCorrectFast();
-          setTickMs(prev => Math.max(MIN_TICK_MS, prev - 45));
           // Grow: add 2 segments (don't remove tail + add head = +1, plus keep 1 more)
           const grown = [head, ...currentSnake]; // already +1 from head, keep tail
           setSnake(grown);
@@ -291,7 +282,6 @@ export function SnakeGame({
           ate = true;
         } else {
           playIncorrect();
-          setTickMs(prev => Math.min(MAX_TICK_MS, prev + 45));
           // Shrink: remove 1 segment
           const shrunk = newSnake.slice(0, -2); // remove tail twice (head added + remove 2 = net -1)
           if (shrunk.length < 2) {
@@ -315,24 +305,22 @@ export function SnakeGame({
         newSnake.pop();
         setSnake(newSnake);
       }
-    }, tickMs);
+    }, TICK_MS);
 
     return () => clearInterval(interval);
-  }, [gameOver, tickMs, selectedNumbers, operation, rangeMin, rangeMax, spawnFoods, playCorrectFast, playIncorrect]);
+  }, [gameOver, selectedNumbers, operation, rangeMin, rangeMax, spawnFoods, playCorrectFast, playIncorrect]);
 
   const isNewHighScore = maxScore > highScore;
 
-  // D-Pad controls for mobile (same queue as keyboard)
+  // D-Pad controls for mobile
   const handleDirClick = useCallback((dir: Direction) => {
     if (showIntro) { setShowIntro(false); setPaused(false); return; }
     playClick();
-    pushDirection(dir);
-    const q = directionQueueRef.current;
-    if (q.length > 0) {
-      dirRef.current = q[0];
-      setDirection(q[0]);
+    const opposites: Record<Direction, Direction> = { up: 'down', down: 'up', left: 'right', right: 'left' };
+    if (dir !== opposites[dirRef.current]) {
+      setDirection(dir);
     }
-  }, [showIntro, playClick, pushDirection]);
+  }, [showIntro, playClick]);
 
   if (gameOver) {
     return (
@@ -368,19 +356,16 @@ export function SnakeGame({
           <button
             onClick={() => {
               setGameOver(false);
-              setSnake([{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              setSnake([{ x: 10, y: 7 }, { x: 9, y: 7 }, { x: 8, y: 7 }]);
               setDirection('right');
-              dirRef.current = 'right';
-              directionQueueRef.current = [];
               setScore(3);
               setMaxScore(3);
               setStars(0);
               setCorrectCount(0);
               setPaused(false);
-              setTickMs(BASE_TICK_MS);
               const q = generateQuestion(selectedNumbers, operation, rangeMin, rangeMax);
               setQuestion(q);
-              spawnFoods(q, [{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              spawnFoods(q, [{ x: 10, y: 7 }, { x: 9, y: 7 }, { x: 8, y: 7 }]);
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
           >
@@ -397,18 +382,7 @@ export function SnakeGame({
     );
   }
 
-  // Fixed cell size so grid doesn't shift on mobile (use vmin for stability)
-  const cellSizeVmin = Math.min(90 / GRID_W, 90 / GRID_H);
-  const boardStyle = {
-    display: 'grid' as const,
-    gridTemplateColumns: `repeat(${GRID_W}, 1fr)`,
-    gridTemplateRows: `repeat(${GRID_H}, 1fr)`,
-    width: `${GRID_W * cellSizeVmin}vmin`,
-    height: `${GRID_H * cellSizeVmin}vmin`,
-    minWidth: 0,
-    minHeight: 0,
-    background: 'linear-gradient(135deg, hsl(100 45% 88%), hsl(120 40% 82%))',
-  };
+  const cellSize = `min(calc((100vw - 2rem) / ${GRID_W}), calc((100vh - 14rem) / ${GRID_H}))`;
 
   return (
     <div
@@ -437,10 +411,19 @@ export function SnakeGame({
         </div>
       )}
 
-      {/* Header — no question here; it's on the snake head */}
+      {/* Header */}
       <div className="relative z-20 flex items-center justify-between p-2 md:p-4 pointer-events-none [&>*]:pointer-events-auto">
         <BackButton onClick={() => onGameEnd({ totalStars: stars, correctAnswers: correctCount, maxLength: maxScore })} />
-        <div className="flex-1" />
+
+        {/* Question display */}
+        <div className="relative pointer-events-none">
+          <div className="bg-card/95 backdrop-blur-sm border-[3px] border-success shadow-lg px-4 py-2 md:px-8 md:py-3 rounded-full text-center">
+            <div className="text-2xl md:text-4xl font-extrabold text-foreground" dir="ltr">
+              {question.text} = ?
+            </div>
+          </div>
+        </div>
+
         <StarHUD totalStars={totalStars} sessionStars={stars} />
       </div>
 
@@ -475,11 +458,18 @@ export function SnakeGame({
         </div>
       )}
 
-      {/* Game grid — fixed size so cells don't shift on mobile */}
-      <div className="flex-1 flex items-center justify-center px-2 pb-2 min-h-0">
+      {/* Game grid */}
+      <div className="flex-1 flex items-center justify-center px-2 pb-2">
         <div
-          className="relative border-4 border-[hsl(100_30%_60%)] rounded-2xl overflow-hidden shadow-lg flex-shrink-0"
-          style={boardStyle}
+          className="relative border-4 border-[hsl(100_30%_60%)] rounded-2xl overflow-hidden shadow-lg"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${GRID_W}, 1fr)`,
+            gridTemplateRows: `repeat(${GRID_H}, 1fr)`,
+            width: `calc(${GRID_W} * ${cellSize})`,
+            height: `calc(${GRID_H} * ${cellSize})`,
+            background: 'linear-gradient(135deg, hsl(100 45% 88%), hsl(120 40% 82%))',
+          }}
         >
           {/* Checkerboard grass pattern */}
           {Array.from({ length: GRID_W * GRID_H }, (_, i) => {
@@ -489,7 +479,6 @@ export function SnakeGame({
             return (
               <div
                 key={i}
-                className="min-w-0 min-h-0 overflow-hidden"
                 style={{
                   gridColumn: x + 1,
                   gridRow: y + 1,
@@ -499,13 +488,29 @@ export function SnakeGame({
             );
           })}
 
-          {/* Snake body — fixed ratio so it doesn't expand/shrink */}
+          {/* Meadow decorations */}
+          {MEADOW_DECORATIONS.map((d, i) => (
+            <div
+              key={`dec-${i}`}
+              className="pointer-events-none opacity-30 text-xs flex items-center justify-center"
+              style={{
+                gridColumn: d.x + 1,
+                gridRow: d.y + 1,
+                position: 'relative',
+                zIndex: 1,
+              }}
+            >
+              {d.emoji}
+            </div>
+          ))}
+
+          {/* Snake body */}
           {snake.map((seg, i) => {
             const isHead = i === 0;
             return (
               <div
                 key={`snake-${i}`}
-                className="flex items-center justify-center min-w-0 min-h-0 overflow-visible"
+                className="flex items-center justify-center"
                 style={{
                   gridColumn: seg.x + 1,
                   gridRow: seg.y + 1,
@@ -513,39 +518,32 @@ export function SnakeGame({
                   zIndex: 10,
                 }}
               >
-                {isHead && (
-                  <div
-                    className="absolute left-0 right-0 bottom-full text-center whitespace-nowrap pointer-events-none"
-                    style={{ zIndex: 15, marginBottom: '2%' }}
-                  >
-                    <span className="text-[2vmin] font-bold text-foreground/95 bg-card/95 rounded px-1.5 py-0.5 shadow-sm border border-[hsl(100_30%_60%)]" dir="ltr">
-                      {question.text} = ?
-                    </span>
-                  </div>
-                )}
                 <div
-                  className={`rounded-full flex-shrink-0 ${isHead ? 'shadow-md' : ''}`}
+                  className={`rounded-full transition-all duration-100 ${isHead ? 'shadow-md' : ''}`}
                   style={{
-                    width: '78%',
-                    height: '78%',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    aspectRatio: '1',
+                    width: '90%',
+                    height: '90%',
                     background: isHead
                       ? 'linear-gradient(135deg, hsl(145 70% 45%), hsl(155 60% 35%))'
-                      : `hsl(145 ${60 - Math.min(i * 2, 20)}% ${50 + Math.min(i, 15)}%)`,
+                      : `hsl(145 ${60 - i * 2}% ${50 + i}%)`,
                     border: isHead ? '2px solid hsl(145 70% 30%)' : 'none',
                   }}
-                />
+                >
+                  {isHead && (
+                    <div className="w-full h-full flex items-center justify-center text-[0.6em]">
+                      {direction === 'right' ? '👀' : direction === 'left' ? '👀' : direction === 'up' ? '👀' : '👀'}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
 
-          {/* Food items — number only, no icon; fixed size so cells don't grow */}
+          {/* Food items */}
           {foods.map(food => (
             <div
               key={food.id}
-              className="flex items-center justify-center min-w-0 min-h-0"
+              className="flex items-center justify-center animate-scale-in"
               style={{
                 gridColumn: food.pos.x + 1,
                 gridRow: food.pos.y + 1,
@@ -553,9 +551,12 @@ export function SnakeGame({
                 zIndex: 5,
               }}
             >
-              <span className="text-sm font-extrabold bg-card/95 rounded px-1 py-0.5 shadow-sm leading-none select-none" style={{ fontSize: 'clamp(8px, 2.2vmin, 14px)' }}>
-                {food.value}
-              </span>
+              <div className="flex flex-col items-center">
+                <span className="text-lg md:text-xl leading-none">{food.icon}</span>
+                <span className="text-[8px] md:text-[10px] font-extrabold bg-card/90 rounded-full px-1 leading-tight shadow-sm">
+                  {food.value}
+                </span>
+              </div>
             </div>
           ))}
 
@@ -578,42 +579,34 @@ export function SnakeGame({
         </div>
       </div>
 
-      {/* Mobile D-Pad controls — large, touch-friendly */}
+      {/* Mobile D-Pad controls */}
       <div className="flex justify-center pb-4 md:pb-6 z-20">
-        <div className="relative w-40 h-40 md:w-44 md:h-44">
+        <div className="relative w-32 h-32 md:w-36 md:h-36">
           {/* Up */}
           <button
-            type="button"
             onClick={() => handleDirClick('up')}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
-            aria-label="למעלה"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 md:w-12 md:h-12 bg-card/90 backdrop-blur-sm rounded-xl shadow-card border-2 border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
           >
             ▲
           </button>
           {/* Down */}
           <button
-            type="button"
             onClick={() => handleDirClick('down')}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
-            aria-label="למטה"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10 md:w-12 md:h-12 bg-card/90 backdrop-blur-sm rounded-xl shadow-card border-2 border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
           >
             ▼
           </button>
           {/* Left */}
           <button
-            type="button"
             onClick={() => handleDirClick('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
-            aria-label="שמאלה"
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-card/90 backdrop-blur-sm rounded-xl shadow-card border-2 border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
           >
             ◄
           </button>
           {/* Right */}
           <button
-            type="button"
             onClick={() => handleDirClick('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
-            aria-label="ימינה"
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-card/90 backdrop-blur-sm rounded-xl shadow-card border-2 border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
           >
             ►
           </button>
