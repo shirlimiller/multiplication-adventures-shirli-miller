@@ -129,9 +129,13 @@ export function PetCareHome({
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
   const [isWalking, setIsWalking] = useState(false);
   const [showBalloonConfig, setShowBalloonConfig] = useState(false);
+  const [showSnakeConfig, setShowSnakeConfig] = useState(false);
   const [balloonOps, setBalloonOps] = useState<Set<string>>(new Set(['multiply']));
   const [balloonNumbers, setBalloonNumbers] = useState<number[]>([]);
   const [balloonAllNumbers, setBalloonAllNumbers] = useState(true);
+  const [snakeOps, setSnakeOps] = useState<Set<string>>(new Set(['multiply']));
+  const [snakeNumbers, setSnakeNumbers] = useState<number[]>([]);
+  const [snakeAllNumbers, setSnakeAllNumbers] = useState(true);
 
   const toggleBalloonOp = (op: string) => {
     setBalloonOps(prev => {
