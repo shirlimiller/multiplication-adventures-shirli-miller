@@ -140,11 +140,15 @@ export function PetCareHome({
   const toggleBalloonOp = (op: string) => {
     setBalloonOps(prev => {
       const next = new Set(prev);
-      if (next.has(op)) {
-        if (next.size > 1) next.delete(op); // must keep at least one
-      } else {
-        next.add(op);
-      }
+      if (next.has(op)) { if (next.size > 1) next.delete(op); } else { next.add(op); }
+      return next;
+    });
+  };
+
+  const toggleSnakeOp = (op: string) => {
+    setSnakeOps(prev => {
+      const next = new Set(prev);
+      if (next.has(op)) { if (next.size > 1) next.delete(op); } else { next.add(op); }
       return next;
     });
   };
@@ -153,8 +157,13 @@ export function PetCareHome({
     const ops = Array.from(balloonOps);
     if (ops.length === 1) return ops[0] as Operation;
     if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
-    // For mixed including add/subtract, we'll use the first one for now
-    // The balloon game handles mixed via the operation prop
+    return ops[0] as Operation;
+  };
+
+  const getResolvedSnakeOperation = (): Operation => {
+    const ops = Array.from(snakeOps);
+    if (ops.length === 1) return ops[0] as Operation;
+    if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
     return ops[0] as Operation;
   };
   
