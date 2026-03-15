@@ -407,6 +407,36 @@ const Index = () => {
         />
       )}
 
+      {currentScreen === 'snake' && selectedPlayer && currentStats && (
+        <SnakeGame
+          selectedNumbers={gameState.selectedTables}
+          operation={gameState.operation}
+          rangeMin={gameState.rangeMin}
+          rangeMax={gameState.rangeMax}
+          totalStars={currentStats.totalStars}
+          highScore={currentStats.snakeHighScore ?? 0}
+          characterId={activeCharacter}
+          clothing={clothing}
+          onGameEnd={(results) => {
+            if (results.totalStars > 0 || results.maxLength > (currentStats.snakeHighScore ?? 0)) {
+              const stats = getPlayerStats(selectedPlayer.id);
+              const newHighScore = Math.max(stats.snakeHighScore ?? 0, results.maxLength);
+              updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
+              const updatedStats = getPlayerStats(selectedPlayer.id);
+              updatedStats.snakeHighScore = newHighScore;
+              const storageKey = `math_game_stats_${selectedPlayer.id}`;
+              localStorage.setItem(storageKey, JSON.stringify(updatedStats));
+              setCurrentStats({ ...updatedStats });
+            }
+            setCurrentScreen('home');
+          }}
+          onBack={() => {
+            if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
+            setCurrentScreen('home');
+          }}
+        />
+      )}
+
       {currentScreen === 'summary' && selectedPlayer && (
         <div className="relative">
           <div className="absolute top-4 right-4 z-10">
