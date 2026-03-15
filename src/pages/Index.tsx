@@ -24,7 +24,7 @@ import { usePetState } from '@/hooks/usePetState';
 import { useClothingState } from '@/hooks/useClothingState';
 import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 
-type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
+type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon' | 'snake';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
