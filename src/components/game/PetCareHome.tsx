@@ -26,6 +26,7 @@ interface PetCareHomeProps {
   isDoubleStarsActive: boolean;
   onStartGame: () => void;
   onStartBalloonGame: (config: { operation: Operation; selectedNumbers: number[] }) => void;
+  onStartSnakeGame: (config: { operation: Operation; selectedNumbers: number[] }) => void;
   onSwitchPlayer: () => void;
   onPurchase: (item: ShopItem) => boolean;
   onSpendStars: (amount: number) => void;
