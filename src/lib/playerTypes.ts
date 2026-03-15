@@ -84,6 +84,7 @@ export const DEFAULT_PLAYER_STATS: Omit<PlayerStats, 'playerId'> = {
   tableStats: {},
   gameHistory: [],
   balloonHighScore: 0,
+  snakeHighScore: 0,
 };
 
 export function createPlayer(name: string, avatar: string): Player {
