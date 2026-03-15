@@ -31,6 +31,7 @@ export interface PlayerStats {
   tableStats: Record<number, TableStat>;
   gameHistory: GameHistoryEntry[];
   balloonHighScore: number;
+  snakeHighScore: number;
 }
 
 export interface TableStat {
