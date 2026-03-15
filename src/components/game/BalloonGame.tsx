@@ -240,7 +240,7 @@ export function BalloonGame({
       const earned = balloon.isGold ? 2 : 1;
       setScore(s => s + (balloon.isGold ? 20 : 10));
       setStars(s => s + earned);
-      setCorrectCount(c => c + 1);
+      
       setShowStarAnimation(true);
 
       // Flying gold stars animation for gold balloons
