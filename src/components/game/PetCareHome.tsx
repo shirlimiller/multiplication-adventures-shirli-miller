@@ -445,6 +445,33 @@ export function PetCareHome({
               </svg>
               <span className="text-[9px] md:text-[10px] font-extrabold text-white drop-shadow block leading-tight">משחק<br/>בלונים</span>
             </button>
+
+            {/* Snake Game Icon */}
+            <button
+              onClick={() => setShowSnakeConfig(true)}
+              className="relative bg-gradient-to-br from-[hsl(100_45%_55%)] to-[hsl(145_50%_40%)] rounded-2xl p-3 shadow-card text-center hover:scale-105 transition-all group overflow-visible"
+            >
+              <svg width="48" height="56" viewBox="0 0 100 120" className="mx-auto mb-1 drop-shadow-md md:w-[56px] md:h-[64px]">
+                {/* Snake body */}
+                <path d="M20 90 Q20 60 40 50 Q60 40 60 20 Q60 10 70 10 Q80 10 80 20" 
+                      fill="none" stroke="hsl(145 60% 45%)" strokeWidth="12" strokeLinecap="round" />
+                <path d="M20 90 Q20 60 40 50 Q60 40 60 20 Q60 10 70 10 Q80 10 80 20" 
+                      fill="none" stroke="hsl(145 70% 55%)" strokeWidth="8" strokeLinecap="round" />
+                {/* Snake head */}
+                <circle cx="80" cy="18" r="10" fill="hsl(145 70% 45%)" />
+                <circle cx="77" cy="14" r="3" fill="white" />
+                <circle cx="77" cy="14" r="1.5" fill="hsl(var(--foreground))" />
+                <circle cx="84" cy="14" r="3" fill="white" />
+                <circle cx="84" cy="14" r="1.5" fill="hsl(var(--foreground))" />
+                {/* Tongue */}
+                <path d="M88 20 L96 18 M96 18 L98 14 M96 18 L98 22" stroke="hsl(340 80% 55%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Food items around */}
+                <text x="15" y="40" fontSize="16">🍎</text>
+                <text x="45" y="100" fontSize="14">🌰</text>
+                <text x="75" y="70" fontSize="12">⭐</text>
+              </svg>
+              <span className="text-[9px] md:text-[10px] font-extrabold text-white drop-shadow block leading-tight">נחש<br/>החשבון</span>
+            </button>
           </div>
         </div>
 
