@@ -309,6 +309,16 @@ const Index = () => {
             setGameMode('balloon');
             setCurrentScreen('balloon');
           }}
+          onStartSnakeGame={(config) => {
+            setGameState(prev => ({
+              ...prev,
+              selectedTables: config.selectedNumbers,
+              operation: config.operation,
+              rangeMin: 1,
+              rangeMax: 10,
+            }));
+            setCurrentScreen('snake');
+          }}
           onSwitchPlayer={handleBackToProfiles}
           onPurchase={handlePurchase}
           onSpendStars={handleSpendStars}
