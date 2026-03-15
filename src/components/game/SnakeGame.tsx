@@ -240,8 +240,8 @@ export function SnakeGame({
       // Move head
       if (dir === 'up') head.y--;
       else if (dir === 'down') head.y++;
-      else if (dir === 'left') head.x++;
-      else head.x--;
+      else if (dir === 'left') head.x--;
+      else head.x++;
 
       // Wall collision
       if (head.x < 0 || head.x >= GRID_W || head.y < 0 || head.y >= GRID_H) {
