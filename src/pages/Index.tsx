@@ -7,6 +7,7 @@ import { GameScreen } from '@/components/game/GameScreen';
 import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { BossChallenge } from '@/components/game/BossChallenge';
 import { BalloonGame } from '@/components/game/BalloonGame';
+import { SnakeGame } from '@/components/game/SnakeGame';
 import { BackButton } from '@/components/game/BackButton';
 import { 
   GameState, 
@@ -23,7 +24,7 @@ import { usePetState } from '@/hooks/usePetState';
 import { useClothingState } from '@/hooks/useClothingState';
 import { CharacterId, getPlayerCharacter, setPlayerCharacter } from '@/lib/characterTypes';
 
-type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon';
+type Screen = 'welcome' | 'profiles' | 'home' | 'setup' | 'game' | 'summary' | 'boss' | 'balloon' | 'snake';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
@@ -308,6 +309,16 @@ const Index = () => {
             setGameMode('balloon');
             setCurrentScreen('balloon');
           }}
+          onStartSnakeGame={(config) => {
+            setGameState(prev => ({
+              ...prev,
+              selectedTables: config.selectedNumbers,
+              operation: config.operation,
+              rangeMin: 1,
+              rangeMax: 10,
+            }));
+            setCurrentScreen('snake');
+          }}
           onSwitchPlayer={handleBackToProfiles}
           onPurchase={handlePurchase}
           onSpendStars={handleSpendStars}
@@ -383,6 +394,36 @@ const Index = () => {
               updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
               const updatedStats = getPlayerStats(selectedPlayer.id);
               updatedStats.balloonHighScore = newHighScore;
+              const storageKey = `math_game_stats_${selectedPlayer.id}`;
+              localStorage.setItem(storageKey, JSON.stringify(updatedStats));
+              setCurrentStats({ ...updatedStats });
+            }
+            setCurrentScreen('home');
+          }}
+          onBack={() => {
+            if (selectedPlayer) setCurrentStats(getPlayerStats(selectedPlayer.id));
+            setCurrentScreen('home');
+          }}
+        />
+      )}
+
+      {currentScreen === 'snake' && selectedPlayer && currentStats && (
+        <SnakeGame
+          selectedNumbers={gameState.selectedTables}
+          operation={gameState.operation}
+          rangeMin={gameState.rangeMin}
+          rangeMax={gameState.rangeMax}
+          totalStars={currentStats.totalStars}
+          highScore={currentStats.snakeHighScore ?? 0}
+          characterId={activeCharacter}
+          clothing={clothing}
+          onGameEnd={(results) => {
+            if (results.totalStars > 0 || results.maxLength > (currentStats.snakeHighScore ?? 0)) {
+              const stats = getPlayerStats(selectedPlayer.id);
+              const newHighScore = Math.max(stats.snakeHighScore ?? 0, results.maxLength);
+              updatePlayerStats(selectedPlayer.id, [], gameState.selectedTables, results.totalStars, gameState.operation);
+              const updatedStats = getPlayerStats(selectedPlayer.id);
+              updatedStats.snakeHighScore = newHighScore;
               const storageKey = `math_game_stats_${selectedPlayer.id}`;
               localStorage.setItem(storageKey, JSON.stringify(updatedStats));
               setCurrentStats({ ...updatedStats });

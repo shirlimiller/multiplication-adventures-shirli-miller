@@ -26,6 +26,7 @@ interface PetCareHomeProps {
   isDoubleStarsActive: boolean;
   onStartGame: () => void;
   onStartBalloonGame: (config: { operation: Operation; selectedNumbers: number[] }) => void;
+  onStartSnakeGame: (config: { operation: Operation; selectedNumbers: number[] }) => void;
   onSwitchPlayer: () => void;
   onPurchase: (item: ShopItem) => boolean;
   onSpendStars: (amount: number) => void;
@@ -108,6 +109,7 @@ export function PetCareHome({
   isDoubleStarsActive,
   onStartGame,
   onStartBalloonGame,
+  onStartSnakeGame,
   onSwitchPlayer,
   onPurchase,
   onSpendStars,
@@ -128,18 +130,26 @@ export function PetCareHome({
   const [eatingFood, setEatingFood] = useState<ShopItem | null>(null);
   const [isWalking, setIsWalking] = useState(false);
   const [showBalloonConfig, setShowBalloonConfig] = useState(false);
+  const [showSnakeConfig, setShowSnakeConfig] = useState(false);
   const [balloonOps, setBalloonOps] = useState<Set<string>>(new Set(['multiply']));
   const [balloonNumbers, setBalloonNumbers] = useState<number[]>([]);
   const [balloonAllNumbers, setBalloonAllNumbers] = useState(true);
+  const [snakeOps, setSnakeOps] = useState<Set<string>>(new Set(['multiply']));
+  const [snakeNumbers, setSnakeNumbers] = useState<number[]>([]);
+  const [snakeAllNumbers, setSnakeAllNumbers] = useState(true);
 
   const toggleBalloonOp = (op: string) => {
     setBalloonOps(prev => {
       const next = new Set(prev);
-      if (next.has(op)) {
-        if (next.size > 1) next.delete(op); // must keep at least one
-      } else {
-        next.add(op);
-      }
+      if (next.has(op)) { if (next.size > 1) next.delete(op); } else { next.add(op); }
+      return next;
+    });
+  };
+
+  const toggleSnakeOp = (op: string) => {
+    setSnakeOps(prev => {
+      const next = new Set(prev);
+      if (next.has(op)) { if (next.size > 1) next.delete(op); } else { next.add(op); }
       return next;
     });
   };
@@ -148,8 +158,13 @@ export function PetCareHome({
     const ops = Array.from(balloonOps);
     if (ops.length === 1) return ops[0] as Operation;
     if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
-    // For mixed including add/subtract, we'll use the first one for now
-    // The balloon game handles mixed via the operation prop
+    return ops[0] as Operation;
+  };
+
+  const getResolvedSnakeOperation = (): Operation => {
+    const ops = Array.from(snakeOps);
+    if (ops.length === 1) return ops[0] as Operation;
+    if (ops.includes('multiply') && ops.includes('divide') && ops.length === 2) return 'multiply_divide';
     return ops[0] as Operation;
   };
   
@@ -431,6 +446,33 @@ export function PetCareHome({
               </svg>
               <span className="text-[9px] md:text-[10px] font-extrabold text-white drop-shadow block leading-tight">משחק<br/>בלונים</span>
             </button>
+
+            {/* Snake Game Icon */}
+            <button
+              onClick={() => setShowSnakeConfig(true)}
+              className="relative bg-gradient-to-br from-[hsl(100_45%_55%)] to-[hsl(145_50%_40%)] rounded-2xl p-3 shadow-card text-center hover:scale-105 transition-all group overflow-visible"
+            >
+              <svg width="48" height="56" viewBox="0 0 100 120" className="mx-auto mb-1 drop-shadow-md md:w-[56px] md:h-[64px]">
+                {/* Snake body */}
+                <path d="M20 90 Q20 60 40 50 Q60 40 60 20 Q60 10 70 10 Q80 10 80 20" 
+                      fill="none" stroke="hsl(145 60% 45%)" strokeWidth="12" strokeLinecap="round" />
+                <path d="M20 90 Q20 60 40 50 Q60 40 60 20 Q60 10 70 10 Q80 10 80 20" 
+                      fill="none" stroke="hsl(145 70% 55%)" strokeWidth="8" strokeLinecap="round" />
+                {/* Snake head */}
+                <circle cx="80" cy="18" r="10" fill="hsl(145 70% 45%)" />
+                <circle cx="77" cy="14" r="3" fill="white" />
+                <circle cx="77" cy="14" r="1.5" fill="hsl(var(--foreground))" />
+                <circle cx="84" cy="14" r="3" fill="white" />
+                <circle cx="84" cy="14" r="1.5" fill="hsl(var(--foreground))" />
+                {/* Tongue */}
+                <path d="M88 20 L96 18 M96 18 L98 14 M96 18 L98 22" stroke="hsl(340 80% 55%)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Food items around */}
+                <text x="15" y="40" fontSize="16">🍎</text>
+                <text x="45" y="100" fontSize="14">🌰</text>
+                <text x="75" y="70" fontSize="12">⭐</text>
+              </svg>
+              <span className="text-[9px] md:text-[10px] font-extrabold text-white drop-shadow block leading-tight">נחש<br/>החשבון</span>
+            </button>
           </div>
         </div>
 
@@ -537,6 +579,112 @@ export function PetCareHome({
                 className="w-full bg-gradient-to-r from-candy to-secondary text-white font-extrabold text-lg py-3 rounded-full shadow-candy hover:scale-105 transition-all disabled:opacity-50"
               >
                 🎈 יאללה, בואו נשחק!
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Snake Config Modal */}
+        {showSnakeConfig && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" dir="rtl" onClick={() => setShowSnakeConfig(false)}>
+            <div className="bg-card rounded-3xl p-5 shadow-card max-w-sm w-full space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <h2 className="text-xl font-extrabold text-center">🐍 נחש החשבון</h2>
+              
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">סמן פעולות:</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {([
+                    { op: 'multiply', label: 'כפל', emoji: '✖️', color: 'hsl(145 60% 55%)' },
+                    { op: 'divide', label: 'חילוק', emoji: '➗', color: 'hsl(200 80% 60%)' },
+                    { op: 'add', label: 'חיבור', emoji: '➕', color: 'hsl(45 90% 60%)' },
+                    { op: 'subtract', label: 'חיסור', emoji: '➖', color: 'hsl(340 80% 65%)' },
+                  ]).map(({ op, label, emoji, color }) => {
+                    const selected = snakeOps.has(op);
+                    return (
+                      <button
+                        key={op}
+                        onClick={() => toggleSnakeOp(op)}
+                        style={{ borderColor: selected ? color : undefined, backgroundColor: selected ? `${color.replace(')', ' / 0.15)')}` : undefined }}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all relative ${
+                          selected ? 'scale-105 shadow-md' : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        {selected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        )}
+                        <span className="text-xl">{emoji}</span>
+                        <span className="text-[11px] font-bold">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-center">מספרים:</p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => { setSnakeAllNumbers(true); setSnakeNumbers([]); }}
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
+                      snakeAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    כל המספרים 🎲
+                  </button>
+                  <button
+                    onClick={() => setSnakeAllNumbers(false)}
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-all ${
+                      !snakeAllNumbers ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                  >
+                    בחירה ידנית ✏️
+                  </button>
+                </div>
+
+                {!snakeAllNumbers && (
+                  <div className="grid grid-cols-6 gap-2 mt-2">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(n => {
+                      const selected = snakeNumbers.includes(n);
+                      const iceColors = [
+                        'hsl(340 80% 75%)', 'hsl(30 90% 70%)', 'hsl(50 90% 70%)',
+                        'hsl(145 60% 65%)', 'hsl(200 80% 70%)', 'hsl(280 60% 75%)',
+                        'hsl(10 80% 72%)', 'hsl(170 60% 65%)', 'hsl(320 70% 75%)',
+                        'hsl(45 85% 72%)', 'hsl(220 70% 72%)', 'hsl(0 75% 72%)',
+                      ];
+                      return (
+                        <button
+                          key={n}
+                          onClick={() => setSnakeNumbers(prev => 
+                            prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]
+                          )}
+                          style={{ backgroundColor: selected ? iceColors[n - 1] : undefined }}
+                          className={`w-9 h-9 rounded-full border-2 font-extrabold text-base transition-all ${
+                            selected ? 'text-white border-transparent scale-110 shadow-lg' : 'border-border'
+                          }`}
+                        >
+                          {n}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  const nums = snakeAllNumbers 
+                    ? Array.from({ length: 10 }, (_, i) => i + 1) 
+                    : snakeNumbers;
+                  if (nums.length === 0) return;
+                  setShowSnakeConfig(false);
+                  onStartSnakeGame({ operation: getResolvedSnakeOperation(), selectedNumbers: nums });
+                }}
+                disabled={!snakeAllNumbers && snakeNumbers.length === 0}
+                className="w-full bg-gradient-to-r from-[hsl(100_45%_55%)] to-[hsl(145_50%_40%)] text-white font-extrabold text-lg py-3 rounded-full shadow-card hover:scale-105 transition-all disabled:opacity-50"
+              >
+                🐍 יאללה, בואו נשחק!
               </button>
             </div>
           </div>
