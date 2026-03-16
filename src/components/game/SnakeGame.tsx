@@ -172,8 +172,8 @@ export function SnakeGame({
       if (showIntro) { setShowIntro(false); setPaused(false); return; }
       const map: Record<string, Direction> = {
         ArrowUp: 'up', ArrowDown: 'down',
-        ArrowLeft: 'left', ArrowRight: 'right',
-        w: 'up', s: 'down', a: 'left', d: 'right',
+        ArrowLeft: 'right', ArrowRight: 'left',
+        w: 'up', s: 'down', a: 'right', d: 'left',
       };
       const dir = map[e.key];
       if (!dir) return;
