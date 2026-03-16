@@ -172,8 +172,8 @@ export function SnakeGame({
       if (showIntro) { setShowIntro(false); setPaused(false); return; }
       const map: Record<string, Direction> = {
         ArrowUp: 'up', ArrowDown: 'down',
-        ArrowLeft: 'left', ArrowRight: 'right',
-        w: 'up', s: 'down', a: 'left', d: 'right',
+        ArrowLeft: 'right', ArrowRight: 'left',
+        w: 'up', s: 'down', a: 'right', d: 'left',
       };
       const dir = map[e.key];
       if (!dir) return;
@@ -599,21 +599,21 @@ export function SnakeGame({
           >
             ▼
           </button>
-          {/* Left */}
-          <button
-            type="button"
-            onClick={() => handleDirClick('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
-            aria-label="שמאלה"
-          >
-            ◄
-          </button>
-          {/* Right */}
+          {/* Left (visually on right in RTL) */}
           <button
             type="button"
             onClick={() => handleDirClick('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
             aria-label="ימינה"
+          >
+            ◄
+          </button>
+          {/* Right (visually on left in RTL) */}
+          <button
+            type="button"
+            onClick={() => handleDirClick('left')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 bg-card/90 backdrop-blur-sm rounded-2xl shadow-card border-2 border-border flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform touch-manipulation"
+            aria-label="שמאלה"
           >
             ►
           </button>
