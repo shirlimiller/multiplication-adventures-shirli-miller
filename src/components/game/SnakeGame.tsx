@@ -45,7 +45,10 @@ const MIN_TICK_MS = 270;
 const MAX_TICK_MS = 960;
 
 function generateQuestion(selectedNumbers: number[], operation: Operation, rangeMin: number, rangeMax: number): Question {
-  const result = generateQuestionForOperation({ operation, selectedNumbers, rangeMin, rangeMax });
+  // Filter out trivial multiplications by 1 or 10
+  const filteredMin = Math.max(rangeMin, 2);
+  const filteredMax = rangeMax === 10 ? 9 : rangeMax;
+  const result = generateQuestionForOperation({ operation, selectedNumbers, rangeMin: filteredMin, rangeMax: filteredMax });
   const op = result.actualOperation;
   const symbol = getOperationSymbol(op);
   const text = (op === 'divide' || op === 'subtract')
