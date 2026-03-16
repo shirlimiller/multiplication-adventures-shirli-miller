@@ -92,7 +92,7 @@ export function SnakeGame({
   clothing,
 }: SnakeGameProps) {
   const [snake, setSnake] = useState<Position[]>([
-    { x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 },
+    { x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 },
   ]);
   const [direction, setDirection] = useState<Direction>('right');
   const [question, setQuestion] = useState<Question>(() => generateQuestion(selectedNumbers, operation, rangeMin, rangeMax));
