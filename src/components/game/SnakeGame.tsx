@@ -36,8 +36,8 @@ interface Question {
 }
 
 // Denser grid — smaller cells, more room to maneuver
-const GRID_W = 32;
-const GRID_H = 24;
+const GRID_W = 38;
+const GRID_H = 28;
 
 // Speed: ~3x slower (Nokia-style), then progressive difficulty
 const BASE_TICK_MS = 780;
@@ -45,7 +45,10 @@ const MIN_TICK_MS = 270;
 const MAX_TICK_MS = 960;
 
 function generateQuestion(selectedNumbers: number[], operation: Operation, rangeMin: number, rangeMax: number): Question {
-  const result = generateQuestionForOperation({ operation, selectedNumbers, rangeMin, rangeMax });
+  // Filter out trivial multiplications by 1 or 10
+  const filteredMin = Math.max(rangeMin, 2);
+  const filteredMax = rangeMax === 10 ? 9 : rangeMax;
+  const result = generateQuestionForOperation({ operation, selectedNumbers, rangeMin: filteredMin, rangeMax: filteredMax });
   const op = result.actualOperation;
   const symbol = getOperationSymbol(op);
   const text = (op === 'divide' || op === 'subtract')
@@ -89,7 +92,7 @@ export function SnakeGame({
   clothing,
 }: SnakeGameProps) {
   const [snake, setSnake] = useState<Position[]>([
-    { x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 },
+    { x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 },
   ]);
   const [direction, setDirection] = useState<Direction>('right');
   const [question, setQuestion] = useState<Question>(() => generateQuestion(selectedNumbers, operation, rangeMin, rangeMax));
@@ -368,7 +371,7 @@ export function SnakeGame({
           <button
             onClick={() => {
               setGameOver(false);
-              setSnake([{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              setSnake([{ x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 }]);
               setDirection('right');
               dirRef.current = 'right';
               directionQueueRef.current = [];
@@ -380,7 +383,7 @@ export function SnakeGame({
               setTickMs(BASE_TICK_MS);
               const q = generateQuestion(selectedNumbers, operation, rangeMin, rangeMax);
               setQuestion(q);
-              spawnFoods(q, [{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              spawnFoods(q, [{ x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 }]);
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
           >
