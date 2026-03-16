@@ -36,8 +36,8 @@ interface Question {
 }
 
 // Denser grid — smaller cells, more room to maneuver
-const GRID_W = 32;
-const GRID_H = 24;
+const GRID_W = 38;
+const GRID_H = 28;
 
 // Speed: ~3x slower (Nokia-style), then progressive difficulty
 const BASE_TICK_MS = 780;
