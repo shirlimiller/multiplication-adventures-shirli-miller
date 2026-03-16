@@ -371,7 +371,7 @@ export function SnakeGame({
           <button
             onClick={() => {
               setGameOver(false);
-              setSnake([{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              setSnake([{ x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 }]);
               setDirection('right');
               dirRef.current = 'right';
               directionQueueRef.current = [];
@@ -383,7 +383,7 @@ export function SnakeGame({
               setTickMs(BASE_TICK_MS);
               const q = generateQuestion(selectedNumbers, operation, rangeMin, rangeMax);
               setQuestion(q);
-              spawnFoods(q, [{ x: 16, y: 12 }, { x: 15, y: 12 }, { x: 14, y: 12 }]);
+              spawnFoods(q, [{ x: 19, y: 14 }, { x: 18, y: 14 }, { x: 17, y: 14 }]);
             }}
             className="bg-primary text-primary-foreground font-bold text-xl px-8 py-4 rounded-full shadow-card hover:scale-105 transition-transform"
           >
