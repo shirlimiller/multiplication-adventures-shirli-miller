@@ -289,14 +289,18 @@ export function SnakeGame({
       if (eatenFood) {
         if (eatenFood.isCorrect) {
           playCorrectFast();
-          setTickMs(prev => Math.max(MIN_TICK_MS, prev - 45));
           // Grow: add 2 segments (don't remove tail + add head = +1, plus keep 1 more)
           const grown = [head, ...currentSnake]; // already +1 from head, keep tail
           setSnake(grown);
           setScore(grown.length);
           setMaxScore(prev => Math.max(prev, grown.length));
           setStars(s => s + 2);
-          setCorrectCount(c => c + 1);
+          setCorrectCount(c => {
+            const next = c + 1;
+            // Update tick speed based on new correct count (level + interpolation)
+            setTickMs(tickForCorrectCount(next));
+            return next;
+          });
           setFeedback({ type: 'correct', pos: head });
           setTimeout(() => setFeedback(null), 800);
 
@@ -315,8 +319,7 @@ export function SnakeGame({
           ate = true;
         } else {
           playIncorrect();
-          setTickMs(prev => Math.min(MAX_TICK_MS, prev + 45));
-          // Shrink: remove 1 segment
+          // Shrink: remove 1 segment (no speed penalty — speed is tied to level only)
           const shrunk = newSnake.slice(0, -2); // remove tail twice (head added + remove 2 = net -1)
           if (shrunk.length < 2) {
             setGameOver(true);
