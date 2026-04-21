@@ -53,7 +53,7 @@ const SPEED_LEVELS: Array<[number, number]> = [
   [100, 80],  // Level 8
   [80, 50],   // Level 9 — fastest
 ];
-const ANSWERS_PER_LEVEL = 5;
+const ANSWERS_PER_LEVEL = 3;
 const BASE_TICK_MS = SPEED_LEVELS[0][0];
 
 function tickForCorrectCount(correct: number): number {
