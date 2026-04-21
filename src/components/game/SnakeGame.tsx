@@ -39,10 +39,31 @@ interface Question {
 const GRID_W = 38;
 const GRID_H = 28;
 
-// Speed: ~3x slower (Nokia-style), then progressive difficulty
-const BASE_TICK_MS = 780;
-const MIN_TICK_MS = 270;
-const MAX_TICK_MS = 960;
+// Speed levels (classic Snake feel). Each level = a [slowStart, fastEnd] range in ms.
+// Player advances 1 level every 5 correct answers; within a level, speed
+// interpolates gradually from slowStart -> fastEnd across the 5 answers.
+const SPEED_LEVELS: Array<[number, number]> = [
+  [300, 250], // Level 1 — easiest
+  [250, 220], // Level 2
+  [220, 190], // Level 3
+  [190, 165], // Level 4
+  [165, 140], // Level 5 — medium
+  [140, 120], // Level 6
+  [120, 100], // Level 7
+  [100, 80],  // Level 8
+  [80, 50],   // Level 9 — fastest
+];
+const ANSWERS_PER_LEVEL = 5;
+const BASE_TICK_MS = SPEED_LEVELS[0][0];
+
+function tickForCorrectCount(correct: number): number {
+  const levelIdx = Math.min(SPEED_LEVELS.length - 1, Math.floor(correct / ANSWERS_PER_LEVEL));
+  const [slow, fast] = SPEED_LEVELS[levelIdx];
+  const within = correct % ANSWERS_PER_LEVEL; // 0..4
+  // Interpolate: at within=0 -> slow, at within=ANSWERS_PER_LEVEL-1 -> fast
+  const t = ANSWERS_PER_LEVEL <= 1 ? 1 : within / (ANSWERS_PER_LEVEL - 1);
+  return Math.round(slow + (fast - slow) * t);
+}
 
 function generateQuestion(selectedNumbers: number[], operation: Operation, rangeMin: number, rangeMax: number): Question {
   // Filter out trivial multiplications by 1 or 10
@@ -268,14 +289,18 @@ export function SnakeGame({
       if (eatenFood) {
         if (eatenFood.isCorrect) {
           playCorrectFast();
-          setTickMs(prev => Math.max(MIN_TICK_MS, prev - 45));
           // Grow: add 2 segments (don't remove tail + add head = +1, plus keep 1 more)
           const grown = [head, ...currentSnake]; // already +1 from head, keep tail
           setSnake(grown);
           setScore(grown.length);
           setMaxScore(prev => Math.max(prev, grown.length));
           setStars(s => s + 2);
-          setCorrectCount(c => c + 1);
+          setCorrectCount(c => {
+            const next = c + 1;
+            // Update tick speed based on new correct count (level + interpolation)
+            setTickMs(tickForCorrectCount(next));
+            return next;
+          });
           setFeedback({ type: 'correct', pos: head });
           setTimeout(() => setFeedback(null), 800);
 
@@ -294,8 +319,7 @@ export function SnakeGame({
           ate = true;
         } else {
           playIncorrect();
-          setTickMs(prev => Math.min(MAX_TICK_MS, prev + 45));
-          // Shrink: remove 1 segment
+          // Shrink: remove 1 segment (no speed penalty — speed is tied to level only)
           const shrunk = newSnake.slice(0, -2); // remove tail twice (head added + remove 2 = net -1)
           if (shrunk.length < 2) {
             setGameOver(true);
