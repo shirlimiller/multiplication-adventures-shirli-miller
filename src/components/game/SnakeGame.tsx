@@ -489,6 +489,14 @@ export function SnakeGame({
               {Math.max(highScore, maxScore)}
             </span>
           </div>
+          <div className="w-full h-px bg-border" />
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[10px] font-bold">מהירות</span>
+            <span className="text-sm font-extrabold text-primary">
+              {Math.min(SPEED_LEVELS.length, Math.floor(correctCount / ANSWERS_PER_LEVEL) + 1)}
+              <span className="text-[9px] text-muted-foreground">/9</span>
+            </span>
+          </div>
         </div>
       </div>
 
