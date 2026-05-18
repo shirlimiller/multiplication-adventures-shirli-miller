@@ -9,6 +9,7 @@ import { BossChallenge } from '@/components/game/BossChallenge';
 import { BalloonGame } from '@/components/game/BalloonGame';
 import { SnakeGame } from '@/components/game/SnakeGame';
 import { BackButton } from '@/components/game/BackButton';
+import { InstallAppPrompt } from '@/components/game/InstallAppPrompt';
 import { 
   GameState, 
   INITIAL_STATE, 
@@ -277,6 +278,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-village-map flex flex-col relative">
+      <InstallAppPrompt />
       {currentScreen === 'welcome' && <WelcomeScreen onStart={handleStart} />}
 
       {currentScreen === 'profiles' && (
